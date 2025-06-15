@@ -1,0 +1,10 @@
+{
+"SpaProxyServer": {
+"ServerUrl": "https://localhost:60125",
+"RedirectUrl": "",
+"LaunchCommand": "npm start",
+"WorkingDirectory": "C:\\Users\\footb\\Repos\\PoolLeaderboard\\PoolLeaderboard.Server\\..\\poolleaderboard.client",
+"MaxTimeoutInSeconds": "120",
+"KeepRunning": "false"
+}
+}
