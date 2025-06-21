@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "Launch All",
+    "Projects": [
+      {
+        "Path": "poolleaderboard.client\\poolleaderboard.client.esproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "PoolLeaderboard.Server\\PoolLeaderboard.Server.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
