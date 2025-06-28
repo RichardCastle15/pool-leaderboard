@@ -1,4 +1,4 @@
-﻿<h1 id="tableLabel">Weather forecast</h1>
+<h1 id="tableLabel">Weather forecast</h1>
 
 <p>This component demonstrates fetching data from the server.</p>
 
@@ -22,3 +22,5 @@
         </tr>
     </tbody>
 </table>
+
+<button [disabled]="!websocketReady()" (click)="sendMessage('testing')">Send example signalR message</button>
