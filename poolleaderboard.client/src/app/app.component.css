@@ -1,14 +1,35 @@
-﻿:host {
-    max-width: 1280px;
-    padding: 2rem;
-    text-align: center;
-}
-
 th, td {
-    padding-left: 1rem;
-    padding-right: 1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
 table {
-    margin: 0 auto;
+  margin: 0 auto 1rem;
+}
+
+::ng-deep nb-sidebar,
+::ng-deep nb-sidebar > div.main-container {
+  transition: width 0.3s ease-out;
+  overflow: hidden;
+}
+
+::ng-deep .menu-items .menu-item .menu-icon {
+    flex-shrink: 0;
+}
+
+::ng-deep .nb-theme-default nb-sidebar.compacted nb-menu .menu-item .menu-icon {
+  margin: 0px !important;
+}
+
+.toggle-sidebar-button {
+  margin-right: 1rem;
+}
+
+.sidebar-collapse-toggle {
+  transform: rotateY(0deg);
+  transition: transform 0.3s ease-out;
+}
+
+.sidebar-collapse-toggle.sidebar-collapse-toggle--expanded {
+  transform: rotateY(180deg);
 }

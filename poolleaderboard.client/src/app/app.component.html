@@ -1,26 +1,48 @@
-<h1 id="tableLabel">Weather forecast</h1>
+<nb-layout center>
+  <nb-layout-header>
+    @if (showCollpaseSidebar() || showExpandSidebar()) {
+    <button nbButton (click)="showCollpaseSidebar() ? collapseSidebar() : expandSidebar()" class="toggle-sidebar-button">
+      <nb-icon icon="menu-arrow-outline" class="sidebar-collapse-toggle" [class.sidebar-collapse-toggle--expanded]="showExpandSidebar()"></nb-icon>
+    </button>
+    }
+    Xceptor Pool Leaderboard
+  </nb-layout-header>
 
-<p>This component demonstrates fetching data from the server.</p>
+  <nb-sidebar #sidebar responsive (responsiveStateChange)="sidebarResponsiveChange($event)" [compactedBreakpoints]="['xs', 'is', 'sm', 'md']"
+              [state]="sidebarState()" (stateChange)="sidebarStateChange($event)">
+    <nb-menu [items]="items">
+    </nb-menu>
 
-<p *ngIf="!forecasts"><em>Loading... Please refresh once the ASP.NET backend has started. See <a href="https://aka.ms/jspsintegrationangular">https://aka.ms/jspsintegrationangular</a> for more details.</em></p>
+  </nb-sidebar>
 
-<table *ngIf="forecasts">
-    <thead>
+  <nb-layout-column>
+
+    <h1 id="tableLabel">Weather forecast</h1>
+
+    <p>This component demonstrates fetching data from the server.</p>
+
+    <p *ngIf="!forecasts"><em>Loading... Please refresh once the ASP.NET backend has started. See <a href="https://aka.ms/jspsintegrationangular">https://aka.ms/jspsintegrationangular</a> for more details.</em></p>
+
+    <table *ngIf="forecasts">
+      <thead>
         <tr>
-            <th>Date</th>
-            <th>Temp. (C)</th>
-            <th>Temp. (F)</th>
-            <th>Summary</th>
+          <th>Date</th>
+          <th>Temp. (C)</th>
+          <th>Temp. (F)</th>
+          <th>Summary</th>
         </tr>
-    </thead>
-    <tbody>
+      </thead>
+      <tbody>
         <tr *ngFor="let forecast of forecasts">
-            <td>{{ forecast.date }}</td>
-            <td>{{ forecast.temperatureC }}</td>
-            <td>{{ forecast.temperatureF }}</td>
-            <td>{{ forecast.summary }}</td>
+          <td>{{ forecast.date }}</td>
+          <td>{{ forecast.temperatureC }}</td>
+          <td>{{ forecast.temperatureF }}</td>
+          <td>{{ forecast.summary }}</td>
         </tr>
-    </tbody>
-</table>
+      </tbody>
+    </table>
 
-<button [disabled]="!websocketReady()" (click)="sendMessage('testing')">Send example signalR message</button>
+    <button nbButton [disabled]="!websocketReady()" (click)="sendMessage('testing')">Send example signalR message</button>
+  </nb-layout-column>
+</nb-layout>
+

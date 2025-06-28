@@ -12,6 +12,14 @@ The frontend connects to the backend via a proxy while developing. This allows t
 
 A new backend endpoint needs to be added to prox.conf.js to be useable by the frontend while developing. This may require you to stop and start the debugging process.
 
+### Component library
+
+This project uses the Nebular component library for the frontend: https://akveo.github.io/nebular/docs/components/components-overview.
+
+### Icons
+
+The icon pack used is: https://akveo.github.io/eva-icons
+
 ### Troubleshooting
 
 Within Docker Desktop, it will say which ports are mapped from the container to your local machine, in a format like: 32769:8081. The means your machines 32769 port is mapped to the containers 8081 port, which servers the HTTPS backend. Your local machine port needs to be referenced in the proxy.conf.js file, which it should be by default, but worth checking if there are issues. Making changes to the proxy file will require you to stop debugging and start again.
