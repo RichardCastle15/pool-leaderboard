@@ -9,7 +9,7 @@
       {
         "Path": "PoolLeaderboard.Server\\PoolLeaderboard.Server.csproj",
         "Action": "Start",
-        "DebugTarget": "https"
+        "DebugTarget": "Container (Dockerfile)"
       }
     ]
   }
