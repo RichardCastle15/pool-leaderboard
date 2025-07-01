@@ -21,7 +21,7 @@ export class AppComponent implements OnInit {
   public forecasts?: WeatherForecast[];
   websocketReady = signal(false);
   sidebarState = signal<NbSidebarState>('collapsed');
-  sidebarResponsiveState = signal<NbSidebarResponsiveState>('mobile');
+  sidebarResponsiveState = signal<NbSidebarResponsiveState | undefined>(undefined);
   showCollpaseSidebar = computed<boolean>(() => {
     const variableSidebarScreen = this.sidebarResponsiveState() === 'mobile' || this.sidebarResponsiveState() === 'tablet';
     return variableSidebarScreen && this.sidebarState() === 'expanded';
@@ -76,6 +76,22 @@ export class AppComponent implements OnInit {
 
   sidebarStateChange(event: NbSidebarState) {
     this.sidebarState.set(event);
+    // Responsive state is not emit on initialisation, so set it if it's currently undefined.
+    if (!this.sidebarResponsiveState()) {
+      switch (event) {
+        case 'expanded':
+          this.sidebarResponsiveState.set('pc');
+          break;
+        case 'collapsed':
+          this.sidebarResponsiveState.set('mobile');
+          break;
+        case 'compacted':
+          this.sidebarResponsiveState.set('mobile');
+          break;
+        default:
+          throw new Error(`Recieved unexpected sidebar state: ${event}`);
+      }
+    }
   }
 
   sidebarResponsiveChange(event: NbSidebarResponsiveState) {
