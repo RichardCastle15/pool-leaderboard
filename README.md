@@ -8,6 +8,10 @@ While developing, the backend runs in a docker container. To use this, you will 
 
 The frontend connects to the backend via a proxy while developing. This allows the use of the Angular developer server, while the proxy tricks the browser into allowing CORS requests to the backend by giving the appearance the frontend and backend are on the same port. A production deployment will not need this proxy, as it will server both the front and back end.
 
+### .net version
+
+This project uses .net 10, which is currently in preview. You must download the .net 10 preview sdk. You must also enable this setting in Visual Studio: Tools > Options > Preview Features > Use previews of the .NET SDK
+
 ### Adding a new backend endpoint.
 
 A new backend endpoint needs to be added to prox.conf.js to be useable by the frontend while developing. This may require you to stop and start the debugging process.
@@ -22,4 +26,4 @@ The icon pack used is: https://akveo.github.io/eva-icons
 
 ### Troubleshooting
 
-Within Docker Desktop, it will say which ports are mapped from the container to your local machine, in a format like: 32769:8081. The means your machines 32769 port is mapped to the containers 8081 port, which servers the HTTPS backend. Your local machine port needs to be referenced in the proxy.conf.js file, which it should be by default, but worth checking if there are issues. Making changes to the proxy file will require you to stop debugging and start again.
+Within Docker Desktop, it will say which ports are mapped from the container to your local machine, in a format like: 32769:8081. The means your machines 32769 port is mapped to the containers 8081 port, which servers the HTTPS backend. Your local machine port needs to be referenced in the proxy.conf.js file, which it should be by default, but worth checking if there are issues. Making changes to the proxy file will require you to stop debugging and start again. Usually, restarting your machine gets docker back to binding to port 32769 for HTTPS.
