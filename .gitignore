@@ -1,1 +1,8 @@
 .vs/
+/poolleaderboard.client/poolleaderboard.client.esproj.user
+/PoolLeaderboard.Database/bin/Debug
+/PoolLeaderboard.Database/obj/Debug
+/PoolLeaderboard.Database/PoolLeaderboard.Database.sqlproj.user
+/PoolLeaderboard.Server/PoolLeaderboard.Server.csproj.user
+/PoolLeaderboard.Database/PoolLeaderboard.Database.dbmdl
+/PoolLeaderboard.Database/PoolLeaderboard.Database.jfm
