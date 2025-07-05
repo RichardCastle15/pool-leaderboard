@@ -19,19 +19,27 @@ namespace PoolLeaderboard.Server.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public IEnumerable<LeaderboardEntry> Get()
+        public List<LeaderboardEntry> Get()
         {
-            var connection = this.dbConnectionFactory.CreateConnection();
-            connection.Open();
-            var command = connection.CreateCommand();
-            command.CommandText = "select * from Ratings";
-            using var reader = command.ExecuteReader();
-            while (reader.Read())
+            var leaderboardEntries = new List<LeaderboardEntry>();
+            using (var connection = this.dbConnectionFactory.CreateConnection())
             {
-                string name = (string)reader["Name"];
-                short rating = (short)reader["Rating"];
-                yield return new LeaderboardEntry { Name = name, Rating = rating };
+                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "select * from Ratings";
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string name = (string)reader["Name"];
+                            short rating = (short)reader["Rating"];
+                            leaderboardEntries.Add(new LeaderboardEntry { Name = name, Rating = rating });
+                        }
+                    }
+                }
             }
+            return leaderboardEntries;
         }
     }
 
