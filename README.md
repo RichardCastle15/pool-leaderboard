@@ -52,9 +52,12 @@ ALTER ROLE db_owner ADD MEMBER myappuser;  -- Or more restrictive permissions
 
 Configure SQL Server Network Access:
 
-- SQL Server Configuration Manager:
-  - Enable TCP/IP for SQLEXPRESS
-  - Set TCP port to 1433 (In configuration manager, right-click on TCP/IP, "properties", "IP Address", set "IPAll" to 1433)
+- Open SQL Server Configuration Manager
+- Navigate to SQL Server Network Configuration > Protocols for SQLEXPRESS
+- Ensure TCP/IP is Enabled (this is often disabled by default)
+- Right-click TCP/IP > Properties > IP Addresses tab
+- Scroll to IPAll section and ensure TCP Port is set to 1433 (or note the port number)
+- Restart the SQL Server Express service after making changes
 
 You can then use a connection string like: `Server=host.docker.internal,1433;Database=PoolLeaderboard;User Id=myappuser;Password=YourStrongPassword123!;TrustServerCertificate=True;`
 
