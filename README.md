@@ -12,6 +12,10 @@ The frontend connects to the backend via a proxy while developing. This allows t
 
 This project uses .net 10, which is currently in preview. You must download the .net 10 preview sdk. You must also enable this setting in Visual Studio: Tools > Options > Preview Features > Use previews of the .NET SDK
 
+### Seeing changes
+
+There are 2 main project: `poolleaderboard.client` (frontend) and `PoolLeaderboard.Server` (backend). Changes in the frontend should be applied automatically (it will also refresh the browser). Changes in the backend (while debugging) require you to press the "hot reload" button in Visual Studio to take effect.
+
 ### Adding a new backend endpoint.
 
 A new backend endpoint needs to be added to prox.conf.js to be useable by the frontend while developing. This may require you to stop and start the debugging process.
