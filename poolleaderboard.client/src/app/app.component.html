@@ -1,5 +1,5 @@
-<nb-layout center>
-  <nb-layout-header>
+<nb-layout>
+  <nb-layout-header fixed>
     @if (showCollpaseSidebar() || showExpandSidebar()) {
     <button nbButton (click)="showCollpaseSidebar() ? collapseSidebar() : expandSidebar()" class="toggle-sidebar-button">
       <nb-icon icon="menu-arrow-outline" class="sidebar-collapse-toggle" [class.sidebar-collapse-toggle--expanded]="showExpandSidebar()"></nb-icon>
