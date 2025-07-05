@@ -12,13 +12,59 @@ The frontend connects to the backend via a proxy while developing. This allows t
 
 This project uses .net 10, which is currently in preview. You must download the .net 10 preview sdk. You must also enable this setting in Visual Studio: Tools > Options > Preview Features > Use previews of the .NET SDK
 
+### Database
+
+I recommend using SQL Server Management Studio and SQL Server Express. Both downloadable from the internet.
+
+The database files are stored in a SQL project. This builds to a .dacpac file. You must create your database from this file (not manually through the SSMS UI).
+
+To create your database from this file: 
+
+- Build the SQL project. That creates a .dacpac file in `PoolLeaderboard.Database\bin\Debug`
+- Open SSMS and connect to your SQL Server instance
+- Right-click on "Databases" in Object Explorer
+- Select "Deploy Data-tier Application..."
+- Follow the wizard, importing the .dacpac file from above. I recommend naming the database PoolLeaderboard rather than the default PoolLeaderboard.Database.
+
+To update your database from this file (you must have created it from a previous version of this file):
+
+- Right-click on the database in SSMS
+- Click "Tasks" > "Upgrade Data-Tier Application"
+- Follow the wizard. Point it to the .dacpac file that has been built from the SQL project.
+
+#### Connecting to the database when using a containerised backend.
+
+Normally when developing against a database, you'd use windows authentication to connect. However, that's not possible with the backend running in a container. So you need to use a connection string with a username and password by following these instructions:
+
+Enable Mixed Mode in SQL Server:
+- SSMS > right-click server > Properties > Security
+- Select "SQL Server and Windows Authentication mode"
+- Restart SQL Server service
+
+Create a SQL login:
+
+```SQL
+CREATE LOGIN myappuser WITH PASSWORD = 'YourStrongPassword123!';
+USE PoolLeaderboard;
+CREATE USER myappuser FOR LOGIN myappuser;
+ALTER ROLE db_owner ADD MEMBER myappuser;  -- Or more restrictive permissions
+```
+
+Configure SQL Server Network Access:
+
+- SQL Server Configuration Manager:
+  - Enable TCP/IP for SQLEXPRESS
+  - Set TCP port to 1433 (In configuration manager, right-click on TCP/IP, "properties", "IP Address", set "IPAll" to 1433)
+
+You can then use a connection string like: `Server=host.docker.internal,1433;Database=PoolLeaderboard;User Id=myappuser;Password=YourStrongPassword123!;TrustServerCertificate=True;`
+
 ### Seeing changes
 
 There are 2 main project: `poolleaderboard.client` (frontend) and `PoolLeaderboard.Server` (backend). Changes in the frontend should be applied automatically (it will also refresh the browser). Changes in the backend (while debugging) require you to press the "hot reload" button in Visual Studio to take effect.
 
 ### Adding a new backend endpoint.
 
-A new backend endpoint needs to be added to prox.conf.js to be useable by the frontend while developing. This may require you to stop and start the debugging process.
+A new backend endpoint needs to be added to `prox.conf.js` to be useable by the frontend while developing. By default, we forward all /api/ requests via the proxy. Changes to the proxy file may require you to stop and start the debugging process.
 
 ### Component library
 
