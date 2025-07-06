@@ -14,7 +14,7 @@ interface WeatherForecast {
   selector: 'app-root',
   templateUrl: './app.component.html',
   standalone: false,
-  styleUrl: './app.component.css',
+  styleUrl: './app.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent implements OnInit {

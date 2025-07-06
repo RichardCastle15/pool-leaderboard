@@ -7,13 +7,11 @@
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
-          "standalone": false
+          "style": "scss"
         },
         "@schematics/angular:directive": {
-          "standalone": false
         },
         "@schematics/angular:pipe": {
-          "standalone": false
         }
       },
       "root": "",
@@ -37,7 +35,7 @@
               }
             ],
             "styles": [
-              "src/styles.css",
+              "src/styles.scss",
               "node_modules/@nebular/theme/styles/prebuilt/default.css"
             ],
             "scripts": []
@@ -106,7 +104,7 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.scss"
             ],
             "scripts": [],
             "karmaConfig": "karma.conf.js"
