@@ -1,12 +1,7 @@
 import { Component, computed } from '@angular/core';
 import { NbCardModule, NbTreeGridModule } from '@nebular/theme';
 import { LeaderboardEntryRow } from './leaderboard-entry-row.model';
-
-interface TreeNode<T> {
-  data: T;
-  children?: TreeNode<T>[];
-  expanded?: boolean;
-}
+import { TreeNode } from './tree-node.model';
 
 @Component({
   selector: 'app-leaderboard',
@@ -109,6 +104,27 @@ export class LeaderboardComponent {
         children: [
           { data: { name: 'Head-To-Head', points: 1083, rank: 13 } },
           { data: { name: 'Killer', points: -10, rank: 5 } },
+        ]
+      },
+      {
+        data: { id: 14, name: 'Chris S', points: 1069, rank: 14 },
+        children: [
+          { data: { name: 'Head-To-Head', points: 1079, rank: 14 } },
+          { data: { name: 'Killer', points: -10, rank: 5 } },
+        ]
+      },
+      {
+        data: { id: 15, name: 'Dan', points: 1067, rank: 15 },
+        children: [
+          { data: { name: 'Head-To-Head', points: 1077, rank: 15 } },
+          { data: { name: 'Killer', points: -10, rank: 5 } },
+        ]
+      },
+      {
+        data: { id: 16, name: 'James S', points: 240, rank: 16 },
+        children: [
+          { data: { name: 'Head-To-Head', points: 1240, rank: 16 } },
+          { data: { name: 'Killer', points: -1000, rank: 16 } },
         ]
       },
     ]
