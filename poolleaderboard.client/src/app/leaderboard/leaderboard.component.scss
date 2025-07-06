@@ -4,6 +4,10 @@
   display: block;
   height: 100%;
 
+  table tr td {
+      cursor: pointer;
+  }
+
   .selected-row {
     background: nb-theme(color-primary-300);
   }
@@ -19,6 +23,17 @@
   .action-card {
     position: sticky;
     bottom: 0;
+
+    nb-action {
+        cursor: pointer;
+    }
+
+    .badge-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        padding: 0 5px;
+    }
   }
 }
 

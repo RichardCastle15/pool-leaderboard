@@ -30,7 +30,13 @@
   <nb-card-body>
     <nb-actions size="medium" fullWidth>
       <nb-action [disabled]="selectedIds().length !== 2"><nb-icon icon="people-outline"></nb-icon>@if(size() === 'full') { Record result }</nb-action>
-      <nb-action [disabled]="selectedIds().length === 0"><nb-icon icon="close-circle-outline"></nb-icon>@if(size() === 'full') { Start killer }</nb-action>
+      <nb-action [disabled]="selectedIds().length === 0">
+        <span class="badge-container">
+          <nb-icon icon="close-circle-outline"></nb-icon>
+          @if(size() === 'full') { Start killer }
+          <nb-badge text="{{selectedIds().length}}" status="info" position="top left"></nb-badge>
+        </span>
+      </nb-action>
       <nb-action><nb-icon icon="person-add-outline"></nb-icon>@if(size() === 'full') { Add someone }</nb-action>
     </nb-actions>
   </nb-card-body>
