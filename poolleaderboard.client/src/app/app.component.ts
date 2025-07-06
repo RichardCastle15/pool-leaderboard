@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
 import { HubConnectionBuilder, HubConnection, LogLevel } from "@microsoft/signalr";
 import { NbMenuItem, NbSidebarResponsiveState, NbSidebarState } from '@nebular/theme';
 import { environment } from '../environments/environment';
 import { NavigationEnd, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 interface WeatherForecast {
   date: string;
@@ -18,7 +19,7 @@ interface WeatherForecast {
   styleUrl: './app.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   public forecasts?: WeatherForecast[];
   websocketReady = signal(false);
   sidebarState = signal<NbSidebarState>('collapsed');
@@ -32,7 +33,6 @@ export class AppComponent implements OnInit {
     const tabletExpandable = this.sidebarResponsiveState() === 'tablet' && this.sidebarState() === 'compacted';
     return mobileExpandable || tabletExpandable;
   });
-  private connection!: HubConnection;
   items = signal<NbMenuItem[]>([
     {
       title: 'Leaderboard',
@@ -43,6 +43,9 @@ export class AppComponent implements OnInit {
       icon: 'close-circle-outline',
     },
   ]);
+
+  private subscriptions = new Subscription();
+  private connection!: HubConnection;
 
   constructor(private router: Router) {}
 
@@ -71,10 +74,15 @@ export class AppComponent implements OnInit {
       })
     }
 
-    this.router.events.subscribe(routerEvent => {
+    const routerSub = this.router.events.subscribe(routerEvent => {
       if (routerEvent instanceof NavigationEnd)
         this.collapseSidebar();
     });
+    this.subscriptions.add(routerSub);
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
   sendMessage(message: string) {
