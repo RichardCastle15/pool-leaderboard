@@ -63,6 +63,10 @@ Configure SQL Server Network Access:
 
 You can then use a connection string like: `Server=host.docker.internal,1433;Database=PoolLeaderboard;User Id=myappuser;Password=YourStrongPassword123!;TrustServerCertificate=True;`
 
+### Component showcase
+
+In the front end, the aim is to follow the presenter-container pattern. This splits components into 2 types: presenters, which have no business logic and communicate exclusively thought inputs/outputs; and containers, which coordinate presenters with business logic. The presenters will be displayed in a component showcase so you can see how they look in various states. This component showcase is added to the navigation bar when building the front end with a developement build.
+
 ### Seeing changes
 
 There are 2 main project: `poolleaderboard.client` (frontend) and `PoolLeaderboard.Server` (backend). Changes in the frontend should be applied automatically (it will also refresh the browser). Changes in the backend (while debugging) require you to press the "hot reload" button in Visual Studio to take effect.
