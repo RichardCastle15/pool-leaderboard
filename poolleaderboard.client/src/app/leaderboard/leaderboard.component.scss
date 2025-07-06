@@ -1,13 +1,27 @@
-.capitalize-first {
-  text-transform: capitalize;
-}
+:host {
+  display: block;
+  height: 100%;
 
-.extra-info {
+  .capitalize-first {
+    text-transform: capitalize;
+  }
+
+  .extra-info {
     font-style: italic;
+  }
+
+  .action-card {
+    position: sticky;
+    bottom: 0;
+  }
 }
 
 :host ::ng-deep {
   table.nb-tree-grid {
       table-layout: auto !important;
+  }
+
+  nb-card.action-card {
+      margin-bottom: 0px !important;
   }
 }
