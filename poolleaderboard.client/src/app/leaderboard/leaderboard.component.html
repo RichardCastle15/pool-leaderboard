@@ -1,1 +1,26 @@
-<p>leaderboard works!</p>
+<table [nbTreeGrid]="entries()">
+  <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns" class="capitalize-first"></tr>
+  <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
+
+  <ng-container [nbTreeGridColumnDef]="expandableColumn">
+    <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ expandableColumn }}</th>
+    <td nbTreeGridCell *nbTreeGridCellDef="let row" [class.extra-info]="!row.data.id">
+
+      @if(row.children && row.children.length > 0) {
+      <nb-tree-grid-row-toggle [expanded]="row.expanded">
+      </nb-tree-grid-row-toggle>
+      }
+
+      {{row.data.name}}
+
+    </td>
+  </ng-container>
+
+  @for(column of dataColumns; track column) {
+  <ng-container [nbTreeGridColumnDef]="column">
+    <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ column }}</th>
+    <td nbTreeGridCell *nbTreeGridCellDef="let row" [class.extra-info]="!row.data.id">{{row.data[column]}}</td>
+  </ng-container>
+  }
+
+</table>

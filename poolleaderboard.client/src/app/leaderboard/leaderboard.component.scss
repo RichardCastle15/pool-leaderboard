@@ -1,0 +1,13 @@
+.capitalize-first {
+  text-transform: capitalize;
+}
+
+.extra-info {
+    font-style: italic;
+}
+
+:host ::ng-deep {
+  table.nb-tree-grid {
+      table-layout: auto !important;
+  }
+}
