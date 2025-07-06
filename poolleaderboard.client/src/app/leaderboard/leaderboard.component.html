@@ -1,6 +1,7 @@
 <table [nbTreeGrid]="entries()">
   <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns" class="capitalize-first"></tr>
-  <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
+  <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns" [clickToToggle]="false" (click)="clickRow(row.data.id)"
+      [class.selected-row]="selectedIds().includes(row.data.id)"></tr>
 
   <ng-container [nbTreeGridColumnDef]="expandableColumn">
     <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ expandableColumn }}</th>

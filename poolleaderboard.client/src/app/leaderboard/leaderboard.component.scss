@@ -1,6 +1,12 @@
+@use '../../themes' as *;
+
 :host {
   display: block;
   height: 100%;
+
+  .selected-row {
+    background: nb-theme(color-primary-300);
+  }
 
   .capitalize-first {
     text-transform: capitalize;
