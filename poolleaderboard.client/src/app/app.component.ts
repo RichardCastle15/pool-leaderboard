@@ -72,6 +72,7 @@ export class AppComponent implements OnInit, OnDestroy {
               children: [
                 { title: 'Large', link: '/showcase/leaderboard/large' },
                 { title: 'Small', link: '/showcase/leaderboard/small' },
+                { title: 'Empty', link: '/showcase/leaderboard/empty' },
               ]
             }
           ]

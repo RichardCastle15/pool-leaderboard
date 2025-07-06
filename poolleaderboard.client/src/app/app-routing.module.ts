@@ -12,7 +12,8 @@ const developementRoutes: Routes = [
         path: 'leaderboard',
         children: [
           { path: 'large', loadComponent: () => import('./component-showcase/leaderboard/large-leaderboard-showcase.component').then(m => m.LargeLeaderboardShowcaseComponent) },
-          { path: 'small', loadComponent: () => import('./component-showcase/leaderboard/small-leaderboard-showcase.component').then(m => m.SmallLeaderboardShowcaseComponent) }
+          { path: 'small', loadComponent: () => import('./component-showcase/leaderboard/small-leaderboard-showcase.component').then(m => m.SmallLeaderboardShowcaseComponent) },
+          { path: 'empty', loadComponent: () => import('./component-showcase/leaderboard/empty-leaderboard-showcase.component').then(m => m.EmptyLeaderboardShowcaseComponent) },
         ]
       }
     ]
