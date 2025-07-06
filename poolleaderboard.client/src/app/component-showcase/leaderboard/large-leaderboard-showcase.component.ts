@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { LeaderboardComponent } from '../../leaderboard/leaderboard.component';
 
 @Component({
-  selector: 'app-leaderboard-showcase',
+  selector: 'app-large-leaderboard-showcase',
   imports: [LeaderboardComponent],
   template: `
     <app-leaderboard [entries]="data"></app-leaderboard>
