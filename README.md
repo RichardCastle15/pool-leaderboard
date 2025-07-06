@@ -53,6 +53,8 @@ ALTER ROLE db_owner ADD MEMBER myappuser;  -- Or more restrictive permissions
 Configure SQL Server Network Access:
 
 - Open SQL Server Configuration Manager
+> [!TIP]
+> To open SQL Server Configuration Manager, type SQLServerManager16.msc (for SQL Server 2022) in the Start Page. For other versions, replace 16 with the appropriate number.
 - Navigate to SQL Server Network Configuration > Protocols for SQLEXPRESS
 - Ensure TCP/IP is Enabled (this is often disabled by default)
 - Right-click TCP/IP > Properties > IP Addresses tab
