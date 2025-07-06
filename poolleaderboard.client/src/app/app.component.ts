@@ -1,7 +1,8 @@
-import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, OnInit, signal } from '@angular/core';
 import { HubConnectionBuilder, HubConnection, LogLevel } from "@microsoft/signalr";
 import { NbMenuItem, NbSidebarResponsiveState, NbSidebarState } from '@nebular/theme';
+import { environment } from '../environments/environment';
+import { NavigationEnd, Router } from '@angular/router';
 
 interface WeatherForecast {
   date: string;
@@ -32,7 +33,7 @@ export class AppComponent implements OnInit {
     return mobileExpandable || tabletExpandable;
   });
   private connection!: HubConnection;
-  items: NbMenuItem[] = [
+  items = signal<NbMenuItem[]>([
     {
       title: 'Leaderboard',
       icon: 'list-outline',
@@ -41,12 +42,11 @@ export class AppComponent implements OnInit {
       title: 'Killer',
       icon: 'close-circle-outline',
     },
-  ];
+  ]);
 
-  constructor(private http: HttpClient) {}
+  constructor(private router: Router) {}
 
   ngOnInit() {
-    this.getForecasts();
     this.connection = new HubConnectionBuilder().withUrl("/exampleHub").configureLogging(LogLevel.Debug).build();
     this.connection.on("ReceiveMessage", (message: string) => {
       console.debug({ message });
@@ -57,21 +57,28 @@ export class AppComponent implements OnInit {
         this.websocketReady.set(true);
       })
       .catch(console.error);
+
+    if (!environment.production) {
+      this.items.update(items => {
+        items.push({
+          title: 'Showcase',
+          icon: 'brush-outline',
+          children: [
+            { title: 'Leaderboard', link: '/showcase/leaderboard'}
+          ]
+        });
+        return items;
+      })
+    }
+
+    this.router.events.subscribe(routerEvent => {
+      if (routerEvent instanceof NavigationEnd)
+        this.collapseSidebar();
+    });
   }
 
   sendMessage(message: string) {
     this.connection.invoke("SendMessage", message).catch(console.error);
-  }
-
-  getForecasts() {
-    this.http.get<WeatherForecast[]>('/weatherforecast').subscribe(
-      (result) => {
-        this.forecasts = result;
-      },
-      (error) => {
-        console.error(error);
-      }
-    );
   }
 
   sidebarStateChange(event: NbSidebarState) {

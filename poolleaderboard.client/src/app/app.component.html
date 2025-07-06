@@ -10,7 +10,7 @@
 
   <nb-sidebar #sidebar responsive (responsiveStateChange)="sidebarResponsiveChange($event)" [compactedBreakpoints]="['xs', 'is', 'sm', 'md']"
               [state]="sidebarState()" (stateChange)="sidebarStateChange($event)">
-    <nb-menu [items]="items">
+    <nb-menu [items]="items()">
     </nb-menu>
 
   </nb-sidebar>
