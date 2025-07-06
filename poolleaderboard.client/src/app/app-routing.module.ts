@@ -4,7 +4,7 @@ import { environment } from '../environments/environment';
 
 const prodRoutes: Routes = [];
 
-const developementRoutes: Routes = [
+const developmentRoutes: Routes = [
   {
     path: 'showcase',
     children: [
@@ -22,7 +22,7 @@ const developementRoutes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(environment.production ? prodRoutes : [...prodRoutes, ...developementRoutes])],
+  imports: [RouterModule.forRoot(environment.production ? prodRoutes : [...prodRoutes, ...developmentRoutes])],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
