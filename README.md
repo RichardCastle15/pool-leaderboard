@@ -6,7 +6,7 @@ This project was originally generated with the default asp.net core and Angular 
 
 While developing, the backend runs in a docker container. To use this, you will need Docker Desktop (installable from the internet). When you open Visual Studio, Docker Desktop will automatically open and start the container. However, the container will not have a usable backend until you click the "Start" button in Visual Studio. This starts the front and back end. The frontend starts before the backend, so you will need to refresh the frontend on first startup (it will say this).
 
-The frontend connects to the backend via a proxy while developing. This allows the use of the Angular developer server, while the proxy tricks the browser into allowing CORS requests to the backend by giving the appearance the frontend and backend are on the same port. A production deployment will not need this proxy, as it will server both the front and back end.
+The frontend connects to the backend via a proxy while developing. This allows the use of the Angular developer server, while the proxy tricks the browser into allowing CORS requests to the backend by giving the appearance the frontend and backend are on the same port. A production deployment will not need this proxy, as the server will serve both the front and back end.
 
 ### .net version
 
@@ -16,7 +16,7 @@ This project uses .net 10, which is currently in preview. You must download the 
 
 I recommend using SQL Server Management Studio and SQL Server Express. Both downloadable from the internet.
 
-The database files are stored in a SQL project. This builds to a .dacpac file. You must create your database from this file (not manually through the SSMS UI).
+The database files are stored in a SQL project. This builds to a .dacpac file. You must create your database from this file.
 
 To create your database from this file: 
 
@@ -65,7 +65,7 @@ You can then use a connection string like: `Server=host.docker.internal,1433;Dat
 
 ### Seeing changes
 
-There are 2 main project: `poolleaderboard.client` (frontend) and `PoolLeaderboard.Server` (backend). Changes in the frontend should be applied automatically (it will also refresh the browser). Changes in the backend (while debugging) require you to press the "hot reload" button in Visual Studio to take effect.
+Clicking "Start" in Visual Studio should launch both front and back end. There are 2 main project: `poolleaderboard.client` (frontend) and `PoolLeaderboard.Server` (backend). Changes in the frontend while debugging should be applied automatically (it will also refresh the browser). Changes in the backend while debugging require you to press the "hot reload" button in Visual Studio to take effect.
 
 ### Adding a new backend endpoint.
 
