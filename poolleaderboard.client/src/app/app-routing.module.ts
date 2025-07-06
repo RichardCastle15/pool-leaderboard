@@ -10,7 +10,9 @@ const developementRoutes: Routes = [
     children: [
       {
         path: 'leaderboard',
-        loadComponent: () => import('./component-showcase/leaderboard/leaderboard-showcase.component').then(m => m.LeaderboardShowcaseComponent)
+        children: [
+          { path: 'large', loadComponent: () => import('./component-showcase/leaderboard/large-leaderboard-showcase.component').then(m => m.LargeLeaderboardShowcaseComponent) }
+        ]
       }
     ]
   }
