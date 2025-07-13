@@ -98,6 +98,13 @@ To push a new version of the latest docker image, first you need a PAT (classic)
 Then, you can run these commands in powershell to push a new image as the latest:
 
 ```powershell
+# Authenticate, if required.
 $env:CR_PAT = "YOUR_PAT"
 $env:CR_PAT | docker login ghcr.io -u YOUR_USER_NAME --password-stdin
+
+# Tag the image with the latest tag
+docker tag poolleaderboard ghcr.io/richardcastle15/poolleaderboard:latest
+
+# Push the image to github
+docker push ghcr.io/richardcastle15/poolleaderboard:latest
 ```
