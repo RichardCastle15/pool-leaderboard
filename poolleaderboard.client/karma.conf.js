@@ -34,11 +34,23 @@
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ['Chrome'],
+    browsers: [process.env.CI ? 'ChromeHeadlessCI' : 'Chrome'],
     singleRun: false,
     restartOnFileChange: true,
     listenAddress: 'localhost',
-    hostname: 'localhost'
+    hostname: 'localhost',
+    customLaunchers: {
+      ChromeHeadlessCI: {
+        base: 'ChromeHeadless',
+        flags: [
+          '--no-sandbox',             // Required in GitHub Actions
+          '--disable-gpu',
+          '--disable-dev-shm-usage',
+          '--disable-software-rasterizer',
+          '--headless',
+        ],
+      },
+    },
   });
 };
 

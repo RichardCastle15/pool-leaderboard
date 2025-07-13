@@ -29,7 +29,7 @@ jobs:
 
     - name: Run frontend tests
       working-directory: ./poolleaderboard.client
-      run: npm test
+      run: npm run test:ci
 
     # 🐳 Docker build & push (runs only if tests pass)
     - name: Log in to GHCR
