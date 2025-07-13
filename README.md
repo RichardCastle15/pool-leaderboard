@@ -86,3 +86,7 @@ The icon pack used is: https://akveo.github.io/eva-icons
 ### Troubleshooting
 
 Within Docker Desktop, it will say which ports are mapped from the container to your local machine, in a format like: 32769:8081. The means your machines 32769 port is mapped to the containers 8081 port, which servers the HTTPS backend. Your local machine port needs to be referenced in the proxy.conf.js file, which it should be by default, but worth checking if there are issues. Making changes to the proxy file will require you to stop debugging and start again. Usually, restarting your machine gets docker back to binding to port 32769 for HTTPS.
+
+## Production setup
+
+Run this command from the root to build a docker image of the prod build: `docker build -f PoolLeaderboard.Server/Dockerfile -t poolleaderboard .`.
