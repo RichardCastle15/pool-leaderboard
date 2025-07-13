@@ -5,13 +5,6 @@ import { environment } from '../environments/environment';
 import { NavigationEnd, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
-interface WeatherForecast {
-  date: string;
-  temperatureC: number;
-  temperatureF: number;
-  summary: string;
-}
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -20,7 +13,6 @@ interface WeatherForecast {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent implements OnInit, OnDestroy {
-  public forecasts?: WeatherForecast[];
   websocketReady = signal(false);
   sidebarState = signal<NbSidebarState>('collapsed');
   sidebarResponsiveState = signal<NbSidebarResponsiveState | undefined>(undefined);
