@@ -24,10 +24,9 @@ export class LeaderboardComponent {
     this.selectedIds.update((oldArray) => {
       const currentIndex = oldArray.indexOf(rowId);
       if (currentIndex === -1)
-        oldArray.push(rowId);
+        return [...oldArray, rowId];
       else
-        oldArray.splice(currentIndex, 1);
-      return oldArray;
+        return oldArray.filter(id => rowId !== id)
     })
   }
 }
