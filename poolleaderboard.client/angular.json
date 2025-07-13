@@ -7,13 +7,11 @@
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
-          "standalone": false
+          "style": "scss"
         },
         "@schematics/angular:directive": {
-          "standalone": false
         },
         "@schematics/angular:pipe": {
-          "standalone": false
         }
       },
       "root": "",
@@ -37,8 +35,7 @@
               }
             ],
             "styles": [
-              "src/styles.css",
-              "node_modules/@nebular/theme/styles/prebuilt/default.css"
+              "src/styles.scss"
             ],
             "scripts": []
           },
@@ -56,7 +53,13 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ]
             },
             "development": {
               "optimization": false,
@@ -100,7 +103,7 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.scss"
             ],
             "scripts": [],
             "karmaConfig": "karma.conf.js"

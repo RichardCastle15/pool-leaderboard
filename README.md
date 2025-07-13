@@ -6,7 +6,7 @@ This project was originally generated with the default asp.net core and Angular 
 
 While developing, the backend runs in a docker container. To use this, you will need Docker Desktop (installable from the internet). When you open Visual Studio, Docker Desktop will automatically open and start the container. However, the container will not have a usable backend until you click the "Start" button in Visual Studio. This starts the front and back end. The frontend starts before the backend, so you will need to refresh the frontend on first startup (it will say this).
 
-The frontend connects to the backend via a proxy while developing. This allows the use of the Angular developer server, while the proxy tricks the browser into allowing CORS requests to the backend by giving the appearance the frontend and backend are on the same port. A production deployment will not need this proxy, as it will server both the front and back end.
+The frontend connects to the backend via a proxy while developing. This allows the use of the Angular developer server, while the proxy tricks the browser into allowing CORS requests to the backend by giving the appearance the frontend and backend are on the same port. A production deployment will not need this proxy, as the server will serve both the front and back end.
 
 ### .net version
 
@@ -16,7 +16,7 @@ This project uses .net 10, which is currently in preview. You must download the 
 
 I recommend using SQL Server Management Studio and SQL Server Express. Both downloadable from the internet.
 
-The database files are stored in a SQL project. This builds to a .dacpac file. You must create your database from this file (not manually through the SSMS UI).
+The database files are stored in a SQL project. This builds to a .dacpac file. You must create your database from this file.
 
 To create your database from this file: 
 
@@ -63,9 +63,13 @@ Configure SQL Server Network Access:
 
 You can then use a connection string like: `Server=host.docker.internal,1433;Database=PoolLeaderboard;User Id=myappuser;Password=YourStrongPassword123!;TrustServerCertificate=True;`
 
+### Component showcase
+
+In the front end, the aim is to follow the presenter-container pattern. This splits components into 2 types: presenters, which have no business logic and communicate exclusively through inputs/outputs; and containers, which coordinate presenters with business logic. The presenters will be displayed in a component showcase so you can see how they look in various states. This component showcase is added to the navigation bar when building the front end with a development build.
+
 ### Seeing changes
 
-There are 2 main project: `poolleaderboard.client` (frontend) and `PoolLeaderboard.Server` (backend). Changes in the frontend should be applied automatically (it will also refresh the browser). Changes in the backend (while debugging) require you to press the "hot reload" button in Visual Studio to take effect.
+Clicking "Start" in Visual Studio should launch both front and back end. There are 2 main project: `poolleaderboard.client` (frontend) and `PoolLeaderboard.Server` (backend). Changes in the frontend while debugging should be applied automatically (it will also refresh the browser). Changes in the backend while debugging require you to press the "hot reload" button in Visual Studio to take effect.
 
 ### Adding a new backend endpoint.
 
@@ -82,3 +86,7 @@ The icon pack used is: https://akveo.github.io/eva-icons
 ### Troubleshooting
 
 Within Docker Desktop, it will say which ports are mapped from the container to your local machine, in a format like: 32769:8081. The means your machines 32769 port is mapped to the containers 8081 port, which servers the HTTPS backend. Your local machine port needs to be referenced in the proxy.conf.js file, which it should be by default, but worth checking if there are issues. Making changes to the proxy file will require you to stop debugging and start again. Usually, restarting your machine gets docker back to binding to port 32769 for HTTPS.
+
+## Production setup
+
+Run this command from the root to build a docker image of the prod build: `docker build -f PoolLeaderboard.Server/Dockerfile -t poolleaderboard .`.

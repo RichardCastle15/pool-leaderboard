@@ -1,0 +1,43 @@
+<table [nbTreeGrid]="entries()">
+  <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns" class="capitalize-first"></tr>
+  <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns" [clickToToggle]="false" (click)="clickRow(row.data.id)"
+      [class.selected-row]="selectedIds().includes(row.data.id)"></tr>
+
+  <ng-container [nbTreeGridColumnDef]="expandableColumn">
+    <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ expandableColumn }}</th>
+    <td nbTreeGridCell *nbTreeGridCellDef="let row" [class.extra-info]="!row.data.id">
+
+      @if(row.children && row.children.length > 0) {
+      <nb-tree-grid-row-toggle [expanded]="row.expanded">
+      </nb-tree-grid-row-toggle>
+      }
+
+      {{row.data.name}}
+
+    </td>
+  </ng-container>
+
+  @for(column of dataColumns; track column) {
+  <ng-container [nbTreeGridColumnDef]="column">
+    <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ column }}</th>
+    <td nbTreeGridCell *nbTreeGridCellDef="let row" [class.extra-info]="!row.data.id">{{row.data[column]}}</td>
+  </ng-container>
+  }
+
+</table>
+
+<nb-card class="action-card">
+  <nb-card-body>
+    <nb-actions size="medium" fullWidth>
+      <nb-action id="head-to-head-action" [disabled]="selectedIds().length !== 2"><nb-icon icon="people-outline"></nb-icon>@if(size() === 'full') { Record result }</nb-action>
+      <nb-action id="killer-action" [disabled]="selectedIds().length === 0">
+        <span class="badge-container">
+          <nb-icon icon="close-circle-outline"></nb-icon>
+          @if(size() === 'full') { Start killer }
+          <nb-badge text="{{selectedIds().length}}" status="info" position="top left"></nb-badge>
+        </span>
+      </nb-action>
+      <nb-action><nb-icon icon="person-add-outline"></nb-icon>@if(size() === 'full') { Add someone }</nb-action>
+    </nb-actions>
+  </nb-card-body>
+</nb-card>
