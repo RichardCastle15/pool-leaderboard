@@ -80,11 +80,40 @@ describe('LeaderboardComponent', () => {
   });
 
   describe('action buttons', () => {
-    it('should disable head-to-head result when noone selected', () => {
+    it('should disable head-to-head and killer actions when noone selected', () => {
       fixture.componentRef.setInput('entries', entries);
       fixture.detectChanges();
+      const isHeadToHeadDisabled = fixture.debugElement.query(By.css('#head-to-head-action')).componentInstance.disabled;
+      const isKillerDisabled = fixture.debugElement.query(By.css('#killer-action')).componentInstance.disabled;
+      expect(isHeadToHeadDisabled).toBeTrue();
+      expect(isKillerDisabled).toBeTrue();
+    });
+
+    it('should enable head-to-head result when exactly 2 rows are selected', () => {
+      fixture.componentRef.setInput('entries', entries);
+      fixture.detectChanges();
+      
+      // Click on the first two data rows (skip header row at index 0)
+      const dataRows = fixture.debugElement.queryAll(By.css('table tr')).slice(1);
+      dataRows[0].nativeElement.click(); // Select first row
+      dataRows[1].nativeElement.click(); // Select second row
+      fixture.detectChanges();
+      
       const isDisabled = fixture.debugElement.query(By.css('#head-to-head-action')).componentInstance.disabled;
-      expect(isDisabled).toBeTrue();
+      expect(isDisabled).toBeFalse();
+    });
+
+    it('should enable killer when someone is selected', () => {
+      fixture.componentRef.setInput('entries', entries);
+      fixture.detectChanges();
+
+      // Click on the first two data rows (skip header row at index 0)
+      const dataRows = fixture.debugElement.queryAll(By.css('table tr')).slice(1);
+      dataRows[0].nativeElement.click(); // Select first row
+      fixture.detectChanges();
+
+      const isDisabled = fixture.debugElement.query(By.css('#killer-action')).componentInstance.disabled;
+      expect(isDisabled).toBeFalse();
     });
   });
 });
