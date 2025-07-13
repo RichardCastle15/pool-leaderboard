@@ -35,4 +35,5 @@ RUN dotnet publish "./PoolLeaderboard.Server.csproj" -c $BUILD_CONFIGURATION -o 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+LABEL org.opencontainers.image.source=https://github.com/RichardCastle15/pool-leaderboard
 ENTRYPOINT ["dotnet", "PoolLeaderboard.Server.dll"]
