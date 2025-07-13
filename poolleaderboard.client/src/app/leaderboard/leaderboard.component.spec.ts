@@ -64,7 +64,6 @@ describe('LeaderboardComponent', () => {
     fixture.detectChanges();
     fixture.debugElement.queryAll(By.css('table tr')).forEach(de => de.nativeElement.click());
     fixture.detectChanges();
-    // 3 entries plus the header row.
     expect(fixture.debugElement.queryAll(By.css('.selected-row')).length).toBe(3);
   });
 
@@ -75,7 +74,6 @@ describe('LeaderboardComponent', () => {
     fixture.detectChanges();
     fixture.debugElement.queryAll(By.css('table tr')).forEach(de => de.nativeElement.click());
     fixture.detectChanges();
-    // 3 entries plus the header row.
     expect(fixture.debugElement.queryAll(By.css('.selected-row')).length).toBe(0);
   });
 
@@ -107,13 +105,27 @@ describe('LeaderboardComponent', () => {
       fixture.componentRef.setInput('entries', entries);
       fixture.detectChanges();
 
-      // Click on the first two data rows (skip header row at index 0)
+      // Skip header row at index 0
       const dataRows = fixture.debugElement.queryAll(By.css('table tr')).slice(1);
       dataRows[0].nativeElement.click(); // Select first row
       fixture.detectChanges();
 
       const isDisabled = fixture.debugElement.query(By.css('#killer-action')).componentInstance.disabled;
       expect(isDisabled).toBeFalse();
+    });
+
+    it('should show correct count in killer badge', () => {
+      fixture.componentRef.setInput('entries', entries);
+      fixture.detectChanges();
+
+      // Click on the first two data rows (skip header row at index 0)
+      const dataRows = fixture.debugElement.queryAll(By.css('table tr')).slice(1);
+      dataRows[0].nativeElement.click(); // Select first row
+      dataRows[1].nativeElement.click(); // Select second row
+      fixture.detectChanges();
+
+      const countDisplayed = fixture.debugElement.query(By.css('#killer-action nb-badge')).componentInstance.text;
+      expect(countDisplayed).toBe('2');
     });
   });
 });
