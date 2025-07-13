@@ -1,0 +1,48 @@
+@use '../../themes' as *;
+
+:host {
+  display: block;
+  height: 100%;
+
+  table tr td {
+      cursor: pointer;
+  }
+
+  .selected-row {
+    background: nb-theme(color-primary-300);
+  }
+
+  .capitalize-first {
+    text-transform: capitalize;
+  }
+
+  .extra-info {
+    font-style: italic;
+  }
+
+  .action-card {
+    position: sticky;
+    bottom: 0;
+
+    nb-action {
+        cursor: pointer;
+    }
+
+    .badge-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        padding: 0 5px;
+    }
+  }
+}
+
+:host ::ng-deep {
+  table.nb-tree-grid {
+      table-layout: auto !important;
+  }
+
+  nb-card.action-card {
+      margin-bottom: 0px !important;
+  }
+}

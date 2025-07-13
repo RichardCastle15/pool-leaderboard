@@ -1,24 +1,18 @@
-import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
 import { HubConnectionBuilder, HubConnection, LogLevel } from "@microsoft/signalr";
 import { NbMenuItem, NbSidebarResponsiveState, NbSidebarState } from '@nebular/theme';
-
-interface WeatherForecast {
-  date: string;
-  temperatureC: number;
-  temperatureF: number;
-  summary: string;
-}
+import { environment } from '../environments/environment';
+import { NavigationEnd, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   standalone: false,
-  styleUrl: './app.component.css',
+  styleUrl: './app.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppComponent implements OnInit {
-  public forecasts?: WeatherForecast[];
+export class AppComponent implements OnInit, OnDestroy {
   websocketReady = signal(false);
   sidebarState = signal<NbSidebarState>('collapsed');
   sidebarResponsiveState = signal<NbSidebarResponsiveState | undefined>(undefined);
@@ -31,8 +25,7 @@ export class AppComponent implements OnInit {
     const tabletExpandable = this.sidebarResponsiveState() === 'tablet' && this.sidebarState() === 'compacted';
     return mobileExpandable || tabletExpandable;
   });
-  private connection!: HubConnection;
-  items: NbMenuItem[] = [
+  items = signal<NbMenuItem[]>([
     {
       title: 'Leaderboard',
       icon: 'list-outline',
@@ -41,12 +34,14 @@ export class AppComponent implements OnInit {
       title: 'Killer',
       icon: 'close-circle-outline',
     },
-  ];
+  ]);
 
-  constructor(private http: HttpClient) {}
+  private subscriptions = new Subscription();
+  private connection!: HubConnection;
+
+  constructor(private router: Router) {}
 
   ngOnInit() {
-    this.getForecasts();
     this.connection = new HubConnectionBuilder().withUrl("/exampleHub").configureLogging(LogLevel.Debug).build();
     this.connection.on("ReceiveMessage", (message: string) => {
       console.debug({ message });
@@ -57,21 +52,41 @@ export class AppComponent implements OnInit {
         this.websocketReady.set(true);
       })
       .catch(console.error);
+
+    if (!environment.production) {
+      this.items.update(items => {
+        items.push({
+          title: 'Showcase',
+          icon: 'brush-outline',
+          children: [
+            {
+              title: 'Leaderboard',
+              children: [
+                { title: 'Large', link: '/showcase/leaderboard/large' },
+                { title: 'Large - compact', link: '/showcase/leaderboard/large-compact' },
+                { title: 'Small', link: '/showcase/leaderboard/small' },
+                { title: 'Empty', link: '/showcase/leaderboard/empty' },
+              ]
+            }
+          ]
+        });
+        return items;
+      })
+    }
+
+    const routerSub = this.router.events.subscribe(routerEvent => {
+      if (routerEvent instanceof NavigationEnd)
+        this.collapseSidebar();
+    });
+    this.subscriptions.add(routerSub);
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
   sendMessage(message: string) {
     this.connection.invoke("SendMessage", message).catch(console.error);
-  }
-
-  getForecasts() {
-    this.http.get<WeatherForecast[]>('/weatherforecast').subscribe(
-      (result) => {
-        this.forecasts = result;
-      },
-      (error) => {
-        console.error(error);
-      }
-    );
   }
 
   sidebarStateChange(event: NbSidebarState) {
