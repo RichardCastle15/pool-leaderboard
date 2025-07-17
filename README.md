@@ -108,3 +108,5 @@ docker tag poolleaderboard ghcr.io/richardcastle15/poolleaderboard:latest
 # Push the image to github
 docker push ghcr.io/richardcastle15/poolleaderboard:latest
 ```
+
+Or, any commit to main will create a new docker container to be deployed. 
