@@ -1,0 +1,28 @@
+{
+  "name": "Full Stack Dev Container",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "workspaceFolder": "/workspace",
+  "forwardPorts": [60125, 5166, 7114],
+  "postCreateCommand": "cd /workspaces/PoolLeaderboard && dotnet restore ./PoolLeaderboard.Server && cd ./poolleaderboard.client && npm i",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      },
+      "extensions": [
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.csdevkit",
+        "esbenp.prettier-vscode",
+        "angular.ng-template",
+        "ms-vscode.vscode-typescript-next",
+        "lucono.karma-test-explorer",
+        "hbenl.vscode-test-explorer",
+        "ms-vscode.test-adapter-converter"
+      ]
+    }
+  },
+  "remoteUser": "root"
+}
