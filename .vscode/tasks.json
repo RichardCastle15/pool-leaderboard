@@ -9,13 +9,28 @@
       "group": "build"
     },
     {
-      "label": "Run Frontend",
+      "label": "Start Angular",
       "type": "shell",
-      "command": "npx ng serve --host=0.0.0.0",
+      "command": "npm start",
       "options": {
-        "cwd": "workspaces/PoolLeaderboard/poolleaderboard.client"
+        "cwd": "${workspaceFolder}/poolleaderboard.client"
       },
-      "problemMatcher": []
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": ".",
+            "file": 1,
+            "location": 2,
+            "message": 3
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "ng serve",
+          "endsPattern": "Watch mode enabled. Watching for file changes"
+        }
+      }
     }
   ]
 }
