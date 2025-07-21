@@ -4,15 +4,21 @@ This project was originally generated with the default asp.net core and Angular 
 
 ## Developement setup
 
-While developing, the backend runs in a docker container. To use this, you will need Docker Desktop (installable from the internet). When you open Visual Studio, Docker Desktop will automatically open and start the container. However, the container will not have a usable backend until you click the "Start" button in Visual Studio. This starts the front and back end. The frontend starts before the backend, so you will need to refresh the frontend on first startup (it will say this).
-
 The frontend connects to the backend via a proxy while developing. This allows the use of the Angular developer server, while the proxy tricks the browser into allowing CORS requests to the backend by giving the appearance the frontend and backend are on the same port. A production deployment will not need this proxy, as the server will serve both the front and back end.
 
-### .net version
+### Visual Studio Code dev container (recommended)
+
+Using Visual Studio Code with the `Dev Containers` extension will set up the development environment for you in a docker container. You will need docker desktop for this and to have it open and started.
+
+### Visual Studio
+
+While developing, the backend runs in a docker container. To use this, you will need Docker Desktop (installable from the internet). When you open Visual Studio, Docker Desktop will automatically open and start the container. However, the container will not have a usable backend until you click the "Start" button in Visual Studio. This starts the front and back end. The frontend starts before the backend, so you will need to refresh the frontend on first startup (it will say this).
+
+#### .net version
 
 This project uses .net 10, which is currently in preview. You must download the .net 10 preview sdk. You must also enable this setting in Visual Studio: Tools > Options > Preview Features > Use previews of the .NET SDK
 
-### Database
+#### Database
 
 I recommend using SQL Server Management Studio and SQL Server Express. Both downloadable from the internet.
 
@@ -32,7 +38,7 @@ To update your database from this file (you must have created it from a previous
 - Click "Tasks" > "Upgrade Data-Tier Application"
 - Follow the wizard. Point it to the .dacpac file that has been built from the SQL project.
 
-#### Connecting to the database when using a containerised backend.
+##### Connecting to the database when using a containerised backend.
 
 Normally when developing against a database, you'd use windows authentication to connect. However, that's not possible with the backend running in a container. So you need to use a connection string with a username and password by following these instructions:
 
