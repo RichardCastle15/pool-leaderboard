@@ -1,5 +1,11 @@
 {
   "version": "0.2.0",
+  "compounds": [
+    {
+      "name": "Full Stack Debug",
+      "configurations": ["Debug .NET Backend", "Debug Angular Frontend"],
+    }
+  ],
   "configurations": [
     {
       "name": "Debug .NET Backend",
@@ -22,7 +28,10 @@
       "type": "chrome",
       "request": "launch",
       "url": "http://localhost:60125",
-      "webRoot": "${workspaceFolder}/poolleaderboard.client/src",
+      "webRoot": "${workspaceFolder}/poolleaderboard.client",
+      "pathMapping": {
+        "/workspaces/PoolLeaderboard/poolleaderboard.client/src": "${workspaceFolder}/poolleaderboard.client/src"
+      },
       "preLaunchTask": "Start Angular"
     }
   ]
