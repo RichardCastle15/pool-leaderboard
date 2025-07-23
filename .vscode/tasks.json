@@ -13,7 +13,10 @@
       "type": "shell",
       "command": "npm start",
       "options": {
-        "cwd": "${workspaceFolder}/poolleaderboard.client"
+        "cwd": "${workspaceFolder}/poolleaderboard.client",
+        "env": {
+          "ASPNETCORE_URLS": "http://localhost:5166"
+        }
       },
       "isBackground": true,
       "problemMatcher": {
