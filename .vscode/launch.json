@@ -15,7 +15,7 @@
       "cwd": "${workspaceFolder}/PoolLeaderboard.Server",
       "stopAtEntry": false,
       "env": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_ENVIRONMENT": "Debug",
         "ASPNETCORE_URLS": "http://0.0.0.0:5166",
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": ""
       },

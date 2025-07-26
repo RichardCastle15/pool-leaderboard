@@ -4,7 +4,7 @@
     {
       "label": "Run Backend",
       "type": "shell",
-      "command": "dotnet watch run --project ./PoolLeaderboard.Server/PoolLeaderboard.Server.csproj --launch-profile http -c Development",
+      "command": "dotnet watch run --project ./PoolLeaderboard.Server/PoolLeaderboard.Server.csproj --launch-profile http -c Debug",
       "problemMatcher": "$msCompile",
       "group": "build"
     },
