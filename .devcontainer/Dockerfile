@@ -4,6 +4,7 @@ RUN apt-get install curl
 RUN curl -sL https://deb.nodesource.com/setup_20.x | bash
 RUN apt-get -y install nodejs
 RUN npm install -g @angular/cli
+RUN npm install -g pnpm
 
 # 🧩 Required dependencies for Puppeteer's Chromium
 RUN apt-get update && apt-get install -y \

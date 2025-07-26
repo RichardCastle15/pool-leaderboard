@@ -5,8 +5,11 @@
     "context": ".."
   },
   "workspaceFolder": "/workspace",
+  "mounts": [
+    "type=volume,source=client_node_modules,target=/workspaces/PoolLeaderboard/poolleaderboard.client/node_modules"
+  ],
   "forwardPorts": [60125, 5166, 7114],
-  "postCreateCommand": "cd /workspaces/PoolLeaderboard && dotnet restore ./PoolLeaderboard.Server && cd ./poolleaderboard.client && npm i && npx puppeteer browsers install chrome",
+  "postCreateCommand": "cd /workspaces/PoolLeaderboard && dotnet restore ./PoolLeaderboard.Server && cd ./poolleaderboard.client && echo 'Running pnpm install...' && pnpm install && echo 'Installing puppeteer chrome...' && pnpm exec puppeteer browsers install chrome && echo 'Done!'",
   "customizations": {
     "vscode": {
       "settings": {
