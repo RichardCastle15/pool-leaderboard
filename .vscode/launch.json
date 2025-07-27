@@ -13,15 +13,6 @@
       "request": "launch",
       "program": "${workspaceFolder}/PoolLeaderboard.Server/bin/Debug/net10.0/PoolLeaderboard.Server.dll",
       "cwd": "${workspaceFolder}/PoolLeaderboard.Server",
-      "stopAtEntry": false,
-      "env": {
-        "ASPNETCORE_ENVIRONMENT": "Debug",
-        "ASPNETCORE_URLS": "http://0.0.0.0:5166",
-        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": ""
-      },
-      "sourceFileMap": {
-        "/app": "${workspaceFolder}/PoolLeaderboard.Server"
-      },
       "preLaunchTask": "Run Backend"
     },
     {
