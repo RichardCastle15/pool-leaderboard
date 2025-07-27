@@ -27,4 +27,4 @@ RUN apt-get update && apt-get install -y \
 
 # Set env to CI as docker container has no UI so needs same set up.
 ENV CI=true
-WORKDIR /workspace
+WORKDIR /workspaces/pool-leaderboard
