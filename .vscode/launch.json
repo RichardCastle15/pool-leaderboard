@@ -24,7 +24,6 @@
       "pathMapping": {
         "/workspaces/PoolLeaderboard/poolleaderboard.client/src": "${workspaceFolder}/poolleaderboard.client/src"
       },
-      "preLaunchTask": "Start Angular",
       "env": {
         "ASPNETCORE_URLS": "http://localhost:5166"
       }
