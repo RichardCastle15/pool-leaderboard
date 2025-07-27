@@ -21,7 +21,8 @@
       },
       "sourceFileMap": {
         "/app": "${workspaceFolder}/PoolLeaderboard.Server"
-      }
+      },
+      "preLaunchTask": "Run Backend"
     },
     {
       "name": "Debug Angular Frontend",

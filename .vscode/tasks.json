@@ -4,9 +4,12 @@
     {
       "label": "Run Backend",
       "type": "shell",
-      "command": "dotnet watch run --project ./PoolLeaderboard.Server/PoolLeaderboard.Server.csproj --launch-profile http -c Debug",
+      "command": "dotnet build -p:ShouldRunNpmInstall=false",
       "problemMatcher": "$msCompile",
-      "group": "build"
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}/PoolLeaderboard.Server"
+      }
     },
     {
       "label": "Start Angular",
