@@ -8,7 +8,17 @@ The frontend connects to the backend via a proxy while developing. This allows t
 
 ### Visual Studio Code dev container (recommended)
 
-Using Visual Studio Code with the `Dev Containers` extension will set up the development environment for you in a docker container. You will need docker desktop for this and to have it open and started.
+Using Visual Studio Code with the `Dev Containers` extension will set up the development environment for you in a docker container. You will need docker desktop for this and to have it open and started. To start a debugging session, open the `Run and Debug` tab in VS Code and run either the backend, frontend or full stack launch profile.
+
+#### Container frontend
+
+The frontend is debuggable through vs code. If you make a code change, the browser will auto reload.
+
+To run jasmine tests, you will most likely have to refresh the test explorer, as it usually errors due to the jasmine adapter starting before the node modules are installed.
+
+#### Container backend
+
+The backend is debuggable. If you make a change, you need to restart the debugging process to see it operating.
 
 ### Visual Studio
 
