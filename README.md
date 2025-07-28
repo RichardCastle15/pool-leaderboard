@@ -8,7 +8,9 @@ The frontend connects to the backend via a proxy while developing. This allows t
 
 ### Visual Studio Code dev container (recommended)
 
-Using Visual Studio Code with the `Dev Containers` extension will set up the development environment for you in a docker container. You will need docker desktop for this and to have it open and started. To start a debugging session, open the `Run and Debug` tab in VS Code and run either the backend, frontend or full stack launch profile.
+Using Visual Studio Code with the `Dev Containers` extension will set up the development environment for you in a docker container. You will need docker desktop for this and to have it open and started. Alternatively, you can launch a codespace from Github into VS Code. From the `Code` tab in Github, open the `Code` button dropdown, then either click `+` to make a new codespace on main or click the elipses and click `New with options` to configure things like the branch.
+
+To start a debugging session, open the `Run and Debug` tab in VS Code and run either the `Fullstack Debug` profile for both layers of the stack, or `Debug Angular Frontend` for just Angular debugging (no backend will be served).
 
 #### Container frontend
 

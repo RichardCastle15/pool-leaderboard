@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Run Backend",
+      "label": "Build Backend",
       "type": "shell",
       "command": "dotnet build -p:ShouldRunNpmInstall=false",
       "problemMatcher": "$msCompile",

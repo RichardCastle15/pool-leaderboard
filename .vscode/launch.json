@@ -1,19 +1,13 @@
 {
   "version": "0.2.0",
-  "compounds": [
-    {
-      "name": "Full Stack Debug",
-      "configurations": ["Debug .NET Backend", "Debug Angular Frontend"],
-    }
-  ],
   "configurations": [
     {
-      "name": "Debug .NET Backend",
+      "name": "Debug Fullstack",
       "type": "coreclr",
       "request": "launch",
       "program": "${workspaceFolder}/PoolLeaderboard.Server/bin/Debug/net10.0/PoolLeaderboard.Server.dll",
       "cwd": "${workspaceFolder}/PoolLeaderboard.Server",
-      "preLaunchTask": "Run Backend"
+      "preLaunchTask": "Build Backend"
     },
     {
       "name": "Debug Angular Frontend",
