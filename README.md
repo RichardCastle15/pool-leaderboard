@@ -10,17 +10,13 @@ The frontend connects to the backend via a proxy while developing. This allows t
 
 Using Visual Studio Code with the `Dev Containers` extension will set up the development environment for you in a docker container. You will need docker desktop for this and to have it open and started. Alternatively, you can launch a codespace from Github into VS Code. From the `Code` tab in Github, open the `Code` button dropdown, then either click `+` to make a new codespace on main or click the elipses and click `New with options` to configure things like the branch. You do not need docker locally for Github codespaces.
 
-To start a debugging session, open the `Run and Debug` tab in VS Code and run either the `Fullstack Debug` profile for both layers of the stack, or `Debug Angular Frontend` for just Angular debugging (no backend will be served). Your app will start at: `http://localhost:60125/`.
+To start a debugging session, open the `Run and Debug` tab in VS Code and run either the `Debug Angular Frontend`, `Debug Backend` or `Debug Fullstack` profile. Your app will start at: `http://localhost:60125/` (the browser should open).
 
-The frontend is debuggable through the browser dev tools. If you make a code change, the browser will auto reload.
+The frontend is debuggable through VS Code. If you make a code change, the browser will auto reload.
+
+The backend is debuggable through VS Code. If you make a change, you need to restart the debugging process to see it operating.
 
 To run jasmine tests, you will most likely have to refresh the test explorer, as it usually errors due to the jasmine adapter starting before the node modules are installed.
-
-The backend is debuggable. If you make a change, you need to restart the debugging process to see it operating.
-
-#### Limitations
-
-When using the full stack debug launch, the frontend does not correctly restart when restarting in VS Code. This breaks the debugging to VS Code. To re-enable it, you'll need to fully stop the VS Code debug and wait for port 60125 to show no bound process (ports tab in VS Code). Refreshing the browser when VS Code debugging has been killed can help this happen.
 
 ### Visual Studio
 
