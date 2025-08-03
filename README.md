@@ -18,6 +18,10 @@ To run jasmine tests, you will most likely have to refresh the test explorer, as
 
 The backend is debuggable. If you make a change, you need to restart the debugging process to see it operating.
 
+#### Limitations
+
+When using the full stack debug launch, the frontend does not correctly restart when restarting in VS Code. This breaks the debugging to VS Code. To re-enable it, you'll need to fully stop the VS Code debug and wait for port 60125 to show no bound process (ports tab in VS Code). Refreshing the browser when VS Code debugging has been killed can help this happen.
+
 ### Visual Studio
 
 While developing, the backend runs in a docker container. To use this, you will need Docker Desktop (installable from the internet). When you open Visual Studio, Docker Desktop will automatically open and start the container. However, the container will not have a usable backend until you click the "Start" button in Visual Studio. This starts the front and back end. The frontend starts before the backend, so you will need to refresh the frontend on first startup (it will say this).
