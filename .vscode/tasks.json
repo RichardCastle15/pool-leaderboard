@@ -10,6 +10,33 @@
       "options": {
         "cwd": "${workspaceFolder}/PoolLeaderboard.Server"
       }
+    },
+    {
+      "label": "Start Angular",
+      "type": "shell",
+      "command": "npm start",
+      "options": {
+        "cwd": "${workspaceFolder}/poolleaderboard.client",
+        "env": {
+          "ASPNETCORE_URLS": "http://localhost:5166"
+        }
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": ".",
+            "file": 1,
+            "location": 2,
+            "message": 3
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "ng serve",
+          "endsPattern": "Watch mode enabled. Watching for file changes"
+        }
+      }
     }
   ]
 }

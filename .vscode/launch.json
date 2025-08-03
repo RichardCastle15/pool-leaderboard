@@ -1,13 +1,22 @@
 {
   "version": "0.2.0",
-  "configurations": [
+  "compounds": [
     {
       "name": "Debug Fullstack",
+      "configurations": ["Debug Backend", "Debug Angular Frontend"]
+    }
+  ],
+  "configurations": [
+    {
+      "name": "Debug Backend",
       "type": "coreclr",
       "request": "launch",
       "program": "${workspaceFolder}/PoolLeaderboard.Server/bin/Debug/net10.0/PoolLeaderboard.Server.dll",
       "cwd": "${workspaceFolder}/PoolLeaderboard.Server",
-      "preLaunchTask": "Build Backend"
+      "preLaunchTask": "Build Backend",
+      "env": {
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": ""
+      }
     },
     {
       "name": "Debug Angular Frontend",
@@ -20,7 +29,8 @@
       },
       "env": {
         "ASPNETCORE_URLS": "http://localhost:5166"
-      }
+      },
+      "preLaunchTask": "Start Angular"
     }
   ]
 }
