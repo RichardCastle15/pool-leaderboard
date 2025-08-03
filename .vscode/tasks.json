@@ -37,6 +37,13 @@
           "endsPattern": "Watch mode enabled. Watching for file changes"
         }
       }
+    },
+    {
+      "label": "Stop Angular",
+      "type": "shell",
+      "command": "pkill",
+      "args": ["-f", "ng serve"],
+      "problemMatcher": []
     }
   ]
 }
