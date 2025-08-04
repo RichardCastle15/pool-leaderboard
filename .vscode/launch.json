@@ -1,0 +1,37 @@
+{
+  "version": "0.2.0",
+  "compounds": [
+    {
+      "name": "Debug Fullstack",
+      "configurations": ["Debug Backend", "Debug Angular Frontend"]
+    }
+  ],
+  "configurations": [
+    {
+      "name": "Debug Backend",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/PoolLeaderboard.Server/bin/Debug/net10.0/PoolLeaderboard.Server.dll",
+      "cwd": "${workspaceFolder}/PoolLeaderboard.Server",
+      "preLaunchTask": "Build Backend",
+      "env": {
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": ""
+      }
+    },
+    {
+      "name": "Debug Angular Frontend",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:60125",
+      "webRoot": "${workspaceFolder}/poolleaderboard.client",
+      "pathMapping": {
+        "/workspaces/PoolLeaderboard/poolleaderboard.client/src": "${workspaceFolder}/poolleaderboard.client/src"
+      },
+      "env": {
+        "ASPNETCORE_URLS": "http://localhost:5166"
+      },
+      "preLaunchTask": "Start Angular",
+      "postDebugTask": "Stop Angular"
+    }
+  ]
+}
