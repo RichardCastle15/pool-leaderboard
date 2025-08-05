@@ -7,8 +7,6 @@ Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "poolleaderboard.client", "p
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PoolLeaderboard.Server", "PoolLeaderboard.Server\PoolLeaderboard.Server.csproj", "{A64A0E55-3FC4-430A-8005-A061B756BF64}"
 EndProject
-Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "PoolLeaderboard.Database", "PoolLeaderboard.Database\PoolLeaderboard.Database.sqlproj", "{39F60DB2-3049-4950-914D-723C4153CE78}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,12 +23,6 @@ Global
 		{A64A0E55-3FC4-430A-8005-A061B756BF64}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A64A0E55-3FC4-430A-8005-A061B756BF64}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A64A0E55-3FC4-430A-8005-A061B756BF64}.Release|Any CPU.Build.0 = Release|Any CPU
-		{39F60DB2-3049-4950-914D-723C4153CE78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{39F60DB2-3049-4950-914D-723C4153CE78}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{39F60DB2-3049-4950-914D-723C4153CE78}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{39F60DB2-3049-4950-914D-723C4153CE78}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{39F60DB2-3049-4950-914D-723C4153CE78}.Release|Any CPU.Build.0 = Release|Any CPU
-		{39F60DB2-3049-4950-914D-723C4153CE78}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

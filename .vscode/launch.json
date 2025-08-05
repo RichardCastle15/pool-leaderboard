@@ -16,7 +16,8 @@
       "preLaunchTask": "Build Backend",
       "env": {
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": ""
-      }
+      },
+      "launchSettingsProfile": "http"
     },
     {
       "name": "Debug Angular Frontend",

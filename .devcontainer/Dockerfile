@@ -4,6 +4,20 @@ RUN apt-get install -y curl
 RUN curl -sL https://deb.nodesource.com/setup_20.x | bash
 RUN apt-get -y install nodejs
 RUN npm install -g @angular/cli
+RUN dotnet tool install -g microsoft.sqlpackage
+ENV PATH="$PATH:/root/.dotnet/tools"
+
+# Install Microsoft SQL Server tools (sqlcmd and bcp)
+RUN apt-get update && \
+    ACCEPT_EULA=Y apt-get install -y curl gnupg unixodbc-dev && \
+    curl https://packages.microsoft.com/keys/microsoft.asc -o microsoft.asc && \
+    gpg --dearmor < microsoft.asc > /etc/apt/trusted.gpg.d/microsoft.gpg && \
+    curl https://packages.microsoft.com/config/debian/11/prod.list -o /etc/apt/sources.list.d/mssql-release.list && \
+    apt-get update && \
+    ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18 && \
+    echo 'export PATH=$PATH:/opt/mssql-tools18/bin' >> /etc/bash.bashrc && \
+    rm -f microsoft.asc && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # 🧩 Required dependencies for Puppeteer's Chromium
 RUN apt-get update && apt-get install -y \
@@ -26,4 +40,5 @@ RUN apt-get update && apt-get install -y \
 
 # Set env to CI as docker container has no UI so needs same set up.
 ENV CI=true
+ENV ConnectionStrings__DefaultConnection='Server=db,1433;Database=leaderboard;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;'
 WORKDIR /workspaces/pool-leaderboard

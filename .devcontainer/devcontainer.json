@@ -1,25 +1,13 @@
 {
   "name": "Full Stack Dev Container",
-  "build": {
-    "dockerfile": "Dockerfile",
-    "context": ".."
-  },
+  "dockerComposeFile": "./docker-compose.yml",
+  "service": "devcontainer",
   "workspaceFolder": "/workspaces/pool-leaderboard",
   "mounts": [
     "type=volume,source=client_node_modules,target=/workspaces/pool-leaderboard/poolleaderboard.client/node_modules"
   ],
   "forwardPorts": [60125, 5166, 7114],
-  "postCreateCommand": [
-    "cd /workspaces/pool-leaderboard",
-    "dotnet restore ./PoolLeaderboard.Server",
-    "dotnet dev-certs https --trust",
-    "cd ./poolleaderboard.client",
-    "echo 'Running npm install...'",
-    "npm install",
-    "echo 'Installing puppeteer chrome...'",
-    "npx puppeteer browsers install chrome",
-    "echo 'Done!'"
-  ],
+  "postCreateCommand": "cd /workspaces/pool-leaderboard && dotnet restore ./PoolLeaderboard.Server && dotnet dev-certs https --trust && cd ./poolleaderboard.client && echo 'Running npm install...' && npm install && echo 'Installing puppeteer chrome...' && npx puppeteer browsers install chrome && echo 'Deploying DB' && ../PoolLeaderboard.Database/deploy.sh && echo 'Done!'",
   "customizations": {
     "vscode": {
       "settings": {
