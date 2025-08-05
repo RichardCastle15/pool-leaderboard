@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Set working directory to the script's location
 cd "$(dirname "$0")"
 
