@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  devcontainer:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/workspaces/pool-leaderboard:cached
+      - client_node_modules:/workspaces/pool-leaderboard/poolleaderboard.client/node_modules
+    ports:
+      - "60125:60125"
+      - "5166:5166"
+      - "7114:7114"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_PORT=51433
+      - DB_USER=sa
+      - DB_PASSWORD=YourStrong!Passw0rd
+      - DB_NAME=leaderboard
+    command: sleep infinity
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "YourStrong!Passw0rd"
+    ports:
+      - "51433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+
+volumes:
+  mssql-data:
+  client_node_modules:
