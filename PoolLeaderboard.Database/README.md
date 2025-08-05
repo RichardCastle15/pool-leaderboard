@@ -15,15 +15,16 @@ dotnet build
 To publish the project, the SqlPackage CLI or the SQL Database Projects extension for Azure Data Studio/VS Code is required. The following command will publish the project to a local SQL Server instance:
 
 ```bash
-./SqlPackage /Action:Publish /SourceFile:bin/Debug/PoolLeaderboard.Database.dacpac /TargetServerName:localhost /TargetDatabaseName:PoolLeaderboard.Database
+sqlpackage /Action:Publish /SourceFile:"bin/Debug/PoolLeaderboard.Database.dacpac" \
+    /TargetConnectionString:'Server=db,1433;Database=leaderboard;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;'
 ```
 
 Learn more about authentication and other options for SqlPackage here: https://aka.ms/sqlpackage-ref
 
-### Install SqlPackage CLI
+## Query the dev db
 
-If you would like to use the command-line utility SqlPackage.exe for deploying the `dacpac`, you can obtain it as a dotnet tool.  The tool is available for Windows, macOS, and Linux.
+`sqlcmd` is preinstalled in the container. You can start running queries with:
 
 ```bash
-dotnet tool install -g microsoft.sqlpackage
+sqlcmd -S db -d leaderboard -U sa -P 'YourStrong!Passw0rd' -C 
 ```
