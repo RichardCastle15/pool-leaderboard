@@ -27,13 +27,13 @@ namespace PoolLeaderboard.Server.Controllers
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = "select * from Ratings";
+                    command.CommandText = "select * from rating";
                     using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            string name = (string)reader["Name"];
-                            short rating = (short)reader["Rating"];
+                            string name = (string)reader["name"];
+                            short rating = (short)reader["rating"];
                             leaderboardEntries.Add(new LeaderboardEntry { Name = name, Rating = rating });
                         }
                     }
