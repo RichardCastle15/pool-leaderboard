@@ -22,7 +22,7 @@ This will set up a database container. There is a readme in the database project
 
 #### Current limitations
 
-Jasmine test explorer may error as it can start before the container has installed the needed testing dependencies.
+Jasmine test explorer may error as it can start before the container has installed the needed testing dependencies. Refreshing the test explorer in VS Code usually works.
 
 A `\package.g.props` file may show in source control. This can cause issues for git working with it. All you can do is delete it from the file system (not through git, won't work).
 

@@ -21,6 +21,8 @@ sqlpackage /Action:Publish /SourceFile:"bin/Debug/PoolLeaderboard.Database.dacpa
 
 Learn more about authentication and other options for SqlPackage here: https://aka.ms/sqlpackage-ref
 
+There is a `deploy.sh` file which can be run to deploy the database with the latest schema.
+
 ## Query the dev db
 
 `sqlcmd` is preinstalled in the container. You can start running queries with:
