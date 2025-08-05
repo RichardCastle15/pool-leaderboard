@@ -4,6 +4,8 @@ RUN apt-get install -y curl
 RUN curl -sL https://deb.nodesource.com/setup_20.x | bash
 RUN apt-get -y install nodejs
 RUN npm install -g @angular/cli
+RUN dotnet tool install -g microsoft.sqlpackage
+ENV PATH="$PATH:/root/.dotnet/tools"
 
 # Install Microsoft SQL Server tools (sqlcmd and bcp)
 RUN apt-get update && \
@@ -16,15 +18,6 @@ RUN apt-get update && \
     echo 'export PATH=$PATH:/opt/mssql-tools18/bin' >> /etc/bash.bashrc && \
     rm -f microsoft.asc && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install SqlPackage CLI
-RUN apt-get update && \
-    apt-get install -y unzip curl gnupg && \
-    curl -sSL -o sqlpackage.zip https://aka.ms/sqlpackage-linux && \
-    unzip sqlpackage.zip -d /opt/sqlpackage && \
-    chmod +x /opt/sqlpackage/sqlpackage && \
-    ln -s /opt/sqlpackage/sqlpackage /usr/local/bin/sqlpackage && \
-    rm sqlpackage.zip
 
 # 🧩 Required dependencies for Puppeteer's Chromium
 RUN apt-get update && apt-get install -y \
