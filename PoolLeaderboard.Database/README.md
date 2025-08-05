@@ -30,3 +30,5 @@ There is a `deploy.sh` file which can be run to deploy the database with the lat
 ```bash
 sqlcmd -S db -d leaderboard -U sa -P 'YourStrong!Passw0rd' -C 
 ```
+
+Type in your query, and then type `go` to run them. Finish the session by typing `quit`.
