@@ -40,5 +40,5 @@ RUN apt-get update && apt-get install -y \
 
 # Set env to CI as docker container has no UI so needs same set up.
 ENV CI=true
-ENV CONNECTION_STRING='Server=db,1433;Database=leaderboard;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;'
+ENV ConnectionStrings__DefaultConnection='Server=db,1433;Database=leaderboard;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;'
 WORKDIR /workspaces/pool-leaderboard

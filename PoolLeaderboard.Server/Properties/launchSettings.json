@@ -7,7 +7,7 @@
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5166"
+      "applicationUrl": "http://0.0.0.0:5166"
     },
     "https": {
       "commandName": "Project",
@@ -16,7 +16,7 @@
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "https://localhost:7114;http://localhost:5166"
+      "applicationUrl": "https://0.0.0.0:7114;http://0.0.0.0:5166"
     },
     "Container (Dockerfile)": {
       "commandName": "Docker",

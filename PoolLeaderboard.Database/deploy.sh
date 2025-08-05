@@ -8,4 +8,4 @@ dotnet build
 
 echo 'Deploying...'
 sqlpackage /Action:Publish /SourceFile:"bin/Debug/PoolLeaderboard.Database.dacpac" \
-    /TargetConnectionString:"$CONNECTION_STRING"
+    /TargetConnectionString:"$ConnectionStrings__DefaultConnection"
