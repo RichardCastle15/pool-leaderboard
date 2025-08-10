@@ -8,7 +8,43 @@ The frontend connects to the backend via a proxy while developing. This allows t
 
 ### Visual Studio Code dev container (recommended)
 
-Using Visual Studio Code with the `Dev Containers` extension will set up the development environment for you in a docker container. You will need docker desktop for this and to have it open and started. Alternatively, you can launch a codespace from Github into VS Code. From the `Code` tab in Github, open the `Code` button dropdown, then either click `+` to make a new codespace on main or click the elipses and click `New with options` to configure things like the branch. You do not need docker locally for Github codespaces.
+There are 2 ways to make a dev environment for this project.
+
+#### Github codespaces (easiest)
+
+In the GitHub web UI, from the `Code` tab in Github, open the `Code` button dropdown, then either click `+` to make a new codespace on main or click the elipses and click `New with options` to configure things like the branch. This will run the docker dev containers on a linux VM on the GitHub servers. You can connect to the codespace via the GitHub UI. I recommend using the VS Code option.
+
+#### Local cloning of repp
+
+You will need:
+
+- WSL2 with a plain linux distribution, like Ubuntu
+- Docker desktop
+- "Dev containers" VS Code extension
+- "WSL" VS Code extension
+
+Make sure WSL is installed on your Windows machine and accessible from powershell. Then, run `wsl --install -d Ubuntu` to install Ubuntu. This should launch a bash cli. To reconnect into the linux install use `wsl -d Ubuntu`.
+
+While running a cli in Ubuntu, run these commands to set up the needed installs:
+
+``` Bash
+sudo apt update
+sudo apt upgrade -y
+sudo apt install -y git build-essential curl
+```
+
+Then, make docker available in the Linux dist you're running in by following these steps in docker desktop: `Settings`, `Resources`, `WSL integration`, `Enable integration with additional distros` and make sure your distro is enabled.
+
+Then, in the linux distro, make a code folder and clone the repo into it. You will need to login with your GitHub user name and a PAT (generated in the GitHub web UI) for your password.
+
+``` Bash
+mkdir -p ~/code && cd ~/code
+git clone https://github.com/RichardCastle15/pool-leaderboard.git
+```
+
+In the `pool-leaderboard` folder the cloning makes, run `code .` from the bash shell. This should open VS Code. You should then be prompted to reopen in a dev container.
+
+#### Working with the code
 
 To start a debugging session, open the `Run and Debug` tab in VS Code and run either the `Debug Angular Frontend`, `Debug Backend` or `Debug Fullstack` profile. Your app will start at: `http://localhost:60125/` when local (the browser should open), or you can see the url for the port in the `ports` tab in VS Code.
 
