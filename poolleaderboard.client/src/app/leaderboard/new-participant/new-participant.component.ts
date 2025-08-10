@@ -9,7 +9,6 @@ import { NbButtonModule, NbCardModule, NbDialogRef, NbInputModule } from '@nebul
   styleUrl: './new-participant.component.scss'
 })
 export class NewParticipantComponent {
-
   suppliedName = model('');
 
   constructor(private readonly dialogRef: NbDialogRef<NewParticipantComponent>) {}

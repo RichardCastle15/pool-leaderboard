@@ -23,9 +23,7 @@ export class LeaderboardComponent implements OnDestroy {
 
   private subscriptions = new Subscription();
 
-  constructor(private readonly dialogService: NbDialogService) {
-    
-  }
+  constructor(private readonly dialogService: NbDialogService) {}
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
