@@ -7,7 +7,6 @@ services:
       dockerfile: .devcontainer/Dockerfile
     volumes:
       - ..:/workspaces/pool-leaderboard:cached
-      - client_node_modules:/workspaces/pool-leaderboard/poolleaderboard.client/node_modules
     ports:
       - "60125:60125"
       - "5166:5166"
@@ -35,4 +34,3 @@ services:
 
 volumes:
   mssql-data:
-  client_node_modules:
