@@ -9,3 +9,11 @@
 @include nb-install() {
   @include nb-theme-global();
 }
+
+body {
+  // variables
+  --gap-grouped-horizontal: 4px;
+  --gap-grouped-verticle: 8px;
+  --gap-section: 16px;
+  --gap-title: 24px;
+}

@@ -7,10 +7,10 @@
     <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ expandableColumn }}</th>
     <td nbTreeGridCell *nbTreeGridCellDef="let row" [class.extra-info]="!row.data.id">
 
-      @if(row.children && row.children.length > 0) {
+      <!-- @if(row.children && row.children.length > 0) {
       <nb-tree-grid-row-toggle [expanded]="row.expanded">
       </nb-tree-grid-row-toggle>
-      }
+      } -->
 
       {{row.data.name}}
 
@@ -37,7 +37,7 @@
           <nb-badge text="{{selectedIds().length}}" status="info" position="top left"></nb-badge>
         </span>
       </nb-action>
-      <nb-action><nb-icon icon="person-add-outline"></nb-icon>@if(size() === 'full') { Add someone }</nb-action>
+      <nb-action (click)="openNewParticipantDialog()"><nb-icon icon="person-add-outline"></nb-icon>@if(size() === 'full') { Add someone }</nb-action>
     </nb-actions>
   </nb-card-body>
 </nb-card>

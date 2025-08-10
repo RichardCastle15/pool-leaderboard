@@ -1,0 +1,12 @@
+<nb-card>
+  <nb-card-header>Add to leaderboard</nb-card-header>
+  <nb-card-body>
+    <input type="text" nbInput placeholder="Name" [(ngModel)]="suppliedName">
+  </nb-card-body>
+  <nb-card-footer>
+    <div class="buttons">
+      <button nbButton status="primary" (click)="submitDialog()">Add</button>
+      <button nbButton status="basic" (click)="cancelDialog()">Cancel</button>
+    </div>
+  </nb-card-footer>
+</nb-card>
