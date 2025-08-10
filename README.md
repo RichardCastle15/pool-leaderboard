@@ -60,10 +60,6 @@ This will set up a database container. There is a readme in the database project
 
 Jasmine test explorer may error as it can start before the container has installed the needed testing dependencies. Refreshing the test explorer in VS Code usually works.
 
-A `\package.g.props` file may show in source control. This can cause issues for git working with it. All you can do is delete it from the file system (not through git, won't work).
-
-Git can become behind when running a local dev container. You may need to refresh git manually to see all changes (can be done through VS Code UI).
-
 ### Component showcase
 
 In the front end, the aim is to follow the presenter-container pattern. This splits components into 2 types: presenters, which have no business logic and communicate exclusively through inputs/outputs; and containers, which coordinate presenters with business logic. The presenters will be displayed in a component showcase so you can see how they look in various states. This component showcase is added to the navigation bar when building the front end with a development build.
