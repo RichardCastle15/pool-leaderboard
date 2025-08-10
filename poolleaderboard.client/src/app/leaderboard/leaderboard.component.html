@@ -37,7 +37,9 @@
           <nb-badge text="{{selectedIds().length}}" status="info" position="top left"></nb-badge>
         </span>
       </nb-action>
-      <nb-action (click)="openNewParticipantDialog()"><nb-icon icon="person-add-outline"></nb-icon>@if(size() === 'full') { Add someone }</nb-action>
+      <nb-action (click)="openNewParticipantDialog()" class="add-participant-action">
+        <nb-icon icon="person-add-outline"></nb-icon>@if(size() === 'full') { Add someone }
+      </nb-action>
     </nb-actions>
   </nb-card-body>
 </nb-card>

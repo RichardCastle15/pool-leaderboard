@@ -2,9 +2,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LeaderboardComponent } from './leaderboard.component';
 import { DOCUMENT } from '@angular/common';
-import { NbIconModule, NbThemeModule } from '@nebular/theme';
+import { NbDialogRef, NbDialogService, NbIconModule, NbThemeModule } from '@nebular/theme';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { By } from '@angular/platform-browser';
+import { NewParticipantComponent } from './new-participant/new-participant.component';
+import { Subject } from 'rxjs';
 
 describe('LeaderboardComponent', () => {
   let component: LeaderboardComponent;
@@ -34,11 +36,26 @@ describe('LeaderboardComponent', () => {
     },
   ]
 
+  let dialogClose: Subject<string>;
+  let mockDialogRef: Partial<NbDialogRef<NewParticipantComponent>>;
+  let mockDialogService: Partial<NbDialogService>;
+
   beforeEach(async () => {
+    dialogClose = new Subject<string>();
+    mockDialogRef = {
+      onClose: dialogClose
+    };
+    mockDialogService = {
+      open: jasmine.createSpy('open').and.returnValue(mockDialogRef)
+    };
+    
     await TestBed.configureTestingModule({
       declarations: [],
       imports: [LeaderboardComponent, NbThemeModule.forRoot(), NbIconModule, NbEvaIconsModule],
-      providers: [{ provide: DOCUMENT, useValue: document }]
+      providers: [
+        { provide: DOCUMENT, useValue: document },
+        { provide: NbDialogService, useValue: mockDialogService },
+      ]
     })
     .compileComponents();
 
@@ -127,5 +144,16 @@ describe('LeaderboardComponent', () => {
       const countDisplayed = fixture.debugElement.query(By.css('#killer-action nb-badge')).componentInstance.text;
       expect(countDisplayed).toBe('2');
     });
+
+    it('should emit on the newParticipant output when adding a new participant', () => {
+      let participantName = '';
+      fixture.componentInstance.newParticipant.subscribe(result => participantName = result);
+      const addParticipantButton = fixture.debugElement.query(By.css('.add-participant-action'));
+      addParticipantButton.triggerEventHandler('click');
+      dialogClose.next('test user');
+      dialogClose.complete();
+
+      expect(participantName).toBe('test user');
+    })
   });
 });
