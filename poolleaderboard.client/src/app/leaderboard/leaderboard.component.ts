@@ -1,5 +1,5 @@
-import { Component, input, OnDestroy, output, signal } from '@angular/core';
-import { NbActionsModule, NbBadgeModule, NbCardModule, NbDialogService, NbIconModule, NbTreeGridModule } from '@nebular/theme';
+import { Component, computed, input, OnDestroy, output, Signal, signal } from '@angular/core';
+import { NbActionsModule, NbBadgeModule, NbCardModule, NbDialogService, NbIconModule, NbSortDirection, NbSortRequest, NbTreeGridDataSource, NbTreeGridDataSourceBuilder, NbTreeGridModule } from '@nebular/theme';
 import { LeaderboardEntryRow } from './leaderboard-entry-row.model';
 import { TreeNode } from './tree-node.model';
 import { NewParticipantComponent } from './new-participant/new-participant.component';
@@ -17,16 +17,39 @@ export class LeaderboardComponent implements OnDestroy {
   selectedIds = signal<number[]>([]);
   newParticipant = output<string>();
 
+  dataSource: Signal<NbTreeGridDataSource<LeaderboardEntryRow>>;
+  sortColumn: string = 'rank';
+  sortDirection: NbSortDirection = NbSortDirection.ASCENDING;
+
   expandableColumn = 'name';
   dataColumns = ['points', 'rank'];
   allColumns = [this.expandableColumn, ...this.dataColumns];
 
   private subscriptions = new Subscription();
 
-  constructor(private readonly dialogService: NbDialogService) {}
+  constructor(
+    private readonly dialogService: NbDialogService,
+    private readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<LeaderboardEntryRow>
+  ) {
+    this.dataSource = computed<NbTreeGridDataSource<LeaderboardEntryRow>>(() => {
+      return this.dataSourceBuilder.create(this.entries());
+    });
+  }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+  }
+
+  updateSort(sortRequest: NbSortRequest): void {
+    this.sortColumn = sortRequest.column;
+    this.sortDirection = sortRequest.direction;
+  }
+
+  getSortDirection(column: string): NbSortDirection {
+    if (this.sortColumn === column) {
+      return this.sortDirection;
+    }
+    return NbSortDirection.NONE;
   }
 
   clickRow(rowId: number) {
