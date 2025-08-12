@@ -1,6 +1,6 @@
 # Poolleaderboard project
 
-This project was originally generated with the default asp.net core and Angular template, with containerised set to true. Visual Studio is recommended for fullstack developement.
+This project was originally generated with the default asp.net core and Angular template, with containerised set to true.
 
 ## Developement setup
 
@@ -14,7 +14,7 @@ There are 2 ways to make a dev environment for this project.
 
 In the GitHub web UI, from the `Code` tab in Github, open the `Code` button dropdown, then either click `+` to make a new codespace on main or click the elipses and click `New with options` to configure things like the branch. This will run the docker dev containers on a linux VM on the GitHub servers. You can connect to the codespace via the GitHub UI. I recommend using the VS Code option.
 
-#### Local cloning of repp
+#### Local cloning of repo
 
 You will need:
 
@@ -22,6 +22,8 @@ You will need:
 - Docker desktop
 - "Dev containers" VS Code extension
 - "WSL" VS Code extension
+
+Install docker desktop. This will likely also set up WSL. But if it does not, install that.
 
 Make sure WSL is installed on your Windows machine and accessible from powershell. Then, run `wsl --install -d Ubuntu` to install Ubuntu. This should launch a bash cli. To reconnect into the linux install use `wsl -d Ubuntu`.
 
