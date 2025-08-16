@@ -94,6 +94,17 @@ describe('LeaderboardComponent', () => {
     expect(fixture.debugElement.queryAll(By.css('.selected-row')).length).toBe(0);
   });
 
+  it('should sort rows when title clicked', () => {
+    fixture.componentRef.setInput('entries', entries);
+    fixture.detectChanges();
+    const tableHeaders = fixture.debugElement.queryAll(By.css('table th'));
+    const rankHeader = tableHeaders.filter(de => de.nativeElement.innerText === "Rank");
+    rankHeader[0].nativeElement.click();
+    fixture.detectChanges();
+    const firstResult: string = fixture.debugElement.query(By.css('table tr td')).nativeElement.innerText
+    expect(firstResult.trim()).toBe('Stephen B');
+  });
+
   describe('action buttons', () => {
     it('should disable head-to-head and killer actions when noone selected', () => {
       fixture.componentRef.setInput('entries', entries);

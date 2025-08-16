@@ -1,10 +1,10 @@
-<table [nbTreeGrid]="entries()">
-  <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns" class="capitalize-first"></tr>
+<table [nbTreeGrid]="dataSource()" [nbSort]="dataSource()" (sort)="updateSort($event)">
+  <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
   <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns" [clickToToggle]="false" (click)="clickRow(row.data.id)"
       [class.selected-row]="selectedIds().includes(row.data.id)"></tr>
 
   <ng-container [nbTreeGridColumnDef]="expandableColumn">
-    <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ expandableColumn }}</th>
+    <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef [nbSortHeader]="getSortDirection(expandableColumn)">{{ expandableColumn | titlecase}}</th>
     <td nbTreeGridCell *nbTreeGridCellDef="let row" [class.extra-info]="!row.data.id">
 
       <!-- @if(row.children && row.children.length > 0) {
@@ -19,7 +19,7 @@
 
   @for(column of dataColumns; track column) {
   <ng-container [nbTreeGridColumnDef]="column">
-    <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ column }}</th>
+    <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef [nbSortHeader]="getSortDirection(column)">{{ column | titlecase}}</th>
     <td nbTreeGridCell *nbTreeGridCellDef="let row" [class.extra-info]="!row.data.id">{{row.data[column]}}</td>
   </ng-container>
   }
