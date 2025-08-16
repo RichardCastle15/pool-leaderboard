@@ -4,22 +4,24 @@ import { LeaderboardEntryRow } from './leaderboard-entry-row.model';
 import { TreeNode } from './tree-node.model';
 import { NewParticipantComponent } from './new-participant/new-participant.component';
 import { Subscription } from 'rxjs';
+import { TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-leaderboard',
   templateUrl: './leaderboard.component.html',
   styleUrl: './leaderboard.component.scss',
-  imports: [NbTreeGridModule, NbCardModule, NbActionsModule, NbIconModule, NbBadgeModule]
+  imports: [NbTreeGridModule, NbCardModule, NbActionsModule, NbIconModule, NbBadgeModule, TitleCasePipe]
 })
 export class LeaderboardComponent implements OnDestroy {
+  readonly defaultRequest = {column: 'rank', direction: NbSortDirection.ASCENDING};
+
   entries = input<TreeNode<LeaderboardEntryRow>[]>([]);
   size = input<'full'|'compact'>('full');
   selectedIds = signal<number[]>([]);
   newParticipant = output<string>();
 
   dataSource: Signal<NbTreeGridDataSource<LeaderboardEntryRow>>;
-  sortColumn: string = 'rank';
-  sortDirection: NbSortDirection = NbSortDirection.ASCENDING;
+  sortRequest = signal<NbSortRequest>(this.defaultRequest)
 
   expandableColumn = 'name';
   dataColumns = ['points', 'rank'];
@@ -32,7 +34,9 @@ export class LeaderboardComponent implements OnDestroy {
     private readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<LeaderboardEntryRow>
   ) {
     this.dataSource = computed<NbTreeGridDataSource<LeaderboardEntryRow>>(() => {
-      return this.dataSourceBuilder.create(this.entries());
+      const result = this.dataSourceBuilder.create(this.entries());
+      result.sort(this.sortRequest());
+      return result;
     });
   }
 
@@ -41,13 +45,14 @@ export class LeaderboardComponent implements OnDestroy {
   }
 
   updateSort(sortRequest: NbSortRequest): void {
-    this.sortColumn = sortRequest.column;
-    this.sortDirection = sortRequest.direction;
+    const requestToUse = sortRequest.direction === NbSortDirection.NONE ? this.defaultRequest : sortRequest;
+    this.sortRequest.set(requestToUse);
   }
 
   getSortDirection(column: string): NbSortDirection {
-    if (this.sortColumn === column) {
-      return this.sortDirection;
+    const currentRequest = this.sortRequest();
+    if (currentRequest.column === column) {
+      return currentRequest.direction;
     }
     return NbSortDirection.NONE;
   }
