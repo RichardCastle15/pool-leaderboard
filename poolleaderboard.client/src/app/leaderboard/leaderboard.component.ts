@@ -21,7 +21,7 @@ export class LeaderboardComponent implements OnDestroy {
   newParticipant = output<string>();
 
   dataSource: Signal<NbTreeGridDataSource<LeaderboardEntryRow>>;
-  sortRequest = signal<NbSortRequest>(this.defaultRequest)
+  sortRequest = signal<NbSortRequest>(this.defaultRequest);
 
   expandableColumn = 'name';
   dataColumns = ['points', 'rank'];
