@@ -4,7 +4,7 @@
   "service": "devcontainer",
   "workspaceFolder": "/workspaces/pool-leaderboard",
   "forwardPorts": [60125, 5166, 7114],
-  "postCreateCommand": "cd /workspaces/pool-leaderboard && dotnet restore ./PoolLeaderboard.Server && dotnet build && dotnet dev-certs https --trust && echo 'Installing puppeteer chrome...' && npx puppeteer browsers install chrome && echo 'Deploying DB' && ./PoolLeaderboard.Database/deploy.sh && echo 'Done!'",
+  "postCreateCommand": "cd /workspaces/pool-leaderboard && dotnet restore ./PoolLeaderboard.Server && dotnet build && dotnet dev-certs https --trust && echo 'Installing puppeteer chrome...' && npx --prefix ./poolleaderboard.client puppeteer browsers install chrome && echo 'Deploying DB' && ./PoolLeaderboard.Database/deploy.sh && echo 'Done!'",
   "customizations": {
     "vscode": {
       "settings": {
