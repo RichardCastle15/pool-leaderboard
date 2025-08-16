@@ -37,7 +37,7 @@ sudo apt install -y git build-essential curl
 
 Then, make docker available in the Linux dist you're running in by following these steps in docker desktop: `Settings`, `Resources`, `WSL integration`, `Enable integration with additional distros` and make sure your distro is enabled.
 
-Then, in the linux distro, make a code folder and clone the repo into it. You will need to login with your GitHub user name and a PAT (generated in the GitHub web UI) for your password.
+Then, in the linux distro, make a `~/code` folder and clone the repo into it. You will need to login with your GitHub user name and a PAT (generated in the GitHub web UI) for your password.
 
 ``` Bash
 mkdir -p ~/code && cd ~/code
