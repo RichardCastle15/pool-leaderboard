@@ -1,1 +1,1 @@
-export type GameType ='combined'|'singles'|'killer';
+export type GameType = 'combined'|'singles'|'killer';
