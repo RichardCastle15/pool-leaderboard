@@ -105,6 +105,21 @@ describe('LeaderboardComponent', () => {
     expect(firstResult.trim()).toBe('Stephen B');
   });
 
+  describe('gameTypeFilter output', () => {
+    it('should emit when a button in the button group is clicked', () => {
+      fixture.detectChanges();
+      let emittedValue: string | undefined;
+      fixture.componentInstance.gameTypeFilter.subscribe((value: string) => emittedValue = value);
+
+      // Find the button group and the "Singles" button (value="singles")
+      const buttonGroup = fixture.debugElement.query(By.css('.mode-button-group'));
+      buttonGroup.triggerEventHandler('valueChange', ['singles']);
+      fixture.detectChanges();
+
+      expect(emittedValue).toBe('singles');
+    });
+  });
+
   describe('action buttons', () => {
     it('should disable head-to-head and killer actions when noone selected', () => {
       fixture.componentRef.setInput('entries', entries);
