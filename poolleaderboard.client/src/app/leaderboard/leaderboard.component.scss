@@ -16,8 +16,13 @@
     }
   }
 
-  table tr td {
-      cursor: pointer;
+  table {
+    tr {
+      height: 50px;
+      td {
+        cursor: pointer;
+      }
+    }
   }
 
   .selected-row {
