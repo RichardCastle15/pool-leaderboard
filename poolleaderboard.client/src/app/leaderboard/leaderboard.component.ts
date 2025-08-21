@@ -1,16 +1,17 @@
 import { Component, computed, input, OnDestroy, output, Signal, signal } from '@angular/core';
-import { NbActionsModule, NbBadgeModule, NbCardModule, NbDialogService, NbIconModule, NbSortDirection, NbSortRequest, NbTreeGridDataSource, NbTreeGridDataSourceBuilder, NbTreeGridModule } from '@nebular/theme';
+import { NbActionsModule, NbBadgeModule, NbButtonGroupModule, NbCardModule, NbDialogService, NbIconModule, NbSortDirection, NbSortRequest, NbTreeGridDataSource, NbTreeGridDataSourceBuilder, NbTreeGridModule } from '@nebular/theme';
 import { LeaderboardEntryRow } from './leaderboard-entry-row.model';
 import { TreeNode } from './tree-node.model';
 import { NewParticipantComponent } from './new-participant/new-participant.component';
 import { Subscription } from 'rxjs';
 import { TitleCasePipe } from '@angular/common';
+import { GameType } from './game-type-filter.type';
 
 @Component({
   selector: 'app-leaderboard',
   templateUrl: './leaderboard.component.html',
   styleUrl: './leaderboard.component.scss',
-  imports: [NbTreeGridModule, NbCardModule, NbActionsModule, NbIconModule, NbBadgeModule, TitleCasePipe]
+  imports: [NbTreeGridModule, NbCardModule, NbActionsModule, NbIconModule, NbBadgeModule, TitleCasePipe, NbButtonGroupModule]
 })
 export class LeaderboardComponent implements OnDestroy {
   readonly defaultRequest = {column: 'rank', direction: NbSortDirection.ASCENDING};
@@ -19,6 +20,7 @@ export class LeaderboardComponent implements OnDestroy {
   size = input<'full'|'compact'>('full');
   selectedIds = signal<number[]>([]);
   newParticipant = output<string>();
+  gameTypeFilter = output<GameType>();
 
   dataSource: Signal<NbTreeGridDataSource<LeaderboardEntryRow>>;
   sortRequest = signal<NbSortRequest>(this.defaultRequest);
@@ -76,5 +78,9 @@ export class LeaderboardComponent implements OnDestroy {
         this.newParticipant.emit(result);
     });
     this.subscriptions.add(dialogCloseSub);
+  }
+
+  changeGameTypeFilter(newType: GameType) {
+    this.gameTypeFilter.emit(newType);
   }
 }
