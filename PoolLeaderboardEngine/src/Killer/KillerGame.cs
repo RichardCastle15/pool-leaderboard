@@ -1,8 +1,11 @@
+using PoolLeaderboardEngine.Killer.GameActions;
+
 namespace PoolLeaderboardEngine.Killer;
 
 public class KillerGame
 {
     private KillerGameState gameState;
+    private Stack<IGameAction> gameActions = new Stack<IGameAction>();
 
     public KillerGame(IEnumerable<string> _players)
     {
@@ -20,7 +23,9 @@ public class KillerGame
 
     public void Pot()
     {
-        moveToNextAlive();
+        PotGameAction action = new();
+        action.Apply(gameState);
+        gameActions.Push(action);
     }
 
     public void Miss()
@@ -35,6 +40,13 @@ public class KillerGame
         moveToNextAlive();
     }
 
+    public void Undo()
+    {
+        IGameAction lastAction = gameActions.Pop();
+        lastAction.Undo(gameState);
+    }
+
+    [Obsolete("Will be handled by game actions")]
     private void moveToNextAlive()
     {
         do

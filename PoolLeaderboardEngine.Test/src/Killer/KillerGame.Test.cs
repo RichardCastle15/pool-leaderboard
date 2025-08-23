@@ -106,4 +106,18 @@ public class KillerGameTests
         KillerGameState state = game.GetState();
         Assert.Equal(2, state.CurrentPlayerIndex);
     }
+
+    [Fact]
+    public void ShouldGoBackAPlayerOnUndoPot()
+    {
+        List<string> players = ["PersonA", "PersonB"];
+        KillerGame game = new(players);
+
+        game.Pot();
+        game.Undo();
+
+        KillerGameState state = game.GetState();
+        Assert.Equal(0, state.CurrentPlayerIndex);
+        Assert.All(state.PlayerRows, pr => Assert.Equal(3, pr.LivesRemaining));
+    }
 }
