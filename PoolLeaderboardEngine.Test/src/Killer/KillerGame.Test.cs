@@ -89,6 +89,7 @@ public class KillerGameTests
 
         KillerGameState state = game.GetState();
         Assert.Equal(0, state.PlayerRows[0].LivesRemaining);
+        Assert.Equal(1, state.CurrentPlayerIndex);
     }
 
     [Fact]
