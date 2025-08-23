@@ -32,6 +32,7 @@ public class KillerGameTests
     {
         List<string> players = ["PersonA", "PersonB"];
         KillerGame game = new(players);
+
         game.Pot();
 
         KillerGameState state = game.GetState();
@@ -44,6 +45,7 @@ public class KillerGameTests
     {
         List<string> players = ["PersonA", "PersonB"];
         KillerGame game = new(players);
+
         game.Pot();
         game.Pot();
 
@@ -56,10 +58,24 @@ public class KillerGameTests
     {
         List<string> players = ["PersonA", "PersonB"];
         KillerGame game = new(players);
+
         game.Miss();
 
         KillerGameState state = game.GetState();
         Assert.Equal(2, state.PlayerRows[0].LivesRemaining);
         Assert.Equal(1, state.CurrentPlayerIndex);
+    }
+
+    [Fact]
+    public void ShouldWrapToFirstPlayerOnMissByLast()
+    {
+        List<string> players = ["PersonA", "PersonB"];
+        KillerGame game = new(players);
+
+        game.Miss();
+        game.Miss();
+
+        KillerGameState state = game.GetState();
+        Assert.Equal(0, state.CurrentPlayerIndex);
     }
 }
