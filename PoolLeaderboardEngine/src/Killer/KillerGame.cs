@@ -4,29 +4,29 @@ public class KillerGame
 {
     private KillerGameState gameState;
 
-    public KillerGame(IEnumerable<string> players)
+    public KillerGame(IEnumerable<string> _players)
     {
-        this.gameState = new KillerGameState
+        gameState = new KillerGameState
         {
-            PlayerRows = players.Select(p => new KillerGameRow { PlayerName = p, LivesRemaining = 3, MissedInSuddenDeath = false }).ToList(),
+            PlayerRows = _players.Select(p => new KillerGameRow { PlayerName = p, LivesRemaining = 3, MissedInSuddenDeath = false }).ToList(),
             CurrentPlayerIndex = 0
         };
     }
 
     public KillerGameState GetState()
     {
-        return this.gameState;
+        return gameState;
     }
 
     public void Pot()
     {
-        this.moveToNext();
+        moveToNext();
     }
 
     public void Miss()
     {
-        --this.gameState.PlayerRows[this.gameState.CurrentPlayerIndex].LivesRemaining;
-        this.moveToNext();
+        --gameState.PlayerRows[gameState.CurrentPlayerIndex].LivesRemaining;
+        moveToNext();
     }
 
     private void moveToNext()
