@@ -29,6 +29,12 @@ public class KillerGame
         moveToNext();
     }
 
+    public void EarlyBlackPot()
+    {
+        gameState.PlayerRows[gameState.CurrentPlayerIndex].LivesRemaining = 0;
+        moveToNext();
+    }
+
     private void moveToNext()
     {
         gameState.CurrentPlayerIndex = (gameState.CurrentPlayerIndex + 1) % gameState.PlayerRows.Count;

@@ -78,4 +78,16 @@ public class KillerGameTests
         KillerGameState state = game.GetState();
         Assert.Equal(0, state.CurrentPlayerIndex);
     }
+
+    [Fact]
+    public void ShouldRemoveAllLivesWhenPotBlackEarly()
+    {
+        List<string> players = ["PersonA", "PersonB"];
+        KillerGame game = new(players);
+
+        game.EarlyBlackPot();
+
+        KillerGameState state = game.GetState();
+        Assert.Equal(0, state.PlayerRows[0].LivesRemaining);
+    }
 }
