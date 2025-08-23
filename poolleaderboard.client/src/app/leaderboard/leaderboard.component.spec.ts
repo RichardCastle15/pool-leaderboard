@@ -120,6 +120,15 @@ describe('LeaderboardComponent', () => {
     });
   });
 
+  describe('loading', () => {
+    it('should show 3 placeholder rows', () => {
+      fixture.componentRef.setInput('loading', true);
+      fixture.detectChanges();
+      const loadingRows = fixture.debugElement.queryAll(By.css('tr.loading-row')).length;
+      expect(loadingRows).toBe(3);
+    })
+  })
+
   describe('action buttons', () => {
     it('should disable head-to-head and killer actions when noone selected', () => {
       fixture.componentRef.setInput('entries', entries);
