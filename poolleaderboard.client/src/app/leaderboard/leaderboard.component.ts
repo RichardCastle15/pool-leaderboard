@@ -15,14 +15,17 @@ import { GameType } from './game-type-filter.type';
 })
 export class LeaderboardComponent implements OnDestroy {
   readonly defaultRequest = {column: 'rank', direction: NbSortDirection.ASCENDING};
+  readonly loadingDataItem: TreeNode<LeaderboardEntryRow | {}> = {data: {}};
+  readonly loadingData: TreeNode<LeaderboardEntryRow | {}>[] = [this.loadingDataItem, this.loadingDataItem, this.loadingDataItem];
 
-  entries = input<TreeNode<LeaderboardEntryRow>[]>([]);
+  entries = input<TreeNode<LeaderboardEntryRow | {}>[]>([]);
+  loading = input(false);
   size = input<'full'|'compact'>('full');
   selectedIds = signal<number[]>([]);
   newParticipant = output<string>();
   gameTypeFilter = output<GameType>();
 
-  dataSource: Signal<NbTreeGridDataSource<LeaderboardEntryRow>>;
+  dataSource: Signal<NbTreeGridDataSource<LeaderboardEntryRow | {}>>;
   sortRequest = signal<NbSortRequest>(this.defaultRequest);
 
   expandableColumn = 'name';
@@ -33,9 +36,11 @@ export class LeaderboardComponent implements OnDestroy {
 
   constructor(
     private readonly dialogService: NbDialogService,
-    private readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<LeaderboardEntryRow>
+    private readonly dataSourceBuilder: NbTreeGridDataSourceBuilder<LeaderboardEntryRow | {}>
   ) {
-    this.dataSource = computed<NbTreeGridDataSource<LeaderboardEntryRow>>(() => {
+    this.dataSource = computed<NbTreeGridDataSource<LeaderboardEntryRow | {}>>(() => {
+      if (this.loading())
+        return this.dataSourceBuilder.create(this.loadingData);
       const result = this.dataSourceBuilder.create(this.entries());
       result.sort(this.sortRequest());
       return result;
