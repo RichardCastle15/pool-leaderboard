@@ -94,14 +94,15 @@ public class KillerGameTests
     [Fact]
     public void ShouldSkipPlayerWithNoLives()
     {
-        List<string> players = ["PersonA", "PersonB", "PersonC"];
+        List<string> players = ["PersonA", "PersonB", "PersonC", "PersonD"];
         KillerGame game = new(players);
 
+        game.EarlyBlackPot();
         game.EarlyBlackPot();
         game.Pot();
         game.Pot();
 
         KillerGameState state = game.GetState();
-        Assert.Equal(1, state.CurrentPlayerIndex);
+        Assert.Equal(2, state.CurrentPlayerIndex);
     }
 }
