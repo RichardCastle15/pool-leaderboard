@@ -20,7 +20,17 @@ public class KillerGame
 
     public void Pot()
     {
-        // Move to the next player, wrap around if at the end
+        this.moveToNext();
+    }
+
+    public void Miss()
+    {
+        --this.gameState.PlayerRows[this.gameState.CurrentPlayerIndex].LivesRemaining;
+        this.moveToNext();
+    }
+
+    private void moveToNext()
+    {
         gameState.CurrentPlayerIndex = (gameState.CurrentPlayerIndex + 1) % gameState.PlayerRows.Count;
     }
 }

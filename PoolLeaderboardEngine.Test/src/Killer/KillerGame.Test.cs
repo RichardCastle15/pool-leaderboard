@@ -50,4 +50,16 @@ public class KillerGameTests
         KillerGameState state = game.GetState();
         Assert.Equal(0, state.CurrentPlayerIndex);
     }
+
+    [Fact]
+    public void ShouldDeductALifeWhenMiss()
+    {
+        List<string> players = ["PersonA", "PersonB"];
+        KillerGame game = new(players);
+        game.Miss();
+
+        KillerGameState state = game.GetState();
+        Assert.Equal(2, state.PlayerRows[0].LivesRemaining);
+        Assert.Equal(1, state.CurrentPlayerIndex);
+    }
 }
