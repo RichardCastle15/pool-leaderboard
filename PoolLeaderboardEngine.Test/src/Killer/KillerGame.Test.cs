@@ -26,4 +26,28 @@ public class KillerGameTests
         KillerGameState initialState = game.GetState();
         Assert.Equal(0, initialState.CurrentPlayerIndex);
     }
+
+    [Fact]
+    public void ShouldMoveOnIndexWhenPots()
+    {
+        List<string> players = ["PersonA", "PersonB"];
+        KillerGame game = new(players);
+        game.Pot();
+
+        KillerGameState state = game.GetState();
+        Assert.Equal(1, state.CurrentPlayerIndex);
+        Assert.Equal(3, state.PlayerRows[0].LivesRemaining);
+    }
+
+    [Fact]
+    public void ShouldWrapToFirstPlayerOnPotByLast()
+    {
+        List<string> players = ["PersonA", "PersonB"];
+        KillerGame game = new(players);
+        game.Pot();
+        game.Pot();
+
+        KillerGameState state = game.GetState();
+        Assert.Equal(0, state.CurrentPlayerIndex);
+    }
 }

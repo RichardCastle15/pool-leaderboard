@@ -8,12 +8,19 @@ public class KillerGame
     {
         this.gameState = new KillerGameState
         {
-            PlayerRows = players.Select(p => new KillerGameRow { PlayerName = p, LivesRemaining = 3, MissedInSuddenDeath = false }).ToList()
+            PlayerRows = players.Select(p => new KillerGameRow { PlayerName = p, LivesRemaining = 3, MissedInSuddenDeath = false }).ToList(),
+            CurrentPlayerIndex = 0
         };
     }
 
     public KillerGameState GetState()
     {
         return this.gameState;
+    }
+
+    public void Pot()
+    {
+        // Move to the next player, wrap around if at the end
+        gameState.CurrentPlayerIndex = (gameState.CurrentPlayerIndex + 1) % gameState.PlayerRows.Count;
     }
 }
