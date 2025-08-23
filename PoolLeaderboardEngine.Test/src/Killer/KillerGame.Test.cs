@@ -90,4 +90,18 @@ public class KillerGameTests
         KillerGameState state = game.GetState();
         Assert.Equal(0, state.PlayerRows[0].LivesRemaining);
     }
+
+    [Fact]
+    public void ShouldSkipPlayerWithNoLives()
+    {
+        List<string> players = ["PersonA", "PersonB", "PersonC"];
+        KillerGame game = new(players);
+
+        game.EarlyBlackPot();
+        game.Pot();
+        game.Pot();
+
+        KillerGameState state = game.GetState();
+        Assert.Equal(1, state.CurrentPlayerIndex);
+    }
 }

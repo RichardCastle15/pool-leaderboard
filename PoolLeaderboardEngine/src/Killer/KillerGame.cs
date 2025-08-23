@@ -20,23 +20,26 @@ public class KillerGame
 
     public void Pot()
     {
-        moveToNext();
+        moveToNextAlive();
     }
 
     public void Miss()
     {
         --gameState.PlayerRows[gameState.CurrentPlayerIndex].LivesRemaining;
-        moveToNext();
+        moveToNextAlive();
     }
 
     public void EarlyBlackPot()
     {
         gameState.PlayerRows[gameState.CurrentPlayerIndex].LivesRemaining = 0;
-        moveToNext();
+        moveToNextAlive();
     }
 
-    private void moveToNext()
+    private void moveToNextAlive()
     {
-        gameState.CurrentPlayerIndex = (gameState.CurrentPlayerIndex + 1) % gameState.PlayerRows.Count;
+        do
+        {
+            gameState.CurrentPlayerIndex = (gameState.CurrentPlayerIndex + 1) % gameState.PlayerRows.Count;
+        } while (gameState.PlayerRows[gameState.CurrentPlayerIndex].LivesRemaining == 0);
     }
 }
