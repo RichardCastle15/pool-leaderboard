@@ -19,8 +19,8 @@ export class LeaderboardComponent implements OnDestroy {
   readonly loadingData: TreeNode<LeaderboardEntryRow | {}>[] = [this.loadingDataItem, this.loadingDataItem, this.loadingDataItem];
 
   entries = input<TreeNode<LeaderboardEntryRow | {}>[]>([]);
-  size = input<'full'|'compact'>('full');
   loading = input(false);
+  size = input<'full'|'compact'>('full');
   selectedIds = signal<number[]>([]);
   newParticipant = output<string>();
   gameTypeFilter = output<GameType>();

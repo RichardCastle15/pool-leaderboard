@@ -6,8 +6,8 @@
 
 <table [nbTreeGrid]="dataSource()" [nbSort]="dataSource()" (sort)="updateSort($event)">
   <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
-  <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns" [clickToToggle]="false" (click)="clickRow(row.data.id)"
-      [class.selected-row]="selectedIds().includes(row.data.id)" [class.loading-row]="loading()"></tr>
+  <tr nbTreeGridRow *nbTreeGridRowDef="let row; let i = index; columns: allColumns" [clickToToggle]="false" (click)="clickRow(row.data.id)"
+      [class.selected-row]="selectedIds().includes(row.data.id)" [class.loading-row]="loading()" class="loading-row-{{i}}"></tr>
 
   <ng-container [nbTreeGridColumnDef]="expandableColumn">
     <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef [nbSortHeader]="getSortDirection(expandableColumn)">{{ expandableColumn | titlecase}}</th>

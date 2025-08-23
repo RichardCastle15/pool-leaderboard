@@ -4,6 +4,15 @@
   display: block;
   height: 100%;
 
+  @keyframes loadingPulse {
+    0% {
+      background-color: white;
+    }
+    100% {
+      background-color: whitesmoke;
+    }
+  }
+
   .mode-button-group {
     display: flex;
     width: 100%;
@@ -19,6 +28,32 @@
   table {
     tr {
       height: 50px;
+      &.loading-row {
+        &.loading-row-0 td::before {
+          animation-delay: 0.2s;
+        }
+        &.loading-row-1 td::before {
+          animation-delay: 0.4s;
+        }
+        &.loading-row-2 td::before {
+          animation-delay: 0.6s;
+        }
+        td {
+          position: relative;
+          &::before {
+            content: '';
+            width: 90%;
+            position: absolute;
+            height: 80%;
+            top: 10%;
+            left: 5%;
+            border-radius: 10px;
+            /* background-color: grey; */
+            animation: loadingPulse 1s infinite alternate;
+          }
+        }
+      }
+
       td {
         cursor: pointer;
       }
