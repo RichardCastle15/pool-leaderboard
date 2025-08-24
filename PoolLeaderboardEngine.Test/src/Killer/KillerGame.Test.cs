@@ -120,4 +120,18 @@ public class KillerGameTests
         Assert.Equal(0, state.CurrentPlayerIndex);
         Assert.All(state.PlayerRows, pr => Assert.Equal(3, pr.LivesRemaining));
     }
+
+    [Fact]
+    public void ShouldGoBackAPlayerAndGiveLifeBackOnUndoMiss()
+    {
+        List<string> players = ["PersonA", "PersonB"];
+        KillerGame game = new(players);
+
+        game.Miss();
+        game.Undo();
+
+        KillerGameState state = game.GetState();
+        Assert.Equal(0, state.CurrentPlayerIndex);
+        Assert.All(state.PlayerRows, pr => Assert.Equal(3, pr.LivesRemaining));
+    }
 }

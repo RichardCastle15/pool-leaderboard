@@ -30,8 +30,9 @@ public class KillerGame
 
     public void Miss()
     {
-        --gameState.PlayerRows[gameState.CurrentPlayerIndex].LivesRemaining;
-        moveToNextAlive();
+        MissGameAction action = new();
+        action.Apply(gameState);
+        gameActions.Push(action);
     }
 
     public void EarlyBlackPot()
