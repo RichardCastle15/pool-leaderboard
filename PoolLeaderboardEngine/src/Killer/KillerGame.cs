@@ -37,22 +37,14 @@ public class KillerGame
 
     public void EarlyBlackPot()
     {
-        gameState.PlayerRows[gameState.CurrentPlayerIndex].LivesRemaining = 0;
-        moveToNextAlive();
+        PotBlackBallEarlyGameAction action = new();
+        action.Apply(gameState);
+        gameActions.Push(action);
     }
 
     public void Undo()
     {
         IGameAction lastAction = gameActions.Pop();
         lastAction.Undo(gameState);
-    }
-
-    [Obsolete("Will be handled by game actions")]
-    private void moveToNextAlive()
-    {
-        do
-        {
-            gameState.CurrentPlayerIndex = (gameState.CurrentPlayerIndex + 1) % gameState.PlayerRows.Count;
-        } while (gameState.PlayerRows[gameState.CurrentPlayerIndex].LivesRemaining == 0);
     }
 }

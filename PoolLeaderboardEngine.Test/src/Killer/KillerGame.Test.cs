@@ -134,4 +134,28 @@ public class KillerGameTests
         Assert.Equal(0, state.CurrentPlayerIndex);
         Assert.All(state.PlayerRows, pr => Assert.Equal(3, pr.LivesRemaining));
     }
+
+    [Fact]
+    public void ShouldGivePlayerBackAllLivesOnUndoBlackballPot()
+    {
+        List<string> players = ["PersonA", "PersonB", "PersonC"];
+        KillerGame game = new(players);
+
+        game.Miss();
+        game.Pot();
+        game.Pot();
+
+        game.EarlyBlackPot();
+        game.EarlyBlackPot();
+
+        game.Undo();
+        KillerGameState state = game.GetState();
+        Assert.Equal(3, state.PlayerRows[state.CurrentPlayerIndex].LivesRemaining);
+        Assert.Equal(1, state.CurrentPlayerIndex);
+
+        game.Undo();
+        state = game.GetState();
+        Assert.Equal(2, state.PlayerRows[state.CurrentPlayerIndex].LivesRemaining);
+        Assert.Equal(0, state.CurrentPlayerIndex);
+    }
 }
