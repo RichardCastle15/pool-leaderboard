@@ -10,7 +10,7 @@ internal class PotBlackBallEarlyGameAction : BaseGameAction
         playerIndex = gameState.CurrentPlayerIndex;
         livesTaken = gameState.PlayerRows[gameState.CurrentPlayerIndex].LivesRemaining;
         gameState.PlayerRows[gameState.CurrentPlayerIndex].LivesRemaining = 0;
-        MoveToNextAlive(gameState);
+        base.Apply(gameState);
     }
 
     public override void Undo(KillerGameState gameState)
@@ -19,6 +19,6 @@ internal class PotBlackBallEarlyGameAction : BaseGameAction
             throw new Exception("Cannot undo action which has not been applied.");
 
         gameState.PlayerRows[playerIndex.Value].LivesRemaining = livesTaken.Value;
-        MoveToPreviousAlive(gameState);
+        base.Undo(gameState);
     }
 }

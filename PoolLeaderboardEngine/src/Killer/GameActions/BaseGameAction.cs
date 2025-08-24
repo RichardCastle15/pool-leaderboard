@@ -2,15 +2,38 @@ namespace PoolLeaderboardEngine.Killer.GameActions;
 
 internal abstract class BaseGameAction : IGameAction
 {
-    public abstract void Apply(KillerGameState toGame);
-    public abstract void Undo(KillerGameState toGame);
+    private bool causedSuddenDeath;
+
+    public virtual void Apply(KillerGameState gameState)
+    {
+        MoveToNextAlive(gameState);
+    }
+    public virtual void Undo(KillerGameState gameState)
+    {
+        if (causedSuddenDeath)
+            gameState.InSuddenDeath = false;
+        MoveToPreviousAlive(gameState);
+    }
 
     protected void MoveToNextAlive(KillerGameState game)
     {
         do
         {
+            // Move to next player, wrapping to first if needed.
             game.CurrentPlayerIndex = (game.CurrentPlayerIndex + 1) % game.PlayerRows.Count;
+
+            // Check if the player index moving caused sudden death.
+            if (!game.InSuddenDeath && game.CurrentPlayerIndex == 0 && remainingPlayersOnOneLife(game))
+            {
+                game.InSuddenDeath = true;
+                causedSuddenDeath = true;
+            }
         } while (game.PlayerRows[game.CurrentPlayerIndex].LivesRemaining == 0);
+    }
+
+    private bool remainingPlayersOnOneLife(KillerGameState gameState)
+    {
+        return gameState.PlayerRows.All(pr => pr.LivesRemaining < 2);
     }
 
     protected void MoveToPreviousAlive(KillerGameState game)

@@ -158,4 +158,27 @@ public class KillerGameTests
         Assert.Equal(2, state.PlayerRows[state.CurrentPlayerIndex].LivesRemaining);
         Assert.Equal(0, state.CurrentPlayerIndex);
     }
+
+    #region Sudden death
+
+    [Fact]
+    public void ShouldNotEliminatePlayerOnMiss()
+    {
+        List<string> players = ["PersonA", "PersonB"];
+        KillerGame game = new(players);
+
+        // Both players to 1 life.
+        game.Miss();
+        game.Miss();
+        game.Miss();
+        game.Miss();
+
+        // First player misses
+        game.Miss();
+
+        KillerGameState state = game.GetState();
+        Assert.True(state.PlayerRows[0].MissedInSuddenDeath);
+    }
+
+    #endregion
 }
