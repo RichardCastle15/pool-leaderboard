@@ -4,35 +4,37 @@ internal class MissGameAction : BaseGameAction
 {
     private int? playerIndexOfLifeTaken;
     private bool markedInSuddenDeath;
+    private IList<int> playersWhoWereRestoredInSuddenDeath = [];
 
     public override void Apply(KillerGameState gameState)
     {
         playerIndexOfLifeTaken = gameState.CurrentPlayerIndex;
-        var player = gameState.PlayerRows[gameState.CurrentPlayerIndex];
+        var _currentPlayer = gameState.PlayerRows[gameState.CurrentPlayerIndex];
 
         if (gameState.SuddenDeathState == SuddenDeathState.ActiveWithNoPots)
         {
             var playersLaterInRound = gameState.PlayerRows.Skip(gameState.CurrentPlayerIndex + 1);
             var anyOtherPlayersToShoot = playersLaterInRound.Any(p => p.LivesRemaining > 0);
 
-            if (anyOtherPlayersToShoot)
-            {
-                markedInSuddenDeath = true;
-                player.MissedInSuddenDeath = true;
-            }
-            else
+            markedInSuddenDeath = true;
+            _currentPlayer.MissedInSuddenDeath = true;
+            if (!anyOtherPlayersToShoot)
             {
                 // Restore all players who have missed this round.
-                var playersWhoMissed = gameState.PlayerRows.Where(p => p.MissedInSuddenDeath);
-                foreach (var missedPlayer in playersWhoMissed)
+                for (int i = 0; i < gameState.PlayerRows.Count; i++)
                 {
-                    missedPlayer.MissedInSuddenDeath = false;
+                    var _playerToRestore = gameState.PlayerRows[i];
+                    if (_playerToRestore.MissedInSuddenDeath)
+                    {
+                        _playerToRestore.MissedInSuddenDeath = false;
+                        playersWhoWereRestoredInSuddenDeath.Add(i);
+                    }
                 }
             }
         }
         else
         {
-            --player.LivesRemaining;
+            --_currentPlayer.LivesRemaining;
         }
         base.Apply(gameState);
     }
@@ -46,6 +48,13 @@ internal class MissGameAction : BaseGameAction
             player.MissedInSuddenDeath = false;
         else
             ++player.LivesRemaining;
+
+        foreach (var pidx in playersWhoWereRestoredInSuddenDeath)
+        {
+            // Only put people as missed who aren't the person taking the next shot.
+            if (pidx != playerIndexOfLifeTaken)
+                gameState.PlayerRows[pidx].MissedInSuddenDeath = true;
+        }
         base.Undo(gameState);
     }
 }

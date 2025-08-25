@@ -252,5 +252,32 @@ public class KillerGameTests
         Assert.Equal(1, state.PlayerRows[1].LivesRemaining);
     }
 
+    [Fact]
+    public void ShouldRestoreStateIfBothMissAndUndoHappens()
+    {
+        List<string> players = ["PersonA", "PersonB"];
+        KillerGame game = new(players);
+
+        // Both players to 1 life.
+        game.Miss();
+        game.Miss();
+        game.Miss();
+        game.Miss();
+
+        // Both players miss but undo the last miss
+        game.Miss();
+        game.Miss();
+        game.Undo();
+
+        KillerGameState state = game.GetState();
+        Assert.True(state.PlayerRows[0].MissedInSuddenDeath);
+        Assert.False(state.PlayerRows[1].MissedInSuddenDeath);
+        Assert.Equal(1, state.PlayerRows[0].LivesRemaining);
+        Assert.Equal(1, state.PlayerRows[1].LivesRemaining);
+    }
+
+    // TODO: Immediate death if miss when someone has potted and undo.
+
+
     #endregion
 }
