@@ -9,10 +9,26 @@ internal class MissGameAction : BaseGameAction
     {
         playerIndexOfLifeTaken = gameState.CurrentPlayerIndex;
         var player = gameState.PlayerRows[gameState.CurrentPlayerIndex];
+
         if (gameState.SuddenDeathState == SuddenDeathState.ActiveWithNoPots)
         {
-            markedInSuddenDeath = true;
-            player.MissedInSuddenDeath = true;
+            var playersLaterInRound = gameState.PlayerRows.Skip(gameState.CurrentPlayerIndex + 1);
+            var anyOtherPlayersToShoot = playersLaterInRound.Any(p => p.LivesRemaining > 0);
+
+            if (anyOtherPlayersToShoot)
+            {
+                markedInSuddenDeath = true;
+                player.MissedInSuddenDeath = true;
+            }
+            else
+            {
+                // Restore all players who have missed this round.
+                var playersWhoMissed = gameState.PlayerRows.Where(p => p.MissedInSuddenDeath);
+                foreach (var missedPlayer in playersWhoMissed)
+                {
+                    missedPlayer.MissedInSuddenDeath = false;
+                }
+            }
         }
         else
         {
