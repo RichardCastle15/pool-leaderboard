@@ -178,7 +178,56 @@ public class KillerGameTests
 
         KillerGameState state = game.GetState();
         Assert.True(state.PlayerRows[0].MissedInSuddenDeath);
+        Assert.Equal(1, state.PlayerRows[0].LivesRemaining);
     }
+
+    [Fact]
+    public void ShouldEliminateMissedPlayerOnPot()
+    {
+        List<string> players = ["PersonA", "PersonB", "PersonC"];
+        KillerGame game = new(players);
+
+        // All players to 1 life.
+        game.Miss();
+        game.Miss();
+        game.Miss();
+        game.Miss();
+        game.Miss();
+        game.Miss();
+
+        // First player misses
+        game.Miss();
+        // Second player pots
+        game.Pot();
+
+        KillerGameState state = game.GetState();
+        Assert.Equal(0, state.PlayerRows[0].LivesRemaining);
+    }
+
+    // Undo first pot in sudden death after a miss.
+
+    // [Fact]
+    // public void ShouldRestoreLivesIfBothMiss()
+    // {
+    //     List<string> players = ["PersonA", "PersonB"];
+    //     KillerGame game = new(players);
+
+    //     // Both players to 1 life.
+    //     game.Miss();
+    //     game.Miss();
+    //     game.Miss();
+    //     game.Miss();
+
+    //     // Both players miss
+    //     game.Miss();
+    //     game.Miss();
+
+    //     KillerGameState state = game.GetState();
+    //     Assert.False(state.PlayerRows[0].MissedInSuddenDeath);
+    //     Assert.False(state.PlayerRows[1].MissedInSuddenDeath);
+    //     Assert.Equal(1, state.PlayerRows[0].LivesRemaining);
+    //     Assert.Equal(1, state.PlayerRows[1].LivesRemaining);
+    // }
 
     #endregion
 }

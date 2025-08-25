@@ -9,7 +9,7 @@ internal class MissGameAction : BaseGameAction
     {
         playerIndexOfLifeTaken = gameState.CurrentPlayerIndex;
         var player = gameState.PlayerRows[gameState.CurrentPlayerIndex];
-        if (gameState.InSuddenDeath && player.LivesRemaining == 1)
+        if (gameState.SuddenDeathState == SuddenDeathState.ActiveWithNoPots)
         {
             markedInSuddenDeath = true;
             player.MissedInSuddenDeath = true;

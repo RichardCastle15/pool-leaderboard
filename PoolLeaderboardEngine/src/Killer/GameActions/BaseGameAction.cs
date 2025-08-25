@@ -11,7 +11,7 @@ internal abstract class BaseGameAction : IGameAction
     public virtual void Undo(KillerGameState gameState)
     {
         if (causedSuddenDeath)
-            gameState.InSuddenDeath = false;
+            gameState.SuddenDeathState = SuddenDeathState.NotActive;
         MoveToPreviousAlive(gameState);
     }
 
@@ -23,9 +23,9 @@ internal abstract class BaseGameAction : IGameAction
             game.CurrentPlayerIndex = (game.CurrentPlayerIndex + 1) % game.PlayerRows.Count;
 
             // Check if the player index moving caused sudden death.
-            if (!game.InSuddenDeath && game.CurrentPlayerIndex == 0 && remainingPlayersOnOneLife(game))
+            if (game.SuddenDeathState == SuddenDeathState.NotActive && game.CurrentPlayerIndex == 0 && remainingPlayersOnOneLife(game))
             {
-                game.InSuddenDeath = true;
+                game.SuddenDeathState = SuddenDeathState.ActiveWithNoPots;
                 causedSuddenDeath = true;
             }
         } while (game.PlayerRows[game.CurrentPlayerIndex].LivesRemaining == 0);
