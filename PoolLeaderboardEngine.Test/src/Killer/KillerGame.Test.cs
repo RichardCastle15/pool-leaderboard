@@ -229,8 +229,6 @@ public class KillerGameTests
         Assert.True(state.PlayerRows[0].MissedInSuddenDeath);
     }
 
-    // Undo first pot in sudden death after a miss.
-
     // [Fact]
     // public void ShouldRestoreLivesIfBothMiss()
     // {
