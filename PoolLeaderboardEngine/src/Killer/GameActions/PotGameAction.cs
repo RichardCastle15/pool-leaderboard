@@ -26,6 +26,14 @@ internal class PotGameAction : BaseGameAction
 
     public override void Undo(KillerGameState game)
     {
+        if (wasFirstPotInSuddenDeath)
+        {
+            game.SuddenDeathState = SuddenDeathState.ActiveWithNoPots;
+            foreach (int i in playersEliminatedInSuddenDeath)
+            {
+                game.PlayerRows[i].LivesRemaining = 1;
+            }
+        }
         base.Undo(game);
     }
 }
