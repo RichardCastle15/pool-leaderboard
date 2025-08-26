@@ -4,17 +4,21 @@ internal class MissGameAction : BaseGameAction
 {
     private int? playerIndexOfLifeTaken;
     private bool markedInSuddenDeath;
-    private IList<int> playersWhoWereRestoredInSuddenDeath = [];
+
+    /// <summary>
+    /// If all players miss in a round, they move to next round with a fresh life.
+    /// </summary>
+    private readonly IList<int> playersWhoWereRestoredInSuddenDeath = [];
 
     public override void Apply(KillerGameState gameState)
     {
         playerIndexOfLifeTaken = gameState.CurrentPlayerIndex;
-        var _currentPlayer = gameState.PlayerRows[gameState.CurrentPlayerIndex];
+        KillerGameRow _currentPlayer = gameState.PlayerRows[gameState.CurrentPlayerIndex];
 
         if (gameState.SuddenDeathState == SuddenDeathState.ActiveWithNoPots)
         {
-            var playersLaterInRound = gameState.PlayerRows.Skip(gameState.CurrentPlayerIndex + 1);
-            var anyOtherPlayersToShoot = playersLaterInRound.Any(p => p.LivesRemaining > 0);
+            IEnumerable<KillerGameRow> playersLaterInRound = gameState.PlayerRows.Skip(gameState.CurrentPlayerIndex + 1);
+            bool anyOtherPlayersToShoot = playersLaterInRound.Any(p => p.LivesRemaining > 0);
 
             markedInSuddenDeath = true;
             _currentPlayer.MissedInSuddenDeath = true;
@@ -23,7 +27,7 @@ internal class MissGameAction : BaseGameAction
                 // Restore all players who have missed this round.
                 for (int i = 0; i < gameState.PlayerRows.Count; i++)
                 {
-                    var _playerToRestore = gameState.PlayerRows[i];
+                    KillerGameRow _playerToRestore = gameState.PlayerRows[i];
                     if (_playerToRestore.MissedInSuddenDeath)
                     {
                         _playerToRestore.MissedInSuddenDeath = false;
@@ -43,13 +47,13 @@ internal class MissGameAction : BaseGameAction
     {
         if (!playerIndexOfLifeTaken.HasValue)
             throw new Exception("Cannot undo this action as it has not been performed.");
-        var player = gameState.PlayerRows[playerIndexOfLifeTaken.Value];
+        KillerGameRow player = gameState.PlayerRows[playerIndexOfLifeTaken.Value];
         if (markedInSuddenDeath)
             player.MissedInSuddenDeath = false;
         else
             ++player.LivesRemaining;
 
-        foreach (var pidx in playersWhoWereRestoredInSuddenDeath)
+        foreach (int pidx in playersWhoWereRestoredInSuddenDeath)
         {
             // Only put people as missed who aren't the person taking the next shot.
             if (pidx != playerIndexOfLifeTaken)
