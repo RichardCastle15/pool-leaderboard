@@ -17,30 +17,40 @@ internal class MissGameAction : BaseGameAction
 
         if (gameState.SuddenDeathState == SuddenDeathState.ActiveWithNoPots)
         {
-            IEnumerable<KillerGameRow> playersLaterInRound = gameState.PlayerRows.Skip(gameState.CurrentPlayerIndex + 1);
-            bool anyOtherPlayersToShoot = playersLaterInRound.Any(p => p.LivesRemaining > 0);
-
-            markedInSuddenDeath = true;
-            _currentPlayer.MissedInSuddenDeath = true;
-            if (!anyOtherPlayersToShoot)
-            {
-                // Restore all players who have missed this round.
-                for (int i = 0; i < gameState.PlayerRows.Count; i++)
-                {
-                    KillerGameRow _playerToRestore = gameState.PlayerRows[i];
-                    if (_playerToRestore.MissedInSuddenDeath)
-                    {
-                        _playerToRestore.MissedInSuddenDeath = false;
-                        playersWhoWereRestoredInSuddenDeath.Add(i);
-                    }
-                }
-            }
+            handleMissWhenNoPotsInSuddenDeath(gameState, _currentPlayer);
         }
         else
         {
             --_currentPlayer.LivesRemaining;
         }
         base.Apply(gameState);
+    }
+
+    private void handleMissWhenNoPotsInSuddenDeath(KillerGameState gameState, KillerGameRow _currentPlayer)
+    {
+        IEnumerable<KillerGameRow> playersLaterInRound = gameState.PlayerRows.Skip(gameState.CurrentPlayerIndex + 1);
+        bool anyOtherPlayersToShoot = playersLaterInRound.Any(p => p.LivesRemaining > 0);
+
+        markedInSuddenDeath = true;
+        _currentPlayer.MissedInSuddenDeath = true;
+        if (!anyOtherPlayersToShoot)
+        {
+            handleAllPlayersMissedInSuddenDeath(gameState);
+        }
+    }
+
+    private void handleAllPlayersMissedInSuddenDeath(KillerGameState gameState)
+    {
+        // Restore all players who have missed this round.
+        for (int i = 0; i < gameState.PlayerRows.Count; i++)
+        {
+            KillerGameRow _playerToRestore = gameState.PlayerRows[i];
+            if (_playerToRestore.MissedInSuddenDeath)
+            {
+                _playerToRestore.MissedInSuddenDeath = false;
+                playersWhoWereRestoredInSuddenDeath.Add(i);
+            }
+        }
     }
 
     public override void Undo(KillerGameState gameState)
