@@ -16,6 +16,12 @@ RUN curl -sL https://deb.nodesource.com/setup_20.x | bash
 RUN apt-get -y install nodejs
 RUN npm install -g @angular/cli
 
+FROM with-node AS test
+WORKDIR /src
+COPY . .
+RUN dotnet restore
+RUN dotnet test --no-restore --verbosity normal
+
 FROM with-node AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src

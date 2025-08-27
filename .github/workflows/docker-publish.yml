@@ -31,8 +31,17 @@ jobs:
       working-directory: ./poolleaderboard.client
       run: npm run test:ci
 
-    - name: Run backend tests
-      run: dotnet test
+    # 🧪 Run backend tests in Docker
+    - name: Build test Docker image
+      run: |
+        docker build -f PoolLeaderboard.Server/Dockerfile \
+          --target test \
+          -t poolleaderboard-test .
+
+    - name: Run backend tests in Docker
+      run: |
+        docker run --rm poolleaderboard-test
+
 
     # 🐳 Docker build & push (runs only if tests pass)
     - name: Log in to GHCR
