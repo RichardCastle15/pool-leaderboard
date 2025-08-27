@@ -17,6 +17,12 @@ const developmentRoutes: Routes = [
           { path: 'empty', loadComponent: () => import('./component-showcase/leaderboard/empty-leaderboard-showcase.component').then(m => m.EmptyLeaderboardShowcaseComponent) },
           { path: 'loading', loadComponent: () => import('./component-showcase/leaderboard/loading-leaderboard-showcase.component').then(m => m.LoadingLeaderboardShowcaseComponent) },
         ]
+      },
+      {
+        path: 'killer',
+        children: [
+          { path: 'new-game', loadComponent: () => import('./component-showcase/killer/new-game-killer-showcase.component').then(m => m.NewGameKillerShowcaseComponent) },
+        ]
       }
     ]
   }
