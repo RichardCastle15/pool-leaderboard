@@ -1,8 +1,19 @@
 namespace PoolLeaderboardEngine.Killer.GameActions;
 
+/// <summary>
+/// A player is immediately eliminated if they pot the black ball early.
+/// </summary>
 internal class PotBlackBallEarlyGameAction : BaseGameAction
 {
+    /// <summary>
+    /// The index of the player who potted the black early.
+    /// Field is null if action was not applied yet.
+    /// </summary>
     private int? playerIndex;
+    /// <summary>
+    /// How many lives they had when they missed. Recorded so can be undone if needed.
+    /// Field is null if action was not applied yet.
+    /// </summary>
     private int? livesTaken;
 
     public override void Apply(KillerGameState gameState)

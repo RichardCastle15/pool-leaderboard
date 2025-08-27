@@ -2,7 +2,13 @@ namespace PoolLeaderboardEngine.Killer.GameActions;
 
 internal class MissGameAction : BaseGameAction
 {
+    /// <summary>
+    /// The index in the killer game of the player who this action applies to.
+    /// </summary>
     private int? playerIndexOfLifeTaken;
+    /// <summary>
+    /// Represents sudden death logic on a miss. Will be null if sudden death was not active.
+    /// </summary>
     private SuddenDeath? suddenDeath;
 
     public override void Apply(KillerGameState gameState)
@@ -46,17 +52,29 @@ internal class MissGameAction : BaseGameAction
         /// </summary>
         private readonly IList<int> playersWhoWereRestoredByMiss = [];
 
+        /// <summary>
+        /// If sudden death causes different behaviour from a single life deduction.
+        /// </summary>
+        /// <param name="gameState">The game to check</param>
+        /// <returns>True if the game should record something other than a single life deduction.</returns>
         internal static bool ChangesMissBehaviour(KillerGameState gameState)
         {
+            // Misses only complicate sudden death with no pots. In standard or sudden death with pots, the player just loses a life.
             return gameState.SuddenDeathState == SuddenDeathState.ActiveWithNoPots;
         }
 
+        /// <summary>
+        /// Handle a miss for the current player in sudden death with no current pots in the round.
+        /// </summary>
+        /// <param name="gameState">The game to modify.</param>
+        /// <param name="currentPlayer">The player who missed.</param>
         internal void HandleMiss(KillerGameState gameState, KillerGameRow currentPlayer)
         {
+            currentPlayer.MissedInSuddenDeath = true;
+
+            // Check if we are the last alive player. If we are, all players have missed and a new round should start.
             IEnumerable<KillerGameRow> playersLaterInRound = gameState.PlayerRows.Skip(gameState.CurrentPlayerIndex + 1);
             bool anyOtherPlayersToShoot = playersLaterInRound.Any(p => p.LivesRemaining > 0);
-
-            currentPlayer.MissedInSuddenDeath = true;
             if (!anyOtherPlayersToShoot)
             {
                 handleAllPlayersMissedInSuddenDeath(gameState);

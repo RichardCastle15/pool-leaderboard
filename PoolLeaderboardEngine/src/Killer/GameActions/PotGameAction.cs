@@ -1,8 +1,17 @@
 namespace PoolLeaderboardEngine.Killer.GameActions;
 
+/// <summary>
+/// A single player has potted correctly on their turn.
+/// </summary>
 internal class PotGameAction : BaseGameAction
 {
+    /// <summary>
+    /// If pot first in sudden death, changes miss behaviour for others. Record this so can be undone.
+    /// </summary>
     private bool wasFirstPotInSuddenDeath;
+    /// <summary>
+    /// If previous players have missed, they can be eliminated by this pot. Record them so that can be undone.
+    /// </summary>
     private IList<int> playersEliminatedInSuddenDeath = [];
 
     public override void Apply(KillerGameState game)
@@ -14,6 +23,10 @@ internal class PotGameAction : BaseGameAction
         base.Apply(game);
     }
 
+    /// <summary>
+    /// First pot will eliminate previous players who missed and cause future players in round to be eliminated.
+    /// </summary>
+    /// <param name="game"></param>
     private void handleFirstPotInSuddenDeath(KillerGameState game)
     {
         wasFirstPotInSuddenDeath = true;
