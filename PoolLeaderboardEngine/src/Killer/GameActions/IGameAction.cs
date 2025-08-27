@@ -6,7 +6,7 @@ namespace PoolLeaderboardEngine.Killer.GameActions;
 internal interface IGameAction
 {
     /// <summary>
-    /// Modifies the supplied game state to reflact the action.
+    /// Modifies the supplied game state to reflect the action.
     /// </summary>
     /// <param name="toGame">Game state to modify</param>
     void Apply(KillerGameState toGame);
