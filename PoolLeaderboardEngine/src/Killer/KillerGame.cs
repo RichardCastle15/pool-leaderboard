@@ -44,6 +44,8 @@ public class KillerGame
 
     public void Undo()
     {
+        if (!gameActions.Any())
+            throw new Exception("No actions have been performed to undo.");
         IGameAction lastAction = gameActions.Pop();
         lastAction.Undo(gameState);
     }
