@@ -3,11 +3,10 @@ import { KillerGame } from './types/killer-game.model';
 import { TreeNode } from '../leaderboard/tree-node.model';
 import { KillerGameRow } from './types/killer-game-row.model';
 import { NbTreeGridModule } from "@nebular/theme";
-import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'app-killer',
-  imports: [NbTreeGridModule, NgTemplateOutlet],
+  imports: [NbTreeGridModule],
   templateUrl: './killer.component.html',
   styleUrl: './killer.component.scss'
 })

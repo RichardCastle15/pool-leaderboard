@@ -1,23 +1,20 @@
 @if (tableData()) {
     <table [nbTreeGrid]="tableData()!">
         <tr nbTreeGridRow *nbTreeGridRowDef="let row; let i = index; columns: columns" [clickToToggle]="false"></tr>
-        @for (column of columns; track $index) {
-            <ng-container [nbTreeGridColumnDef]="column">
-                <td nbTreeGridCell *nbTreeGridCellDef="let row" class="killer-table-cell"
-                [class.lives-column]="column === 'livesRemaining'">
-                    @if(column === 'livesRemaining') {
-                        @for (i of times(row.data.livesRemaining); track i){
-                            <span class="material-symbols-outlined killer-life">favorite</span>
-                        }
-                        @for (i of times(3 - row.data.livesRemaining); track i){
-                            <span class="material-symbols-outlined killer-death">skull</span>
-                        }
-                        
-                    } @else {
-                        {{row.data[column]}}
-                    }
-                </td>
-            </ng-container>
-        }
+        <ng-container [nbTreeGridColumnDef]="'name'">
+            <td nbTreeGridCell *nbTreeGridCellDef="let row" class="killer-table-cell">
+                {{row.data['name']}}
+            </td>
+        </ng-container>
+        <ng-container [nbTreeGridColumnDef]="'livesRemaining'">
+            <td nbTreeGridCell *nbTreeGridCellDef="let row" class="killer-table-cell lives-column">
+                @for (i of times(row.data.livesRemaining); track i){
+                    <span class="material-symbols-outlined killer-life">favorite</span>
+                }
+                @for (i of times(3 - row.data.livesRemaining); track i){
+                    <span class="material-symbols-outlined killer-death">skull</span>
+                }
+            </td>
+        </ng-container>
     </table>
 }
