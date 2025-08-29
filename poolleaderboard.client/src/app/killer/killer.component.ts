@@ -3,10 +3,11 @@ import { KillerGame } from './types/killer-game.model';
 import { TreeNode } from '../leaderboard/tree-node.model';
 import { KillerGameRow } from './types/killer-game-row.model';
 import { NbTreeGridModule } from "@nebular/theme";
+import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'app-killer',
-  imports: [NbTreeGridModule],
+  imports: [NbTreeGridModule, NgTemplateOutlet],
   templateUrl: './killer.component.html',
   styleUrl: './killer.component.scss'
 })
@@ -24,5 +25,9 @@ export class KillerComponent {
         return undefined;
       return gameData.playerRows.map(pr => ({ data: pr }));
     })
+  }
+
+  times(n: number): number[] {
+    return Array.from({ length: n }, (_, i) => i);
   }
 }

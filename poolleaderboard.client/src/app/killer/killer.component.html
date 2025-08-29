@@ -6,9 +6,13 @@
                 <td nbTreeGridCell *nbTreeGridCellDef="let row" class="killer-table-cell"
                 [class.lives-column]="column === 'livesRemaining'">
                     @if(column === 'livesRemaining') {
-                        <span class="material-symbols-outlined killer-life">favorite</span>
-                        <span class="material-symbols-outlined killer-life">favorite</span>
-                        <span class="material-symbols-outlined killer-death">skull</span>
+                        @for (i of times(row.data.livesRemaining); track i){
+                            <span class="material-symbols-outlined killer-life">favorite</span>
+                        }
+                        @for (i of times(3 - row.data.livesRemaining); track i){
+                            <span class="material-symbols-outlined killer-death">skull</span>
+                        }
+                        
                     } @else {
                         {{row.data[column]}}
                     }
