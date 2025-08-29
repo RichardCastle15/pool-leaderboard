@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
+import { KillerGame } from './types/killer-game.model';
 
 @Component({
   selector: 'app-killer',
@@ -7,5 +8,5 @@ import { Component } from '@angular/core';
   styleUrl: './killer.component.scss'
 })
 export class KillerComponent {
-
+  game = input<KillerGame>();
 }
