@@ -22,6 +22,7 @@ const developmentRoutes: Routes = [
         path: 'killer',
         children: [
           { path: 'new-game', loadComponent: () => import('./component-showcase/killer/new-game-killer-showcase.component').then(m => m.NewGameKillerShowcaseComponent) },
+          { path: 'two-lives', loadComponent: () => import('./component-showcase/killer/two-lives-killer-showcase.component').then(m => m.TwoLivesKillerShowcaseComponent) },
         ]
       }
     ]
