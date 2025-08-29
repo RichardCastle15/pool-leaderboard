@@ -4,6 +4,12 @@
     display: block;
     height: 100%;
 
+    tr {
+        &.current {
+            background-color: nb-theme(color-primary-200);
+        }
+    }
+
     td.killer-table-cell{
         font-size: 24px;
         &.lives-column {
