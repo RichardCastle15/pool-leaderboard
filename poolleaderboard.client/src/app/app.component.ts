@@ -74,6 +74,7 @@ export class AppComponent implements OnInit, OnDestroy {
               children: [
                 { title: 'New game', link: '/showcase/killer/new-game' },
                 { title: 'Two lives', link: '/showcase/killer/two-lives' },
+                { title: 'Compact', link: '/showcase/killer/compact' },
               ]
             }
           ]
