@@ -16,4 +16,21 @@ body {
   --gap-grouped-vertical: 8px;
   --gap-section: 16px;
   --gap-title: 24px;
+
+  nb-card.action-card {
+    position: sticky;
+    bottom: 0;
+    margin-bottom: 0px !important;
+
+    nb-action {
+        cursor: pointer;
+    }
+
+    .badge-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        padding: 0 5px;
+    }
+  }
 }
