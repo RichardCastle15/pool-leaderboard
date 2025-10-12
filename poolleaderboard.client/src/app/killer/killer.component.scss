@@ -19,10 +19,10 @@
         span.material-symbols-outlined{
             font-size: 32px;
             &.killer-life{
-                color: red;
+                color: black;
             }
             &.killer-death {
-                color: grey;
+                color: lightgrey;
             }
         }
     }
