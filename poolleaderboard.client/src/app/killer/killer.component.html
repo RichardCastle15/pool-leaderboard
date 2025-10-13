@@ -23,26 +23,26 @@
 <nb-card class="action-card">
   <nb-card-body>
     <nb-actions size="medium" fullWidth>
-      <nb-action id="killer-pot-action" [disabled]="false">
+      <nb-action id="killer-pot-action">
         <span class="material-symbols-outlined">check_circle</span>
         @if(size() === 'full') { Pot }
       </nb-action>
-      <nb-action id="killer-miss-action" [disabled]="false">
+      <nb-action id="killer-miss-action">
         <span class="material-symbols-outlined">cancel</span>
         @if(size() === 'full') { Miss / Foul }
       </nb-action>
-      <nb-action id="killer-full-elimination-action" [disabled]="false">
+      <nb-action id="killer-full-elimination-action">
         <span class="material-symbols-outlined">bomb</span>
         @if(size() === 'full') { Early black }
       </nb-action>
     </nb-actions>
     <hr class="action-row-divider">
     <nb-actions size="medium" fullWidth>
-      <nb-action id="killer-undo-action" [disabled]="false">
+      <nb-action id="killer-undo-action">
         <span class="material-symbols-outlined">undo</span>
         @if(size() === 'full') { Undo }
       </nb-action>
-      <nb-action id="killer-abandon-action" [disabled]="false">
+      <nb-action id="killer-abandon-action">
         <span class="material-symbols-outlined">delete</span>
         @if(size() === 'full') { Abandon }
       </nb-action>
