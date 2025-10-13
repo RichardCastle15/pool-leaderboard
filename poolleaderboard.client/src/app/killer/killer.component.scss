@@ -8,6 +8,12 @@
         &.current {
             background-color: nb-theme(color-primary-200);
         }
+        &.eliminated {
+            background-color: rgba(128, 128, 128, 0.055);
+            text-decoration: line-through;
+            color: grey;
+            font-style: italic;
+        }
     }
 
     td.killer-table-cell{

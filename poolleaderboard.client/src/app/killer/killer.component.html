@@ -1,7 +1,7 @@
-@if (tableData()) {
+@if (tableData() && game()) {
     <table [nbTreeGrid]="tableData()!">
         <tr nbTreeGridRow *nbTreeGridRowDef="let row; let i = index; columns: columns" [clickToToggle]="false"
-        [class.current]="i === game()!.currentPlayerIndex"></tr>
+        [class.current]="i === game()!.currentPlayerIndex" [class.eliminated]="game()!.playerRows[i].eliminated"></tr>
         <ng-container [nbTreeGridColumnDef]="'name'">
             <td nbTreeGridCell *nbTreeGridCellDef="let row" class="killer-table-cell">
                 {{row.data['name']}}
