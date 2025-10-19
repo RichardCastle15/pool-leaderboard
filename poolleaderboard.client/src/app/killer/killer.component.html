@@ -10,7 +10,11 @@
         <ng-container [nbTreeGridColumnDef]="'livesRemaining'">
             <td nbTreeGridCell *nbTreeGridCellDef="let row" class="killer-table-cell lives-column">
                 @for (i of times(row.data.livesRemaining); track i){
+                  @if (row.data.livesRemaining === 1 && row.data.missedInSuddenDeath) {
+                    <span class="material-symbols-outlined killer-sudden-death-miss">sentiment_stressed</span>
+                  } @else {
                     <span class="material-symbols-outlined killer-life">sentiment_very_satisfied</span>
+                  }
                 }
                 @for (i of times(3 - row.data.livesRemaining); track i){
                     <span class="material-symbols-outlined killer-death">skull</span>
