@@ -53,7 +53,23 @@ describe('KillerComponent', () => {
     };
     fixture.componentRef.setInput('game', game);
     fixture.detectChanges();
-    const rows = fixture.debugElement.queryAll(By.css('.player-row.eliminated'));
-    expect(rows.length).toBe(1);
+    const rows = fixture.debugElement.queryAll(By.css('.player-row'));
+    expect(rows[1].classes['eliminated']).toBeTrue();
+  });
+
+  it('should mark the current player', () => {
+    const game: KillerGame = {
+      currentPlayerIndex: 1,
+      playerRows: [
+        {livesRemaining: 3, name: 'test'},
+        {livesRemaining: 3, name: 'test'},
+        {livesRemaining: 3, name: 'test'},
+        {livesRemaining: 3, name: 'test'},
+      ]
+    };
+    fixture.componentRef.setInput('game', game);
+    fixture.detectChanges();
+    const rows = fixture.debugElement.queryAll(By.css('.player-row'));
+    expect(rows[1].classes['current']).toBeTrue();
   });
 });
