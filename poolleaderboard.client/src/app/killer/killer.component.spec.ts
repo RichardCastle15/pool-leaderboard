@@ -40,4 +40,20 @@ describe('KillerComponent', () => {
     const rows = fixture.debugElement.queryAll(By.css('.player-row'));
     expect(rows.length).toBe(4);
   });
+
+  it('should mark an eliminated player', () => {
+    const game: KillerGame = {
+      currentPlayerIndex: 0,
+      playerRows: [
+        {livesRemaining: 3, name: 'test'},
+        {livesRemaining: 0, name: 'test', eliminated: true},
+        {livesRemaining: 3, name: 'test'},
+        {livesRemaining: 3, name: 'test'},
+      ]
+    };
+    fixture.componentRef.setInput('game', game);
+    fixture.detectChanges();
+    const rows = fixture.debugElement.queryAll(By.css('.player-row.eliminated'));
+    expect(rows.length).toBe(1);
+  });
 });
