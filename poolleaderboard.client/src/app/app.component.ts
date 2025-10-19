@@ -76,6 +76,7 @@ export class AppComponent implements OnInit, OnDestroy {
                 { title: 'Two lives', link: '/showcase/killer/two-lives' },
                 { title: 'Compact', link: '/showcase/killer/compact' },
                 { title: 'Eliminated players', link: '/showcase/killer/eliminated-players' },
+                { title: 'Long list', link: '/showcase/killer/long-list' },
               ]
             }
           ]

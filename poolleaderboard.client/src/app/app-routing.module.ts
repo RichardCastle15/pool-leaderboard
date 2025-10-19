@@ -25,6 +25,7 @@ const developmentRoutes: Routes = [
           { path: 'two-lives', loadComponent: () => import('./component-showcase/killer/two-lives-killer-showcase.component').then(m => m.TwoLivesKillerShowcaseComponent) },
           { path: 'compact', loadComponent: () => import('./component-showcase/killer/compact-killer-showcase.component').then(m => m.CompactKillerShowcaseComponent) },
           { path: 'eliminated-players', loadComponent: () => import('./component-showcase/killer/eliminated-players-killer-showcase.component').then(m => m.EliminatedPlayersKillerShowcaseComponent) },
+          { path: 'long-list', loadComponent: () => import('./component-showcase/killer/long-list-killer-showcase.component').then(m => m.LongListKillerShowcaseComponent) },
         ]
       }
     ]
