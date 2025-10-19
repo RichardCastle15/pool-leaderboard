@@ -1,0 +1,49 @@
+@use '../../themes.scss' as *;
+
+:host {
+    display: block;
+    height: 100%;
+
+    tr {
+        &.current {
+            background-color: nb-theme(color-primary-200);
+        }
+        &.eliminated {
+            background-color: rgba(128, 128, 128, 0.055);
+            text-decoration: line-through;
+            color: grey;
+            font-style: italic;
+        }
+    }
+
+    td.killer-table-cell{
+        font-size: 24px;
+        &.lives-column {
+            width: 150px;
+            text-align: center;
+        }
+        span.material-symbols-outlined{
+            font-size: 32px;
+            padding: 0px 2px;
+            &.killer-life{
+                color: black;
+            }
+            &.killer-death {
+                color: lightgrey;
+            }
+            &.killer-sudden-death-miss {
+                color: red;
+            }
+        }
+    }
+
+    hr.action-row-divider {
+        border: none;
+        border-top: 1px solid lightgray;
+        margin: 8px 0px;
+    }
+    
+    .material-symbols-outlined {
+        font-size: 2.25rem;
+    }
+}

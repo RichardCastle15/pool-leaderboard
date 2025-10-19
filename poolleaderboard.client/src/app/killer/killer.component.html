@@ -1,0 +1,55 @@
+@if (tableData() && game()) {
+    <table [nbTreeGrid]="tableData()!">
+        <tr nbTreeGridRow *nbTreeGridRowDef="let row; let i = index; columns: columns" [clickToToggle]="false"
+        [class.current]="i === game()!.currentPlayerIndex" [class.eliminated]="game()!.playerRows[i].eliminated" class="player-row"></tr>
+        <ng-container [nbTreeGridColumnDef]="'name'">
+            <td nbTreeGridCell *nbTreeGridCellDef="let row" class="killer-table-cell">
+                {{row.data['name']}}
+            </td>
+        </ng-container>
+        <ng-container [nbTreeGridColumnDef]="'livesRemaining'">
+            <td nbTreeGridCell *nbTreeGridCellDef="let row" class="killer-table-cell lives-column">
+                @for (i of times(row.data.livesRemaining); track i){
+                  @if (row.data.livesRemaining === 1 && row.data.missedInSuddenDeath) {
+                    <span class="material-symbols-outlined killer-sudden-death-miss">sentiment_stressed</span>
+                  } @else {
+                    <span class="material-symbols-outlined killer-life">sentiment_very_satisfied</span>
+                  }
+                }
+                @for (i of times(3 - row.data.livesRemaining); track i){
+                    <span class="material-symbols-outlined killer-death">skull</span>
+                }
+            </td>
+        </ng-container>
+    </table>
+}
+
+<nb-card class="action-card">
+  <nb-card-body>
+    <nb-actions size="medium" fullWidth>
+      <nb-action id="killer-pot-action" aria-label="Pot">
+        <span class="material-symbols-outlined">check_circle</span>
+        @if(size() === 'full') { Pot }
+      </nb-action>
+      <nb-action id="killer-miss-action" aria-label="Miss / Foul">
+        <span class="material-symbols-outlined">cancel</span>
+        @if(size() === 'full') { Miss / Foul }
+      </nb-action>
+      <nb-action id="killer-full-elimination-action" aria-label="Early black">
+        <span class="material-symbols-outlined">bomb</span>
+        @if(size() === 'full') { Early black }
+      </nb-action>
+    </nb-actions>
+    <hr class="action-row-divider">
+    <nb-actions size="medium" fullWidth>
+      <nb-action id="killer-undo-action" aria-label="Undo">
+        <span class="material-symbols-outlined">undo</span>
+        @if(size() === 'full') { Undo }
+      </nb-action>
+      <nb-action id="killer-abandon-action" aria-label="Abandon">
+        <span class="material-symbols-outlined">delete</span>
+        @if(size() === 'full') { Abandon }
+      </nb-action>
+    </nb-actions>
+  </nb-card-body>
+</nb-card>

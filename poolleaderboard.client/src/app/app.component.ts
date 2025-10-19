@@ -68,6 +68,17 @@ export class AppComponent implements OnInit, OnDestroy {
                 { title: 'Empty', link: '/showcase/leaderboard/empty' },
                 { title: 'Loading', link: '/showcase/leaderboard/loading' },
               ]
+            },
+            {
+              title: 'Killer',
+              children: [
+                { title: 'New game', link: '/showcase/killer/new-game' },
+                { title: 'Two lives', link: '/showcase/killer/two-lives' },
+                { title: 'Compact', link: '/showcase/killer/compact' },
+                { title: 'Eliminated players', link: '/showcase/killer/eliminated-players' },
+                { title: 'Long list', link: '/showcase/killer/long-list' },
+                { title: 'Sudden death', link: '/showcase/killer/sudden-death' },
+              ]
             }
           ]
         });
