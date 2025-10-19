@@ -72,4 +72,27 @@ describe('KillerComponent', () => {
     const rows = fixture.debugElement.queryAll(By.css('.player-row'));
     expect(rows[1].classes['current']).toBeTrue();
   });
+
+  it('should show the correct life and death icons', () => {
+    const game: KillerGame = {
+      currentPlayerIndex: 1,
+      playerRows: [
+        {livesRemaining: 3, name: 'test'},
+        {livesRemaining: 2, name: 'test'},
+        {livesRemaining: 1, name: 'test'},
+        {livesRemaining: 0, name: 'test', eliminated: true},
+      ]
+    };
+    fixture.componentRef.setInput('game', game);
+    fixture.detectChanges();
+    const rows = fixture.debugElement.queryAll(By.css('.player-row'));
+    expect(rows[0].queryAll(By.css('.lives-column .killer-life')).length).toBe(3);
+    expect(rows[0].queryAll(By.css('.lives-column .killer-death')).length).toBe(0);
+    expect(rows[1].queryAll(By.css('.lives-column .killer-life')).length).toBe(2);
+    expect(rows[1].queryAll(By.css('.lives-column .killer-death')).length).toBe(1);
+    expect(rows[2].queryAll(By.css('.lives-column .killer-life')).length).toBe(1);
+    expect(rows[2].queryAll(By.css('.lives-column .killer-death')).length).toBe(2);
+    expect(rows[3].queryAll(By.css('.lives-column .killer-life')).length).toBe(0);
+    expect(rows[3].queryAll(By.css('.lives-column .killer-death')).length).toBe(3);
+  });
 });
