@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { KillerComponent } from './killer.component';
+import { NbIconModule, NbThemeModule } from '@nebular/theme';
+import { NbEvaIconsModule } from '@nebular/eva-icons';
 
 describe('KillerComponent', () => {
   let component: KillerComponent;
@@ -8,7 +10,7 @@ describe('KillerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [KillerComponent]
+      imports: [KillerComponent,  NbThemeModule.forRoot(), NbIconModule, NbEvaIconsModule]
     })
     .compileComponents();
 
