@@ -1,11 +1,11 @@
 import { Component, computed, input, OnDestroy, output, Signal, signal } from '@angular/core';
 import { NbActionsModule, NbBadgeModule, NbButtonGroupModule, NbCardModule, NbDialogService, NbIconModule, NbSortDirection, NbSortRequest, NbTreeGridDataSource, NbTreeGridDataSourceBuilder, NbTreeGridModule } from '@nebular/theme';
-import { LeaderboardEntryRow } from './leaderboard-entry-row.model';
-import { TreeNode } from './tree-node.model';
+import { LeaderboardEntryRow } from '../models/leaderboard-entry-row.model';
+import { TreeNode } from '../models/tree-node.model';
 import { NewParticipantComponent } from './new-participant/new-participant.component';
 import { Subscription } from 'rxjs';
 import { TitleCasePipe } from '@angular/common';
-import { GameType } from './game-type-filter.type';
+import { GameType } from '../models/game-type-filter.type';
 
 @Component({
   selector: 'app-leaderboard',
@@ -18,12 +18,15 @@ export class LeaderboardComponent implements OnDestroy {
   readonly loadingDataItem: TreeNode<LeaderboardEntryRow | {}> = {data: {}};
   readonly loadingData: TreeNode<LeaderboardEntryRow | {}>[] = [this.loadingDataItem, this.loadingDataItem, this.loadingDataItem];
 
+  // Inputs.
   entries = input<TreeNode<LeaderboardEntryRow | {}>[]>([]);
   loading = input(false);
   size = input<'full'|'compact'>('full');
-  selectedIds = signal<number[]>([]);
+  // Outputs.
   newParticipant = output<string>();
   gameTypeFilter = output<GameType>();
+  // Template data.
+  selectedIds = signal<number[]>([]);
 
   dataSource: Signal<NbTreeGridDataSource<LeaderboardEntryRow | {}>>;
   sortRequest = signal<NbSortRequest>(this.defaultRequest);

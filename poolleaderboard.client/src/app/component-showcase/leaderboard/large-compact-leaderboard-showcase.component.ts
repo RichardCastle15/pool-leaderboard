@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { LeaderboardComponent } from '../../leaderboard/leaderboard.component';
+import { LeaderboardComponent } from '../../leaderboard/presenters/leaderboard.component';
 
 @Component({
   selector: 'app-large-compact-leaderboard-showcase',
