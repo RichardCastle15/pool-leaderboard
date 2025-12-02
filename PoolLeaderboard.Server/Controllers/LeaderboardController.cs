@@ -34,12 +34,28 @@ namespace PoolLeaderboard.Server.Controllers
                         {
                             string name = (string)reader["name"];
                             short rating = (short)reader["rating"];
-                            leaderboardEntries.Add(new LeaderboardEntry { Name = name, Rating = rating });
+                            int id = (int)reader["id"];
+                            leaderboardEntries.Add(new LeaderboardEntry { Name = name, Rating = rating, Id = id });
                         }
                     }
                 }
             }
             return leaderboardEntries;
+        }
+
+        [HttpPost]
+        public IActionResult  AddNewParticipant(string name)
+        {
+            using (var connection = this.dbConnectionFactory.CreateConnection())
+            {
+                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = $"insert into rating (name, rating) values ('{name}', 1000)";
+                    command.ExecuteNonQuery();
+                }
+            }
+            return Ok();
         }
     }
 
@@ -47,5 +63,6 @@ namespace PoolLeaderboard.Server.Controllers
     {
         public required string Name { get; set; }
         public short Rating { get; set; }
+        public int Id { get; set; }
     }
 }
