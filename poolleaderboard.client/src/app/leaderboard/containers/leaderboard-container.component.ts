@@ -1,9 +1,10 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { LeaderboardComponent } from '../presenters/leaderboard.component';
 import { HttpClient } from '@angular/common/http';
 import { LeaderboardEntryServer } from '../models/leaderboard-entry-server.model';
 import { TreeNode } from '../models/tree-node.model';
 import { LeaderboardEntryRow } from '../models/leaderboard-entry-row.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-leaderboard-container',
@@ -11,19 +12,30 @@ import { LeaderboardEntryRow } from '../models/leaderboard-entry-row.model';
   templateUrl: './leaderboard-container.component.html',
   styleUrl: './leaderboard-container.component.scss'
 })
-export class LeaderboardContainerComponent implements OnInit {
+export class LeaderboardContainerComponent implements OnInit, OnDestroy {
   loading = signal(true);
   data = signal<TreeNode<LeaderboardEntryRow | {}>[]>([]);
+  private subscriptions = new Subscription();
 
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.http.get<LeaderboardEntryServer[]>('/api/leaderboard').subscribe(result => {
+    const initListSub = this.http.get<LeaderboardEntryServer[]>('/api/leaderboard').subscribe(result => {
       this.loading.set(false);
       const convertedResult = this.convertServerModel(result);
       this.data.set(convertedResult);
       console.log({result, convertedResult});
     });
+    this.subscriptions.add(initListSub);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
+
+  addParticipant(name: string): void {
+    const addSub = this.http.post('/api/leaderboard', {name}).subscribe();
+    this.subscriptions.add(addSub);
   }
 
   private convertServerModel(serverModel: LeaderboardEntryServer[]): TreeNode<LeaderboardEntryRow | {}>[]{

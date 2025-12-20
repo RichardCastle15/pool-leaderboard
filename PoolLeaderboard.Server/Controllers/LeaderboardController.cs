@@ -44,14 +44,14 @@ namespace PoolLeaderboard.Server.Controllers
         }
 
         [HttpPost]
-        public IActionResult  AddNewParticipant(string name)
+        public IActionResult Post([FromBody] AddParticipantBody request)
         {
             using (var connection = this.dbConnectionFactory.CreateConnection())
             {
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"insert into rating (name, rating) values ('{name}', 1000)";
+                    command.CommandText = $"insert into rating (name, rating) values ('{request.Name}', 1000)";
                     command.ExecuteNonQuery();
                 }
             }
@@ -64,5 +64,10 @@ namespace PoolLeaderboard.Server.Controllers
         public required string Name { get; set; }
         public short Rating { get; set; }
         public int Id { get; set; }
+    }
+
+    public class AddParticipantBody
+    {
+        public required string Name { get; set; }
     }
 }
