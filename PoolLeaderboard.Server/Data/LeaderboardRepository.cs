@@ -11,6 +11,15 @@ namespace PoolLeaderboard.Server.Data
             this.dbConnectionFactory = dbConnectionFactory;
         }
 
+        public void Add(string name)
+        {
+            using var connection = dbConnectionFactory.CreateConnection();
+            connection.Open();
+            using var command = connection.CreateCommand();
+            command.CommandText = $"insert into rating (name, rating) values ('{name}', 1000)";
+            command.ExecuteNonQuery();
+        }
+
         public List<LeaderboardEntry> GetAll()
         {
             var entries = new List<LeaderboardEntry>();

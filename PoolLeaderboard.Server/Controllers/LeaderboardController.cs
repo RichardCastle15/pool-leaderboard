@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using PoolLeaderboard.Server.Data;
 using PoolLeaderboard.Server.Hubs;
 using PoolLeaderboardEngine.Leaderboard;
 
@@ -11,28 +10,18 @@ namespace PoolLeaderboard.Server.Controllers
     public class LeaderboardController : ControllerBase
     {
         private readonly ILeaderboardRepository leaderboardRepository;
-        private readonly IDbConnectionFactory dbConnectionFactory;
         private readonly IHubContext<LeaderboardHub> hubContext;
 
-        public LeaderboardController(ILeaderboardRepository leaderboardRepository, IDbConnectionFactory dbConnectionFactory, IHubContext<LeaderboardHub> hubContext)
+        public LeaderboardController(ILeaderboardRepository leaderboardRepository, IHubContext<LeaderboardHub> hubContext)
         {
             this.leaderboardRepository = leaderboardRepository;
-            this.dbConnectionFactory = dbConnectionFactory;
             this.hubContext = hubContext;
         }
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] AddParticipantBody request)
         {
-            using (var connection = this.dbConnectionFactory.CreateConnection())
-            {
-                connection.Open();
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = $"insert into rating (name, rating) values ('{request.Name}', 1000)";
-                    command.ExecuteNonQuery();
-                }
-            }
+            leaderboardRepository.Add(request.Name);
 
             var entries = leaderboardRepository.GetAll();
             await hubContext.Clients.All.SendAsync("ReceiveLeaderboard", entries);
