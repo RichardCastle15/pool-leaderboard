@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using PoolLeaderboard.Server.Data;
+using PoolLeaderboard.Server.Hubs;
 
 namespace PoolLeaderboard.Server.Controllers
 {
@@ -8,43 +10,16 @@ namespace PoolLeaderboard.Server.Controllers
     public class LeaderboardController : ControllerBase
     {
         private readonly IDbConnectionFactory dbConnectionFactory;
+        private readonly IHubContext<LeaderboardHub> hubContext;
 
-        public LeaderboardController(IDbConnectionFactory dbConnectionFactory)
+        public LeaderboardController(IDbConnectionFactory dbConnectionFactory, IHubContext<LeaderboardHub> hubContext)
         {
             this.dbConnectionFactory = dbConnectionFactory;
-        }
-
-        /// <summary>
-        /// Sample HTTP GET with database access.
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        public List<LeaderboardEntry> Get()
-        {
-            var leaderboardEntries = new List<LeaderboardEntry>();
-            using (var connection = this.dbConnectionFactory.CreateConnection())
-            {
-                connection.Open();
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = "select * from rating";
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            string name = (string)reader["name"];
-                            short rating = (short)reader["rating"];
-                            int id = (int)reader["id"];
-                            leaderboardEntries.Add(new LeaderboardEntry { Name = name, Rating = rating, Id = id });
-                        }
-                    }
-                }
-            }
-            return leaderboardEntries;
+            this.hubContext = hubContext;
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] AddParticipantBody request)
+        public async Task<IActionResult> Post([FromBody] AddParticipantBody request)
         {
             using (var connection = this.dbConnectionFactory.CreateConnection())
             {
@@ -55,7 +30,31 @@ namespace PoolLeaderboard.Server.Controllers
                     command.ExecuteNonQuery();
                 }
             }
+
+            var entries = ReadLeaderboard();
+            await hubContext.Clients.All.SendAsync("ReceiveLeaderboard", entries);
+
             return Ok();
+        }
+
+        private List<LeaderboardEntry> ReadLeaderboard()
+        {
+            var entries = new List<LeaderboardEntry>();
+            using var connection = dbConnectionFactory.CreateConnection();
+            connection.Open();
+            using var command = connection.CreateCommand();
+            command.CommandText = "select * from rating";
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                entries.Add(new LeaderboardEntry
+                {
+                    Name = (string)reader["name"],
+                    Rating = (short)reader["rating"],
+                    Id = (int)reader["id"]
+                });
+            }
+            return entries;
         }
     }
 

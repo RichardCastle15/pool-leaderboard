@@ -29,6 +29,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<ExampleHub>("/exampleHub");
+app.MapHub<LeaderboardHub>("/leaderboardHub");
 
 app.MapFallbackToFile("/index.html");
 
