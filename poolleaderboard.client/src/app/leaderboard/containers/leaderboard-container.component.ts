@@ -1,11 +1,10 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { LeaderboardComponent } from '../presenters/leaderboard.component';
-import { HttpClient } from '@angular/common/http';
-import { LeaderboardEntryServer } from '../models/leaderboard-entry-server.model';
 import { TreeNode } from '../models/tree-node.model';
 import { LeaderboardEntryRow } from '../models/leaderboard-entry-row.model';
 import { Subscription } from 'rxjs';
-import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
+import { LeaderboardService } from '../services/leaderboard.service';
+import { HubConnection } from '@microsoft/signalr';
 
 @Component({
   selector: 'app-leaderboard-container',
@@ -16,44 +15,27 @@ import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 export class LeaderboardContainerComponent implements OnInit, OnDestroy {
   loading = signal(true);
   data = signal<TreeNode<LeaderboardEntryRow | {}>[]>([]);
-  private subscriptions = new Subscription();
-  private hubConnection!: HubConnection;
+  private subscription = new Subscription();
+  private hubConnection: HubConnection | undefined;
 
-  constructor(private http: HttpClient) {}
+  constructor(private leaderboardService: LeaderboardService) {}
 
   ngOnInit(): void {
-    this.hubConnection = new HubConnectionBuilder()
-      .withUrl('/leaderboardHub')
-      .build();
-
-    this.hubConnection.on('ReceiveLeaderboard', (result: LeaderboardEntryServer[]) => {
+    const sub = this.leaderboardService.leaderboard$.subscribe(entries => {
       this.loading.set(false);
-      this.data.set(this.convertServerModel(result));
+      this.data.set(entries);
     });
-
-    this.hubConnection.start().catch(console.error);
+    this.hubConnection = this.leaderboardService.connect();
+    this.subscription.add(sub);
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
+    this.subscription.unsubscribe();
     this.hubConnection?.stop();
   }
 
   addParticipant(name: string): void {
-    const addSub = this.http.post('/api/leaderboard', {name}).subscribe();
-    this.subscriptions.add(addSub);
-  }
-
-  private convertServerModel(serverModel: LeaderboardEntryServer[]): TreeNode<LeaderboardEntryRow | {}>[]{
-    return serverModel.map(sm => ({data: this.converyServerModelRow(sm), children: []}));
-  }
-
-  private converyServerModelRow(serverModel: LeaderboardEntryServer): LeaderboardEntryRow {
-    return {
-      name: serverModel.name,
-      points: serverModel.rating,
-      rank: 1,
-      id: serverModel.id
-    }
+    const addSub = this.leaderboardService.addParticipant(name).subscribe();
+    this.subscription.add(addSub);
   }
 }
