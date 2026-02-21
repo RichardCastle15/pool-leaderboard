@@ -24,6 +24,7 @@
     <ProjectReference Include="..\poolleaderboard.client\poolleaderboard.client.esproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\PoolLeaderboardEngine\PoolLeaderboardEngine.csproj" />
   </ItemGroup>
 
 </Project>

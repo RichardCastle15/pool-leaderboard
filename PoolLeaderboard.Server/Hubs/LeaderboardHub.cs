@@ -1,43 +1,22 @@
 using Microsoft.AspNetCore.SignalR;
-using PoolLeaderboard.Server.Controllers;
-using PoolLeaderboard.Server.Data;
+using PoolLeaderboardEngine.Leaderboard;
 
 namespace PoolLeaderboard.Server.Hubs
 {
     public class LeaderboardHub : Hub
     {
-        private readonly IDbConnectionFactory dbConnectionFactory;
+        private readonly ILeaderboardRepository leaderboardRepository;
 
-        public LeaderboardHub(IDbConnectionFactory dbConnectionFactory)
+        public LeaderboardHub(ILeaderboardRepository leaderboardRepository)
         {
-            this.dbConnectionFactory = dbConnectionFactory;
+            this.leaderboardRepository = leaderboardRepository;
         }
 
         public override async Task OnConnectedAsync()
         {
-            var entries = ReadLeaderboard();
+            var entries = leaderboardRepository.GetAll();
             await Clients.Caller.SendAsync("ReceiveLeaderboard", entries);
             await base.OnConnectedAsync();
-        }
-
-        private List<LeaderboardEntry> ReadLeaderboard()
-        {
-            var entries = new List<LeaderboardEntry>();
-            using var connection = dbConnectionFactory.CreateConnection();
-            connection.Open();
-            using var command = connection.CreateCommand();
-            command.CommandText = "select * from rating";
-            using var reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                entries.Add(new LeaderboardEntry
-                {
-                    Name = (string)reader["name"],
-                    Rating = (short)reader["rating"],
-                    Id = (int)reader["id"]
-                });
-            }
-            return entries;
         }
     }
 }

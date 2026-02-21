@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using PoolLeaderboard.Server.Data;
 using PoolLeaderboard.Server.Hubs;
+using PoolLeaderboardEngine.Leaderboard;
 
 namespace PoolLeaderboard.Server.Controllers
 {
@@ -9,11 +10,13 @@ namespace PoolLeaderboard.Server.Controllers
     [ApiController]
     public class LeaderboardController : ControllerBase
     {
+        private readonly ILeaderboardRepository leaderboardRepository;
         private readonly IDbConnectionFactory dbConnectionFactory;
         private readonly IHubContext<LeaderboardHub> hubContext;
 
-        public LeaderboardController(IDbConnectionFactory dbConnectionFactory, IHubContext<LeaderboardHub> hubContext)
+        public LeaderboardController(ILeaderboardRepository leaderboardRepository, IDbConnectionFactory dbConnectionFactory, IHubContext<LeaderboardHub> hubContext)
         {
+            this.leaderboardRepository = leaderboardRepository;
             this.dbConnectionFactory = dbConnectionFactory;
             this.hubContext = hubContext;
         }
@@ -31,38 +34,11 @@ namespace PoolLeaderboard.Server.Controllers
                 }
             }
 
-            var entries = ReadLeaderboard();
+            var entries = leaderboardRepository.GetAll();
             await hubContext.Clients.All.SendAsync("ReceiveLeaderboard", entries);
 
             return Ok();
         }
-
-        private List<LeaderboardEntry> ReadLeaderboard()
-        {
-            var entries = new List<LeaderboardEntry>();
-            using var connection = dbConnectionFactory.CreateConnection();
-            connection.Open();
-            using var command = connection.CreateCommand();
-            command.CommandText = "select * from rating";
-            using var reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                entries.Add(new LeaderboardEntry
-                {
-                    Name = (string)reader["name"],
-                    Rating = (short)reader["rating"],
-                    Id = (int)reader["id"]
-                });
-            }
-            return entries;
-        }
-    }
-
-    public class LeaderboardEntry
-    {
-        public required string Name { get; set; }
-        public short Rating { get; set; }
-        public int Id { get; set; }
     }
 
     public class AddParticipantBody

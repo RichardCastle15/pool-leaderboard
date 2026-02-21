@@ -1,5 +1,6 @@
 using PoolLeaderboard.Server.Data;
 using PoolLeaderboard.Server.Hubs;
+using PoolLeaderboardEngine.Leaderboard;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddSignalR();
 
 builder.Services.AddScoped<IDbConnectionFactory, SqlServerConnectionFactory>();
+builder.Services.AddScoped<ILeaderboardRepository, LeaderboardRepository>();
 
 var app = builder.Build();
 
