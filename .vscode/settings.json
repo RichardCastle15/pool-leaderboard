@@ -1,4 +1,5 @@
 {
   "karmaTestExplorer.projectWorkspaces": ["poolleaderboard.client"],
-  "karmaTestExplorer.enableExtension": true
+  "karmaTestExplorer.enableExtension": true,
+  "typescript.tsdk": "poolleaderboard.client/node_modules/typescript/lib"
 }
