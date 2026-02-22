@@ -1,6 +1,4 @@
-using PoolLeaderboardEngine.Leaderboard;
-
-namespace PoolLeaderboard.Server.Data
+namespace PoolLeaderboardEngine.Leaderboard
 {
     public class LeaderboardRepository : ILeaderboardRepository
     {

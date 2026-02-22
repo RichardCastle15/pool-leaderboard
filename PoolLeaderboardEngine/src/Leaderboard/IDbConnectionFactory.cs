@@ -1,6 +1,6 @@
 using System.Data;
 
-namespace PoolLeaderboard.Server.Data
+namespace PoolLeaderboardEngine.Leaderboard
 {
     public interface IDbConnectionFactory
     {

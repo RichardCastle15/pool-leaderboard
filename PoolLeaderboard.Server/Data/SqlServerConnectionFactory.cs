@@ -1,5 +1,6 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
+using PoolLeaderboardEngine.Leaderboard;
 
 namespace PoolLeaderboard.Server.Data
 {
