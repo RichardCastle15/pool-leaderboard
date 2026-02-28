@@ -38,6 +38,10 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Install Docker CLI for Docker-outside-of-Docker (DooD)
+RUN apt-get update && apt-get install -y docker.io && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # Set env to CI as docker container has no UI so needs same set up.
 ENV CI=true
 ENV ConnectionStrings__DefaultConnection='Server=db,1433;Database=leaderboard;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;'
