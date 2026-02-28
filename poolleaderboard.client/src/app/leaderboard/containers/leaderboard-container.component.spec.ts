@@ -1,12 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component, input, output } from '@angular/core';
-import { Subject, of } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 
 import { LeaderboardContainerComponent } from './leaderboard-container.component';
 import { LeaderboardComponent } from '../presenters/leaderboard.component';
 import { LeaderboardService } from '../services/leaderboard.service';
 import { TreeNode } from '../models/tree-node.model';
 import { LeaderboardEntryRow } from '../models/leaderboard-entry-row.model';
+import { NbToastrService } from '@nebular/theme';
 
 @Component({ selector: 'app-leaderboard', template: '', standalone: true })
 class MockLeaderboardComponent {
@@ -21,6 +22,7 @@ describe('LeaderboardContainerComponent', () => {
   let leaderboard$: Subject<TreeNode<LeaderboardEntryRow | {}>[]>;
   let mockHubConnection: { stop: jasmine.Spy };
   let mockLeaderboardService: jasmine.SpyObj<LeaderboardService>;
+  let mockToastrService: jasmine.SpyObj<NbToastrService>;
 
   beforeEach(async () => {
     leaderboard$ = new Subject();
@@ -31,6 +33,7 @@ describe('LeaderboardContainerComponent', () => {
       { leaderboard$: leaderboard$.asObservable() }
     );
     mockLeaderboardService.connect.and.returnValue(mockHubConnection as any);
+    mockToastrService = jasmine.createSpyObj('NbToastrService', ['danger']);
 
     await TestBed.configureTestingModule({
       imports: [LeaderboardContainerComponent]
@@ -40,6 +43,7 @@ describe('LeaderboardContainerComponent', () => {
       add: { imports: [MockLeaderboardComponent] }
     })
     .overrideProvider(LeaderboardService, { useValue: mockLeaderboardService })
+    .overrideProvider(NbToastrService, { useValue: mockToastrService })
     .compileComponents();
 
     fixture = TestBed.createComponent(LeaderboardContainerComponent);
@@ -94,5 +98,11 @@ describe('LeaderboardContainerComponent', () => {
     mockLeaderboardService.addParticipant.and.returnValue(of({}));
     component.addParticipant('Alice');
     expect(mockLeaderboardService.addParticipant).toHaveBeenCalledOnceWith('Alice');
+  });
+
+  it('should show a danger toast when addParticipant throws an error', () => {
+    mockLeaderboardService.addParticipant.and.returnValue(throwError(() => new Error('server error')));
+    component.addParticipant('Alice');
+    expect(mockToastrService.danger).toHaveBeenCalledOnceWith('Failed to add participant', 'Error');
   });
 });

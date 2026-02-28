@@ -5,6 +5,7 @@ import { LeaderboardEntryRow } from '../models/leaderboard-entry-row.model';
 import { Subscription } from 'rxjs';
 import { LeaderboardService } from '../services/leaderboard.service';
 import { HubConnection } from '@microsoft/signalr';
+import { NbToastrService } from '@nebular/theme';
 
 @Component({
   selector: 'app-leaderboard-container',
@@ -18,7 +19,7 @@ export class LeaderboardContainerComponent implements OnInit, OnDestroy {
   private subscription = new Subscription();
   private hubConnection: HubConnection | undefined;
 
-  constructor(private leaderboardService: LeaderboardService) {}
+  constructor(private leaderboardService: LeaderboardService, private toastrService: NbToastrService) {}
 
   ngOnInit(): void {
     const sub = this.leaderboardService.leaderboard$.subscribe(entries => {
@@ -35,7 +36,9 @@ export class LeaderboardContainerComponent implements OnInit, OnDestroy {
   }
 
   addParticipant(name: string): void {
-    const addSub = this.leaderboardService.addParticipant(name).subscribe();
+    const addSub = this.leaderboardService.addParticipant(name).subscribe({
+      error: () => this.toastrService.danger('Failed to add participant', 'Error')
+    });
     this.subscription.add(addSub);
   }
 }
