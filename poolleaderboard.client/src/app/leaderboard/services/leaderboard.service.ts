@@ -9,8 +9,10 @@ import { TreeNode } from '../models/tree-node.model';
 @Injectable({ providedIn: 'root' })
 export class LeaderboardService {
   private leaderboardSubject = new Subject<TreeNode<LeaderboardEntryRow | {}>[]>();
+  private errorSubject = new Subject<string>();
 
   leaderboard$: Observable<TreeNode<LeaderboardEntryRow | {}>[]> = this.leaderboardSubject.asObservable();
+  error$: Observable<string> = this.errorSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -21,6 +23,10 @@ export class LeaderboardService {
 
     hubConnection.on('ReceiveLeaderboard', (result: LeaderboardEntryServer[]) => {
       this.leaderboardSubject.next(this.convertServerModel(result));
+    });
+
+    hubConnection.on('LeaderboardError', (message: string) => {
+      this.errorSubject.next(message);
     });
 
     hubConnection.start().catch(console.error);

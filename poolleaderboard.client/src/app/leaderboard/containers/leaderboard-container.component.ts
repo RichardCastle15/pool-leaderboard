@@ -26,8 +26,13 @@ export class LeaderboardContainerComponent implements OnInit, OnDestroy {
       this.loading.set(false);
       this.data.set(entries);
     });
+    const errorSub = this.leaderboardService.error$.subscribe(message => {
+      this.loading.set(false);
+      this.toastrService.danger(message, 'Error');
+    });
     this.hubConnection = this.leaderboardService.connect();
     this.subscription.add(sub);
+    this.subscription.add(errorSub);
   }
 
   ngOnDestroy(): void {
