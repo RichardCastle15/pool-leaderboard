@@ -14,7 +14,11 @@ public class LeaderboardRepository : ILeaderboardRepository
         using var connection = dbConnectionFactory.CreateConnection();
         connection.Open();
         using var command = connection.CreateCommand();
-        command.CommandText = $"insert into rating (name, rating) values ('{name}', 1000)";
+        command.CommandText = "insert into rating (name, rating) values (@name, 1000)";
+        var param = command.CreateParameter();
+        param.ParameterName = "@name";
+        param.Value = name;
+        command.Parameters.Add(param);
         command.ExecuteNonQuery();
     }
 
