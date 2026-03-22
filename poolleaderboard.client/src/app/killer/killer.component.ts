@@ -1,6 +1,6 @@
 import { Component, computed, input, Signal } from '@angular/core';
 import { KillerGame } from './types/killer-game.model';
-import { TreeNode } from '../leaderboard/tree-node.model';
+import { TreeNode } from '../leaderboard/models/tree-node.model';
 import { KillerGameRow } from './types/killer-game-row.model';
 import { NbActionsModule, NbCardModule, NbTreeGridModule } from "@nebular/theme";
 

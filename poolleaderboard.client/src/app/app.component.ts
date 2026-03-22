@@ -29,6 +29,7 @@ export class AppComponent implements OnInit, OnDestroy {
     {
       title: 'Leaderboard',
       icon: 'list-outline',
+      link: '/leaderboard'
     },
     {
       title: 'Killer',

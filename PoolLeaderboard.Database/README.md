@@ -25,6 +25,8 @@ There is a `deploy.sh` file which can be run to deploy the database with the lat
 
 ## Query the dev db
 
+### sqlcmd cli
+
 `sqlcmd` is preinstalled in the container. You can start running queries with:
 
 ```bash
@@ -32,3 +34,7 @@ sqlcmd -S db -d leaderboard -U sa -P 'YourStrong!Passw0rd' -C
 ```
 
 Type in your query, and then type `go` to run them. Finish the session by typing `quit`.
+
+### SSMS
+
+You can use SSMS for a UI when working with the database. The server name is `localhost,51433`. The username and password can be found in the `docker-compose.yml` file.

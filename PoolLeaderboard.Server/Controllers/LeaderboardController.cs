@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using PoolLeaderboard.Server.Data;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using PoolLeaderboard.Server.Hubs;
+using PoolLeaderboardEngine.Leaderboard;
 
 namespace PoolLeaderboard.Server.Controllers
 {
@@ -7,45 +9,29 @@ namespace PoolLeaderboard.Server.Controllers
     [ApiController]
     public class LeaderboardController : ControllerBase
     {
-        private readonly IDbConnectionFactory dbConnectionFactory;
+        private readonly ILeaderboardRepository leaderboardRepository;
+        private readonly IHubContext<LeaderboardHub> hubContext;
 
-        public LeaderboardController(IDbConnectionFactory dbConnectionFactory)
+        public LeaderboardController(ILeaderboardRepository leaderboardRepository, IHubContext<LeaderboardHub> hubContext)
         {
-            this.dbConnectionFactory = dbConnectionFactory;
+            this.leaderboardRepository = leaderboardRepository;
+            this.hubContext = hubContext;
         }
 
-        /// <summary>
-        /// Sample HTTP GET with database access.
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        public List<LeaderboardEntry> Get()
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] AddParticipantBody request)
         {
-            var leaderboardEntries = new List<LeaderboardEntry>();
-            using (var connection = this.dbConnectionFactory.CreateConnection())
-            {
-                connection.Open();
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = "select * from rating";
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            string name = (string)reader["name"];
-                            short rating = (short)reader["rating"];
-                            leaderboardEntries.Add(new LeaderboardEntry { Name = name, Rating = rating });
-                        }
-                    }
-                }
-            }
-            return leaderboardEntries;
+            leaderboardRepository.Add(request.Name);
+
+            var entries = leaderboardRepository.GetAll();
+            await hubContext.Clients.All.SendAsync("ReceiveLeaderboard", entries);
+
+            return Ok();
         }
     }
 
-    public class LeaderboardEntry
+    public class AddParticipantBody
     {
         public required string Name { get; set; }
-        public short Rating { get; set; }
     }
 }

@@ -1,8 +1,14 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { environment } from '../environments/environment';
+import { LeaderboardContainerComponent } from './leaderboard/containers/leaderboard-container.component';
 
-const prodRoutes: Routes = [];
+const prodRoutes: Routes = [
+  {
+    path: 'leaderboard',
+    component: LeaderboardContainerComponent
+  },
+];
 
 const developmentRoutes: Routes = [
   {
