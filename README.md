@@ -56,7 +56,7 @@ The backend is debuggable through VS Code. If you make a change, you need to res
 
 To run jasmine tests, you will most likely have to refresh the test explorer, as it usually errors due to the jasmine adapter starting before the node modules are installed.
 
-This will set up a database container. There is a readme in the database project file.
+This will set up a database container. There is a readme in the database project folder.
 
 #### Current limitations
 
