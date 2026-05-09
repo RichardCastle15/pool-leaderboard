@@ -34,6 +34,7 @@ export class AppComponent implements OnInit, OnDestroy {
     {
       title: 'Killer',
       icon: 'close-circle-outline',
+      link: '/killer'
     },
   ]);
 
@@ -79,6 +80,8 @@ export class AppComponent implements OnInit, OnDestroy {
                 { title: 'Eliminated players', link: '/showcase/killer/eliminated-players' },
                 { title: 'Long list', link: '/showcase/killer/long-list' },
                 { title: 'Sudden death', link: '/showcase/killer/sudden-death' },
+                { title: 'Disconnected', link: '/showcase/killer/disconnected' },
+                { title: 'No game', link: '/showcase/killer/no-game' },
               ]
             }
           ]

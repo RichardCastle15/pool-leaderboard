@@ -22,6 +22,23 @@ public class LeaderboardRepository : ILeaderboardRepository
         command.ExecuteNonQuery();
     }
 
+    public void UpdateRating(int id, int delta)
+    {
+        using var connection = dbConnectionFactory.CreateConnection();
+        connection.Open();
+        using var command = connection.CreateCommand();
+        command.CommandText = "UPDATE rating SET rating = rating + @delta WHERE id = @id";
+        var deltaParam = command.CreateParameter();
+        deltaParam.ParameterName = "@delta";
+        deltaParam.Value = delta;
+        command.Parameters.Add(deltaParam);
+        var idParam = command.CreateParameter();
+        idParam.ParameterName = "@id";
+        idParam.Value = id;
+        command.Parameters.Add(idParam);
+        command.ExecuteNonQuery();
+    }
+
     public List<LeaderboardEntry> GetAll()
     {
         var entries = new List<LeaderboardEntry>();

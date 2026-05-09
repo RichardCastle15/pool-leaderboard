@@ -8,6 +8,7 @@ const PROXY_CONFIG = [
     context: [
       "/exampleHub",
       "/leaderboardHub",
+      "/killerHub",
       "/api",
     ],
     target,

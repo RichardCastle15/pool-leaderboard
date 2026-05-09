@@ -1,12 +1,12 @@
-import { Component, computed, input, Signal } from '@angular/core';
+import { Component, computed, input, output, Signal } from '@angular/core';
 import { KillerGame } from './types/killer-game.model';
 import { TreeNode } from '../leaderboard/models/tree-node.model';
 import { KillerGameRow } from './types/killer-game-row.model';
-import { NbActionsModule, NbCardModule, NbTreeGridModule } from "@nebular/theme";
+import { NbActionsModule, NbAlertModule, NbButtonModule, NbCardModule, NbTreeGridModule } from "@nebular/theme";
 
 @Component({
   selector: 'app-killer',
-  imports: [NbTreeGridModule, NbCardModule, NbActionsModule],
+  imports: [NbTreeGridModule, NbCardModule, NbActionsModule, NbAlertModule, NbButtonModule],
   templateUrl: './killer.component.html',
   styleUrl: './killer.component.scss'
 })
@@ -15,6 +15,15 @@ export class KillerComponent {
 
   game = input<KillerGame>();
   size = input<'full'|'compact'>('full');
+  disconnected = input(false);
+  isActive = input(true);
+
+  pot = output();
+  miss = output();
+  earlyBlackPot = output();
+  undo = output();
+  abandon = output();
+  confirmEnd = output();
 
   tableData: Signal<TreeNode<KillerGameRow>[] | undefined>;
 

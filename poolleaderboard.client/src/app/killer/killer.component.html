@@ -1,4 +1,9 @@
-@if (tableData() && game()) {
+@if (disconnected()) {
+  <nb-alert status="warning" closable="false">Connection lost — attempting to reconnect...</nb-alert>
+}
+
+@if (isActive()) {
+  @if (tableData() && game()) {
     <table [nbTreeGrid]="tableData()!">
         <tr nbTreeGridRow *nbTreeGridRowDef="let row; let i = index; columns: columns" [clickToToggle]="false"
         [class.current]="i === game()!.currentPlayerIndex" [class.eliminated]="game()!.playerRows[i].eliminated" class="player-row"></tr>
@@ -22,34 +27,48 @@
             </td>
         </ng-container>
     </table>
-}
+  }
 
-<nb-card class="action-card">
-  <nb-card-body>
-    <nb-actions size="medium" fullWidth>
-      <nb-action id="killer-pot-action" aria-label="Pot">
-        <span class="material-symbols-outlined">check_circle</span>
-        @if(size() === 'full') { Pot }
-      </nb-action>
-      <nb-action id="killer-miss-action" aria-label="Miss / Foul">
-        <span class="material-symbols-outlined">cancel</span>
-        @if(size() === 'full') { Miss / Foul }
-      </nb-action>
-      <nb-action id="killer-full-elimination-action" aria-label="Early black">
-        <span class="material-symbols-outlined">bomb</span>
-        @if(size() === 'full') { Early black }
-      </nb-action>
-    </nb-actions>
-    <hr class="action-row-divider">
-    <nb-actions size="medium" fullWidth>
-      <nb-action id="killer-undo-action" aria-label="Undo">
-        <span class="material-symbols-outlined">undo</span>
-        @if(size() === 'full') { Undo }
-      </nb-action>
-      <nb-action id="killer-abandon-action" aria-label="Abandon">
-        <span class="material-symbols-outlined">delete</span>
-        @if(size() === 'full') { Abandon }
-      </nb-action>
-    </nb-actions>
-  </nb-card-body>
-</nb-card>
+  <nb-card class="action-card">
+    <nb-card-body>
+      <nb-actions size="medium" fullWidth>
+        <nb-action id="killer-pot-action" aria-label="Pot" (click)="pot.emit()">
+          <span class="material-symbols-outlined">check_circle</span>
+          @if(size() === 'full') { Pot }
+        </nb-action>
+        <nb-action id="killer-miss-action" aria-label="Miss / Foul" (click)="miss.emit()">
+          <span class="material-symbols-outlined">cancel</span>
+          @if(size() === 'full') { Miss / Foul }
+        </nb-action>
+        <nb-action id="killer-full-elimination-action" aria-label="Early black" (click)="earlyBlackPot.emit()">
+          <span class="material-symbols-outlined">bomb</span>
+          @if(size() === 'full') { Early black }
+        </nb-action>
+      </nb-actions>
+      <hr class="action-row-divider">
+      <nb-actions size="medium" fullWidth>
+        <nb-action id="killer-undo-action" aria-label="Undo" (click)="undo.emit()">
+          <span class="material-symbols-outlined">undo</span>
+          @if(size() === 'full') { Undo }
+        </nb-action>
+        <nb-action id="killer-abandon-action" aria-label="Abandon" (click)="abandon.emit()">
+          <span class="material-symbols-outlined">delete</span>
+          @if(size() === 'full') { Abandon }
+        </nb-action>
+      </nb-actions>
+    </nb-card-body>
+  </nb-card>
+
+  @if (game()?.winner) {
+    <nb-card class="confirm-end-card">
+      <nb-card-body>
+        <p>{{game()!.winner}} wins!</p>
+        <button nbButton status="success" fullWidth (click)="confirmEnd.emit()">Confirm end</button>
+      </nb-card-body>
+    </nb-card>
+  }
+} @else {
+  <nb-card>
+    <nb-card-body>No active game.</nb-card-body>
+  </nb-card>
+}

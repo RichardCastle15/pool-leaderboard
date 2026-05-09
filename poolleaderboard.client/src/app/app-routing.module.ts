@@ -8,6 +8,10 @@ const prodRoutes: Routes = [
     path: 'leaderboard',
     component: LeaderboardContainerComponent
   },
+  {
+    path: 'killer',
+    loadComponent: () => import('./killer/killer-container.component').then(m => m.KillerContainerComponent)
+  },
 ];
 
 const developmentRoutes: Routes = [
@@ -33,6 +37,8 @@ const developmentRoutes: Routes = [
           { path: 'eliminated-players', loadComponent: () => import('./component-showcase/killer/eliminated-players-killer-showcase.component').then(m => m.EliminatedPlayersKillerShowcaseComponent) },
           { path: 'long-list', loadComponent: () => import('./component-showcase/killer/long-list-killer-showcase.component').then(m => m.LongListKillerShowcaseComponent) },
           { path: 'sudden-death', loadComponent: () => import('./component-showcase/killer/sudden-death-killer-showcase.component').then(m => m.SuddenDeathKillerShowcaseComponent) },
+          { path: 'disconnected', loadComponent: () => import('./component-showcase/killer/disconnected-killer-showcase.component').then(m => m.DisconnectedKillerShowcaseComponent) },
+          { path: 'no-game', loadComponent: () => import('./component-showcase/killer/no-game-killer-showcase.component').then(m => m.NoGameKillerShowcaseComponent) },
         ]
       }
     ]
