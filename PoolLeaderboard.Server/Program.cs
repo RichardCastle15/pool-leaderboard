@@ -1,5 +1,6 @@
 using PoolLeaderboard.Server.Data;
 using PoolLeaderboard.Server.Hubs;
+using PoolLeaderboard.Server.Services;
 using PoolLeaderboardEngine.Leaderboard;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,7 @@ builder.Services.AddSignalR();
 
 builder.Services.AddScoped<IDbConnectionFactory, SqlServerConnectionFactory>();
 builder.Services.AddScoped<ILeaderboardRepository, LeaderboardRepository>();
+builder.Services.AddSingleton<KillerGameService>();
 
 var app = builder.Build();
 
@@ -32,6 +34,7 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHub<ExampleHub>("/exampleHub");
 app.MapHub<LeaderboardHub>("/leaderboardHub");
+app.MapHub<KillerHub>("/killerHub");
 
 app.MapFallbackToFile("/index.html");
 

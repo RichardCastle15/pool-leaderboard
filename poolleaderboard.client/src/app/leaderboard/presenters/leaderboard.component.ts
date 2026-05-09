@@ -25,6 +25,7 @@ export class LeaderboardComponent implements OnDestroy {
   // Outputs.
   newParticipant = output<string>();
   gameTypeFilter = output<GameType>();
+  startKiller = output<{ id: number; name: string }[]>();
   // Template data.
   selectedIds = signal<number[]>([]);
 
@@ -90,5 +91,13 @@ export class LeaderboardComponent implements OnDestroy {
 
   changeGameTypeFilter(newType: GameType) {
     this.gameTypeFilter.emit(newType);
+  }
+
+  onStartKiller() {
+    const selected = this.entries()
+      .map(e => e.data as LeaderboardEntryRow)
+      .filter(e => !!e.id && this.selectedIds().includes(e.id!))
+      .map(e => ({ id: e.id!, name: e.name }));
+    this.startKiller.emit(selected);
   }
 }

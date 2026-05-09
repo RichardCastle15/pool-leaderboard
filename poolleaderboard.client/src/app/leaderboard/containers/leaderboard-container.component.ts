@@ -1,9 +1,11 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { LeaderboardComponent } from '../presenters/leaderboard.component';
 import { TreeNode } from '../models/tree-node.model';
 import { LeaderboardEntryRow } from '../models/leaderboard-entry-row.model';
 import { Subscription } from 'rxjs';
 import { LeaderboardService } from '../services/leaderboard.service';
+import { KillerService } from '../../killer/killer.service';
 import { HubConnection } from '@microsoft/signalr';
 import { NbToastrService } from '@nebular/theme';
 
@@ -19,7 +21,12 @@ export class LeaderboardContainerComponent implements OnInit, OnDestroy {
   private subscription = new Subscription();
   private hubConnection: HubConnection | undefined;
 
-  constructor(private leaderboardService: LeaderboardService, private toastrService: NbToastrService) {}
+  constructor(
+    private leaderboardService: LeaderboardService,
+    private killerService: KillerService,
+    private router: Router,
+    private toastrService: NbToastrService
+  ) {}
 
   ngOnInit(): void {
     const sub = this.leaderboardService.leaderboard$.subscribe(entries => {
@@ -45,5 +52,13 @@ export class LeaderboardContainerComponent implements OnInit, OnDestroy {
       error: () => this.toastrService.danger('Failed to add participant', 'Error')
     });
     this.subscription.add(addSub);
+  }
+
+  startKiller(players: { id: number; name: string }[]): void {
+    const sub = this.killerService.startGame(players).subscribe({
+      next: () => this.router.navigate(['/killer']),
+      error: () => this.toastrService.danger('Failed to start killer game', 'Error')
+    });
+    this.subscription.add(sub);
   }
 }
