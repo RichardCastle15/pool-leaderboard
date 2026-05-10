@@ -61,4 +61,11 @@ export class LeaderboardContainerComponent implements OnInit, OnDestroy {
     });
     this.subscription.add(sub);
   }
+
+  recordResult({ winnerId, loserId }: { winnerId: number; loserId: number }): void {
+    const sub = this.leaderboardService.recordResult(winnerId, loserId).subscribe({
+      error: () => this.toastrService.danger('Failed to record result', 'Error')
+    });
+    this.subscription.add(sub);
+  }
 }

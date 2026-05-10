@@ -2,6 +2,7 @@ using PoolLeaderboard.Server.Data;
 using PoolLeaderboard.Server.Hubs;
 using PoolLeaderboard.Server.Services;
 using PoolLeaderboardEngine.Leaderboard;
+using PoolLeaderboardEngine.Match;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,7 @@ builder.Services.AddSignalR();
 
 builder.Services.AddScoped<IDbConnectionFactory, SqlServerConnectionFactory>();
 builder.Services.AddScoped<ILeaderboardRepository, LeaderboardRepository>();
+builder.Services.AddScoped<IMatchRepository, MatchRepository>();
 builder.Services.AddSingleton<KillerGameService>();
 
 var app = builder.Build();

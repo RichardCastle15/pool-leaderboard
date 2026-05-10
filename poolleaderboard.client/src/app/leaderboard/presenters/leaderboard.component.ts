@@ -3,6 +3,7 @@ import { NbActionsModule, NbBadgeModule, NbButtonGroupModule, NbCardModule, NbDi
 import { LeaderboardEntryRow } from '../models/leaderboard-entry-row.model';
 import { TreeNode } from '../models/tree-node.model';
 import { NewParticipantComponent } from './new-participant/new-participant.component';
+import { RecordResultDialogComponent, RecordResultDialogResult } from './record-result-dialog/record-result-dialog.component';
 import { Subscription } from 'rxjs';
 import { TitleCasePipe } from '@angular/common';
 import { GameType } from '../models/game-type-filter.type';
@@ -26,6 +27,7 @@ export class LeaderboardComponent implements OnDestroy {
   newParticipant = output<string>();
   gameTypeFilter = output<GameType>();
   startKiller = output<{ id: number; name: string }[]>();
+  recordResult = output<RecordResultDialogResult>();
   // Template data.
   selectedIds = signal<number[]>([]);
 
@@ -99,5 +101,21 @@ export class LeaderboardComponent implements OnDestroy {
       .filter(e => !!e.id && this.selectedIds().includes(e.id!))
       .map(e => ({ id: e.id!, name: e.name }));
     this.startKiller.emit(selected);
+  }
+
+  onRecordResult() {
+    const selected = this.entries()
+      .map(e => e.data as LeaderboardEntryRow)
+      .filter(e => !!e.id && this.selectedIds().includes(e.id!));
+    if (selected.length !== 2) return;
+    const [playerA, playerB] = selected.map(e => ({ id: e.id!, name: e.name, rating: e.points }));
+
+    const dialogRef = this.dialogService.open(RecordResultDialogComponent, {
+      context: { playerA, playerB }
+    });
+    const sub = dialogRef.onClose.subscribe((result: RecordResultDialogResult | undefined) => {
+      if (result) this.recordResult.emit(result);
+    });
+    this.subscriptions.add(sub);
   }
 }

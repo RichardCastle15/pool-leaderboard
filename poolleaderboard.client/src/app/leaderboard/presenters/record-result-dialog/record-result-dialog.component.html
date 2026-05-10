@@ -1,0 +1,20 @@
+<nb-card>
+  <nb-card-header>Who won?</nb-card-header>
+  <nb-card-body>
+    <div class="winner-buttons">
+      <button nbButton status="primary" size="large" (click)="pickWinner(playerA, playerB)">
+        <span class="player-name">{{ playerA.name }} wins</span>
+        <span class="swing">±{{ aWinSwing }}</span>
+      </button>
+      <button nbButton status="primary" size="large" (click)="pickWinner(playerB, playerA)">
+        <span class="player-name">{{ playerB.name }} wins</span>
+        <span class="swing">±{{ bWinSwing }}</span>
+      </button>
+    </div>
+  </nb-card-body>
+  <nb-card-footer>
+    <div class="buttons">
+      <button nbButton status="basic" (click)="cancel()">Cancel</button>
+    </div>
+  </nb-card-footer>
+</nb-card>

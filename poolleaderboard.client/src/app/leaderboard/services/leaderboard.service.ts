@@ -38,6 +38,10 @@ export class LeaderboardService {
     return this.http.post('/api/leaderboard', { name });
   }
 
+  recordResult(winnerId: number, loserId: number): Observable<Object> {
+    return this.http.post('/api/match', { winnerId, loserId });
+  }
+
   private convertServerModel(serverModel: LeaderboardEntryServer[]): TreeNode<LeaderboardEntryRow | {}>[] {
     return serverModel.map(sm => ({
       data: {

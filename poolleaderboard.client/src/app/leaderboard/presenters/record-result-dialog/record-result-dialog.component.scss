@@ -1,0 +1,23 @@
+.winner-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-grouped-vertical, 0.5rem);
+
+  button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .swing {
+    font-variant-numeric: tabular-nums;
+    margin-left: 1rem;
+  }
+}
+
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--gap-grouped-horizontal, 0.5rem);
+}
