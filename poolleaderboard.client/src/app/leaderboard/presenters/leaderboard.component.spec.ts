@@ -153,13 +153,27 @@ describe('LeaderboardComponent', () => {
       expect(isDisabled).toBeFalse();
     });
 
-    it('should enable killer when someone is selected', () => {
+    it('should keep killer disabled when only one player is selected', () => {
       fixture.componentRef.setInput('entries', entries);
       fixture.detectChanges();
 
       // Skip header row at index 0
       const dataRows = fixture.debugElement.queryAll(By.css('table tr')).slice(1);
       dataRows[0].nativeElement.click(); // Select first row
+      fixture.detectChanges();
+
+      const isDisabled = fixture.debugElement.query(By.css('#killer-action')).componentInstance.disabled;
+      expect(isDisabled).toBeTrue();
+    });
+
+    it('should enable killer when at least two players are selected', () => {
+      fixture.componentRef.setInput('entries', entries);
+      fixture.detectChanges();
+
+      // Skip header row at index 0
+      const dataRows = fixture.debugElement.queryAll(By.css('table tr')).slice(1);
+      dataRows[0].nativeElement.click(); // Select first row
+      dataRows[1].nativeElement.click(); // Select second row
       fixture.detectChanges();
 
       const isDisabled = fixture.debugElement.query(By.css('#killer-action')).componentInstance.disabled;
