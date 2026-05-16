@@ -6,6 +6,7 @@ import { NbToastrService } from '@nebular/theme';
 import { KillerComponent } from './killer.component';
 import { KillerService } from './killer.service';
 import { KillerGame } from './types/killer-game.model';
+import { ViewportSizeService } from '../core/services/viewport-size.service';
 
 @Component({
   selector: 'app-killer-container',
@@ -23,7 +24,8 @@ export class KillerContainerComponent implements OnInit, OnDestroy {
   constructor(
     private killerService: KillerService,
     private router: Router,
-    private toastrService: NbToastrService
+    private toastrService: NbToastrService,
+    protected viewport: ViewportSizeService
   ) {}
 
   ngOnInit(): void {

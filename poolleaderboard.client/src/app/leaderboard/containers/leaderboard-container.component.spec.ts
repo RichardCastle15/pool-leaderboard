@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { Subject, of, throwError } from 'rxjs';
 
 import { LeaderboardContainerComponent } from './leaderboard-container.component';
@@ -10,11 +10,13 @@ import { TreeNode } from '../models/tree-node.model';
 import { LeaderboardEntryRow } from '../models/leaderboard-entry-row.model';
 import { NbToastrService } from '@nebular/theme';
 import { Router } from '@angular/router';
+import { ViewportSizeService } from '../../core/services/viewport-size.service';
 
 @Component({ selector: 'app-leaderboard', template: '', standalone: true })
 class MockLeaderboardComponent {
   loading = input(false);
   entries = input<TreeNode<LeaderboardEntryRow | {}>[]>([]);
+  size = input<'full' | 'compact'>('full');
   newParticipant = output<string>();
   startKiller = output<{ id: number; name: string }[]>();
 }
@@ -42,6 +44,7 @@ describe('LeaderboardContainerComponent', () => {
     mockKillerService.startGame.and.returnValue(of(undefined));
     mockToastrService = jasmine.createSpyObj('NbToastrService', ['danger']);
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
+    const mockViewport = { size: signal<'full' | 'compact'>('full') };
 
     await TestBed.configureTestingModule({
       imports: [LeaderboardContainerComponent]
@@ -54,6 +57,7 @@ describe('LeaderboardContainerComponent', () => {
     .overrideProvider(KillerService, { useValue: mockKillerService })
     .overrideProvider(NbToastrService, { useValue: mockToastrService })
     .overrideProvider(Router, { useValue: mockRouter })
+    .overrideProvider(ViewportSizeService, { useValue: mockViewport })
     .compileComponents();
 
     fixture = TestBed.createComponent(LeaderboardContainerComponent);

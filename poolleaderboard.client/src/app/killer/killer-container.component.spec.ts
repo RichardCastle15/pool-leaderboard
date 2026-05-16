@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { Subject, of, throwError } from 'rxjs';
 
 import { KillerContainerComponent } from './killer-container.component';
@@ -8,12 +8,14 @@ import { KillerService, KillerGameServerState } from './killer.service';
 import { KillerGame } from './types/killer-game.model';
 import { NbToastrService } from '@nebular/theme';
 import { Router } from '@angular/router';
+import { ViewportSizeService } from '../core/services/viewport-size.service';
 
 @Component({ selector: 'app-killer', template: '', standalone: true })
 class MockKillerComponent {
   game = input<KillerGame>();
   disconnected = input(false);
   isActive = input(true);
+  size = input<'full' | 'compact'>('full');
   pot = output();
   miss = output();
   earlyBlackPot = output();
@@ -65,6 +67,7 @@ describe('KillerContainerComponent', () => {
 
     mockToastrService = jasmine.createSpyObj('NbToastrService', ['danger']);
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
+    const mockViewport = { size: signal<'full' | 'compact'>('full') };
 
     await TestBed.configureTestingModule({
       imports: [KillerContainerComponent]
@@ -76,6 +79,7 @@ describe('KillerContainerComponent', () => {
       .overrideProvider(KillerService, { useValue: mockKillerService })
       .overrideProvider(NbToastrService, { useValue: mockToastrService })
       .overrideProvider(Router, { useValue: mockRouter })
+      .overrideProvider(ViewportSizeService, { useValue: mockViewport })
       .compileComponents();
 
     fixture = TestBed.createComponent(KillerContainerComponent);
