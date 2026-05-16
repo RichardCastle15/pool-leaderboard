@@ -1,8 +1,10 @@
-import { Component, computed, input, output, Signal } from '@angular/core';
+import { Component, computed, input, OnDestroy, output, Signal } from '@angular/core';
 import { KillerGame } from './types/killer-game.model';
 import { TreeNode } from '../leaderboard/models/tree-node.model';
 import { KillerGameRow } from './types/killer-game-row.model';
-import { NbActionsModule, NbAlertModule, NbButtonModule, NbCardModule, NbTreeGridModule } from "@nebular/theme";
+import { NbActionsModule, NbAlertModule, NbButtonModule, NbCardModule, NbDialogService, NbTreeGridModule } from "@nebular/theme";
+import { Subscription } from 'rxjs';
+import { AbandonKillerDialogComponent } from './abandon-killer-dialog/abandon-killer-dialog.component';
 
 @Component({
   selector: 'app-killer',
@@ -10,7 +12,7 @@ import { NbActionsModule, NbAlertModule, NbButtonModule, NbCardModule, NbTreeGri
   templateUrl: './killer.component.html',
   styleUrl: './killer.component.scss'
 })
-export class KillerComponent {
+export class KillerComponent implements OnDestroy {
   readonly columns = ['name', 'livesRemaining'];
 
   game = input<KillerGame>();
@@ -27,7 +29,9 @@ export class KillerComponent {
 
   tableData: Signal<TreeNode<KillerGameRow>[] | undefined>;
 
-  constructor() {
+  private subscriptions = new Subscription();
+
+  constructor(private readonly dialogService: NbDialogService) {
     this.tableData = computed(() => {
       const gameData = this.game();
       if (!gameData)
@@ -36,7 +40,19 @@ export class KillerComponent {
     })
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
+
   times(n: number): number[] {
     return Array.from({ length: n }, (_, i) => i);
+  }
+
+  onAbandonClick(): void {
+    const dialogRef = this.dialogService.open(AbandonKillerDialogComponent);
+    const sub = dialogRef.onClose.subscribe((confirmed: boolean | undefined) => {
+      if (confirmed) this.abandon.emit();
+    });
+    this.subscriptions.add(sub);
   }
 }

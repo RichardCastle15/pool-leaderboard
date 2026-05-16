@@ -1,18 +1,31 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { KillerComponent } from './killer.component';
-import { NbIconModule, NbThemeModule } from '@nebular/theme';
+import { NbDialogRef, NbDialogService, NbIconModule, NbThemeModule } from '@nebular/theme';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { KillerGame } from './types/killer-game.model';
 import { By } from '@angular/platform-browser';
+import { Subject } from 'rxjs';
 
 describe('KillerComponent', () => {
   let component: KillerComponent;
   let fixture: ComponentFixture<KillerComponent>;
+  let dialogClose: Subject<boolean | undefined>;
+  let mockDialogRef: Partial<NbDialogRef<unknown>>;
+  let mockDialogService: Partial<NbDialogService>;
 
   beforeEach(async () => {
+    dialogClose = new Subject<boolean | undefined>();
+    mockDialogRef = { onClose: dialogClose };
+    mockDialogService = {
+      open: jasmine.createSpy('open').and.returnValue(mockDialogRef)
+    };
+
     await TestBed.configureTestingModule({
-      imports: [KillerComponent,  NbThemeModule.forRoot(), NbIconModule, NbEvaIconsModule]
+      imports: [KillerComponent,  NbThemeModule.forRoot(), NbIconModule, NbEvaIconsModule],
+      providers: [
+        { provide: NbDialogService, useValue: mockDialogService },
+      ]
     })
     .compileComponents();
 
@@ -179,10 +192,26 @@ describe('KillerComponent', () => {
       expect(emitted).toBeTrue();
     });
 
-    it('should emit abandon when abandon button is clicked', () => {
+    it('should open a confirmation dialog when abandon button is clicked', () => {
+      fixture.debugElement.query(By.css('#killer-abandon-action')).triggerEventHandler('click');
+      expect(mockDialogService.open).toHaveBeenCalled();
+    });
+
+    it('should not emit abandon when the confirmation dialog is dismissed', () => {
       let emitted = false;
       component.abandon.subscribe(() => emitted = true);
       fixture.debugElement.query(By.css('#killer-abandon-action')).triggerEventHandler('click');
+      dialogClose.next(false);
+      dialogClose.complete();
+      expect(emitted).toBeFalse();
+    });
+
+    it('should emit abandon when the confirmation dialog is confirmed', () => {
+      let emitted = false;
+      component.abandon.subscribe(() => emitted = true);
+      fixture.debugElement.query(By.css('#killer-abandon-action')).triggerEventHandler('click');
+      dialogClose.next(true);
+      dialogClose.complete();
       expect(emitted).toBeTrue();
     });
   });

@@ -1,0 +1,5 @@
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--gap-grouped-horizontal, 0.5rem);
+}
