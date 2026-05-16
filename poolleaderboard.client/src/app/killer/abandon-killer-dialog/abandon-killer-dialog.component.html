@@ -1,0 +1,12 @@
+<nb-card>
+  <nb-card-header>Abandon game?</nb-card-header>
+  <nb-card-body>
+    <p>This will end the current killer game without recording a winner. No leaderboard changes will be made.</p>
+  </nb-card-body>
+  <nb-card-footer>
+    <div class="buttons">
+      <button id="abandon-cancel" nbButton status="basic" (click)="cancel()">Cancel</button>
+      <button id="abandon-confirm" nbButton status="danger" (click)="confirm()">Abandon</button>
+    </div>
+  </nb-card-footer>
+</nb-card>

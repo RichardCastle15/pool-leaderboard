@@ -51,7 +51,7 @@
           <span class="material-symbols-outlined">undo</span>
           @if(size() === 'full') { Undo }
         </nb-action>
-        <nb-action id="killer-abandon-action" aria-label="Abandon" (click)="abandon.emit()">
+        <nb-action id="killer-abandon-action" aria-label="Abandon" (click)="onAbandonClick()">
           <span class="material-symbols-outlined">delete</span>
           @if(size() === 'full') { Abandon }
         </nb-action>

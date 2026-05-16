@@ -35,7 +35,7 @@
   <nb-card-body>
     <nb-actions size="medium" fullWidth>
       <nb-action id="head-to-head-action" [disabled]="selectedIds().length !== 2" (click)="onRecordResult()"><nb-icon icon="people-outline"></nb-icon>@if(size() === 'full') { Record result }</nb-action>
-      <nb-action id="killer-action" [disabled]="selectedIds().length === 0" (click)="onStartKiller()">
+      <nb-action id="killer-action" [disabled]="selectedIds().length < 2" (click)="onStartKiller()">
         <span class="badge-container">
           <nb-icon icon="close-circle-outline"></nb-icon>
           @if(size() === 'full') { Start killer }
