@@ -4,7 +4,10 @@
   "service": "devcontainer",
   "workspaceFolder": "/workspaces/pool-leaderboard",
   "forwardPorts": [60125, 5166, 7114],
-  "postCreateCommand": "cd /workspaces/pool-leaderboard && dotnet restore ./PoolLeaderboard.Server && dotnet build && dotnet dev-certs https --trust && echo 'Installing puppeteer chrome...' && npx --prefix ./poolleaderboard.client puppeteer browsers install chrome && echo 'Deploying DB' && ./PoolLeaderboard.Database/deploy.sh && echo 'Done!'",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "postCreateCommand": "cd /workspaces/pool-leaderboard && dotnet restore ./PoolLeaderboard.Server && dotnet build && dotnet dev-certs https --trust && echo 'Installing puppeteer chrome...' && npx --prefix ./poolleaderboard.client puppeteer browsers install chrome && echo 'Deploying DB' && ./PoolLeaderboard.Database/deploy.sh && (gh auth setup-git || true) && echo 'Done!'",
   "customizations": {
     "vscode": {
       "settings": {

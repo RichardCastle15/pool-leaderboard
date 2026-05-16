@@ -8,6 +8,7 @@ services:
     volumes:
       - ..:/workspaces/pool-leaderboard:cached
       - /var/run/docker.sock:/var/run/docker.sock
+      - gh-config:/root/.config/gh
     ports:
       - "60125:60125"
       - "5166:5166"
@@ -35,3 +36,4 @@ services:
 
 volumes:
   mssql-data:
+  gh-config:
