@@ -46,6 +46,16 @@ git clone https://github.com/RichardCastle15/pool-leaderboard.git
 
 In the `pool-leaderboard` folder the cloning makes, run `code .` from the bash shell. This should open VS Code. You should then be prompted to reopen in a dev container.
 
+#### GitHub CLI authentication
+
+The dev container installs the `gh` CLI and mounts a named volume at `/root/.config/gh` so login state persists across rebuilds. The first time you open the container, run:
+
+``` Bash
+gh auth login
+```
+
+and follow the prompts (HTTPS + browser auth is fine). After that, both `gh` and `git push` will use the stored token, and you won't need to log in again unless the volume is removed.
+
 #### Working with the code
 
 To start a debugging session, open the `Run and Debug` tab in VS Code and run either the `Debug Angular Frontend`, `Debug Backend` or `Debug Fullstack` profile. Your app will start at: `http://localhost:60125/` when local (the browser should open), or you can see the url for the port in the `ports` tab in VS Code.
