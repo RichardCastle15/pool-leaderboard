@@ -43,14 +43,22 @@ export class LeaderboardService {
   }
 
   private convertServerModel(serverModel: LeaderboardEntryServer[]): TreeNode<LeaderboardEntryRow | {}>[] {
-    return serverModel.map(sm => ({
-      data: {
-        name: sm.name,
-        points: sm.rating,
-        rank: 1,
-        id: sm.id
-      },
-      children: []
-    }));
+    const sorted = [...serverModel].sort((a, b) => b.rating - a.rating);
+    let lastRating = Number.NaN;
+    let lastRank = 0;
+    return sorted.map((sm, index) => {
+      const rank = sm.rating === lastRating ? lastRank : index + 1;
+      lastRating = sm.rating;
+      lastRank = rank;
+      return {
+        data: {
+          name: sm.name,
+          points: sm.rating,
+          rank,
+          id: sm.id
+        },
+        children: []
+      };
+    });
   }
 }
