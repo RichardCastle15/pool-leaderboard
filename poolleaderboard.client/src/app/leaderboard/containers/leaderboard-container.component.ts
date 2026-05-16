@@ -8,6 +8,7 @@ import { LeaderboardService } from '../services/leaderboard.service';
 import { KillerService } from '../../killer/killer.service';
 import { HubConnection } from '@microsoft/signalr';
 import { NbToastrService } from '@nebular/theme';
+import { ViewportSizeService } from '../../core/services/viewport-size.service';
 
 @Component({
   selector: 'app-leaderboard-container',
@@ -25,7 +26,8 @@ export class LeaderboardContainerComponent implements OnInit, OnDestroy {
     private leaderboardService: LeaderboardService,
     private killerService: KillerService,
     private router: Router,
-    private toastrService: NbToastrService
+    private toastrService: NbToastrService,
+    protected viewport: ViewportSizeService
   ) {}
 
   ngOnInit(): void {
