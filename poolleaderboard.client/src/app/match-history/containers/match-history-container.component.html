@@ -1,0 +1,8 @@
+<app-match-history
+  [entries]="entries()"
+  [loading]="loading()"
+  [pageIndex]="pageIndex()"
+  [pageSize]="pageSize"
+  [total]="total()"
+  (pageChange)="loadPage($event)">
+</app-match-history>

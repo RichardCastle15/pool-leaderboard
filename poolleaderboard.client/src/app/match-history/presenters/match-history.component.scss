@@ -1,0 +1,42 @@
+:host {
+  display: block;
+  height: 100%;
+
+  .match-history-body {
+    padding: 0;
+  }
+
+  .match-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .played-at {
+    font-size: 0.8rem;
+    opacity: 0.7;
+  }
+
+  .row-body {
+    font-size: 1rem;
+  }
+
+  .empty-message {
+    padding: 1.25rem;
+    margin: 0;
+    text-align: center;
+    opacity: 0.7;
+  }
+
+  .pagination-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .page-label {
+    font-size: 0.9rem;
+  }
+}

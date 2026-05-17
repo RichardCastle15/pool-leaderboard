@@ -1,0 +1,38 @@
+<nb-card [nbSpinner]="loading()" nbSpinnerStatus="primary">
+  <nb-card-header>Match history</nb-card-header>
+  <nb-card-body class="match-history-body">
+    @if (!loading() && entries().length === 0) {
+      <p class="empty-message">No matches recorded yet.</p>
+    } @else {
+      <nb-list>
+        @for (row of entries(); track $index) {
+          <nb-list-item class="match-row">
+            <span class="played-at">{{ row.playedAt | date: 'short' }}</span>
+            @if (isOneVsOne(row)) {
+              <span class="row-body">
+                {{ asOneVsOne(row).winner.name }} vs. {{ asOneVsOne(row).loser.name }} (+/-{{ asOneVsOne(row).delta }})
+              </span>
+            } @else {
+              <span class="row-body">
+                @for (player of asKiller(row).players; track player.id; let last = $last) {
+                  <span>{{ player.name }} ({{ formatDelta(player.delta) }})</span>@if (!last) {<span>, </span>}
+                }
+              </span>
+            }
+          </nb-list-item>
+        }
+      </nb-list>
+    }
+  </nb-card-body>
+  <nb-card-footer class="pagination-footer">
+    <button nbButton ghost class="prev-button" [disabled]="isPrevDisabled()" (click)="prev()">
+      <nb-icon icon="arrow-ios-back-outline"></nb-icon>
+      Prev
+    </button>
+    <span class="page-label">{{ pageLabel() }}</span>
+    <button nbButton ghost class="next-button" [disabled]="isNextDisabled()" (click)="next()">
+      Next
+      <nb-icon icon="arrow-ios-forward-outline"></nb-icon>
+    </button>
+  </nb-card-footer>
+</nb-card>

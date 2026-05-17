@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using PoolLeaderboard.Server.Hubs;
 using PoolLeaderboard.Server.Services;
+using PoolLeaderboardEngine.Killer;
 using PoolLeaderboardEngine.Leaderboard;
 
 namespace PoolLeaderboard.Server.Controllers;
@@ -12,7 +13,8 @@ public class KillerController(
     KillerGameService killerGameService,
     IHubContext<KillerHub> killerHubContext,
     IHubContext<LeaderboardHub> leaderboardHubContext,
-    ILeaderboardRepository leaderboardRepository) : ControllerBase
+    ILeaderboardRepository leaderboardRepository,
+    IKillerGameRepository killerGameRepository) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> StartGame([FromBody] StartKillerGameRequest request)
@@ -32,10 +34,16 @@ public class KillerController(
             return BadRequest("No winner yet.");
 
         int playerCount = players.Count;
-        foreach (var (id, name) in players)
+        var records = players.Select(p => new KillerGamePlayerRecord(
+            p.Id,
+            p.Name == winner ? 10 * (playerCount - 1) : -10,
+            p.Name == winner)).ToList();
+
+        killerGameRepository.Add(records);
+
+        foreach (var record in records)
         {
-            int delta = name == winner ? 10 * (playerCount - 1) : -10;
-            leaderboardRepository.UpdateRating(id, delta);
+            leaderboardRepository.UpdateRating(record.PlayerId, record.Delta);
         }
 
         killerGameService.EndGame();
