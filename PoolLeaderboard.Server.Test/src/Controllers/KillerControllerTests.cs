@@ -4,6 +4,7 @@ using NSubstitute;
 using PoolLeaderboard.Server.Controllers;
 using PoolLeaderboard.Server.Hubs;
 using PoolLeaderboard.Server.Services;
+using PoolLeaderboardEngine.Killer;
 using PoolLeaderboardEngine.Leaderboard;
 
 namespace PoolLeaderboard.Server.Test.Controllers;
@@ -12,6 +13,7 @@ public class KillerControllerTests
 {
     private readonly KillerGameService killerGameService;
     private readonly ILeaderboardRepository leaderboardRepository;
+    private readonly IKillerGameRepository killerGameRepository;
     private readonly IClientProxy allKillerClients;
     private readonly IClientProxy allLeaderboardClients;
     private readonly KillerController controller;
@@ -20,6 +22,7 @@ public class KillerControllerTests
     {
         killerGameService = new KillerGameService();
         leaderboardRepository = Substitute.For<ILeaderboardRepository>();
+        killerGameRepository = Substitute.For<IKillerGameRepository>();
 
         allKillerClients = Substitute.For<IClientProxy>();
         var killerHubClients = Substitute.For<IHubClients>();
@@ -33,7 +36,7 @@ public class KillerControllerTests
         var leaderboardHubContext = Substitute.For<IHubContext<LeaderboardHub>>();
         leaderboardHubContext.Clients.Returns(leaderboardHubClients);
 
-        controller = new KillerController(killerGameService, killerHubContext, leaderboardHubContext, leaderboardRepository);
+        controller = new KillerController(killerGameService, killerHubContext, leaderboardHubContext, leaderboardRepository, killerGameRepository);
     }
 
     #region POST /api/killer
@@ -197,6 +200,39 @@ public class KillerControllerTests
         var result = await controller.ConfirmEnd();
 
         Assert.IsType<OkResult>(result);
+    }
+
+    [Fact]
+    public async Task Delete_PersistsKillerGame_WithExpectedDeltas()
+    {
+        killerGameService.StartGame([(1, "Alice"), (2, "Bob"), (3, "Charlie")]);
+        killerGameService.EarlyBlackPot(); // Alice eliminated
+        killerGameService.EarlyBlackPot(); // Bob eliminated -> Charlie wins
+
+        await controller.ConfirmEnd();
+
+        killerGameRepository.Received(1).Add(Arg.Is<IReadOnlyList<KillerGamePlayerRecord>>(list =>
+            list.Count == 3 &&
+            list.Single(p => p.PlayerId == 3).Delta == 20 &&
+            list.Single(p => p.PlayerId == 3).IsWinner == true &&
+            list.Single(p => p.PlayerId == 1).Delta == -10 &&
+            list.Single(p => p.PlayerId == 1).IsWinner == false &&
+            list.Single(p => p.PlayerId == 2).Delta == -10 &&
+            list.Single(p => p.PlayerId == 2).IsWinner == false));
+    }
+
+    [Fact]
+    public async Task Delete_DoesNotUpdateRatings_WhenHistoryInsertThrows()
+    {
+        killerGameService.StartGame([(1, "Alice"), (2, "Bob")]);
+        killerGameService.EarlyBlackPot();
+        killerGameRepository
+            .When(r => r.Add(Arg.Any<IReadOnlyList<KillerGamePlayerRecord>>()))
+            .Do(_ => throw new InvalidOperationException("db error"));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => controller.ConfirmEnd());
+
+        leaderboardRepository.DidNotReceive().UpdateRating(Arg.Any<int>(), Arg.Any<int>());
     }
 
     #endregion

@@ -12,6 +12,10 @@ const prodRoutes: Routes = [
     path: 'killer',
     loadComponent: () => import('./killer/killer-container.component').then(m => m.KillerContainerComponent)
   },
+  {
+    path: 'match-history',
+    loadComponent: () => import('./match-history/containers/match-history-container.component').then(m => m.MatchHistoryContainerComponent)
+  },
 ];
 
 const developmentRoutes: Routes = [
@@ -39,6 +43,15 @@ const developmentRoutes: Routes = [
           { path: 'sudden-death', loadComponent: () => import('./component-showcase/killer/sudden-death-killer-showcase.component').then(m => m.SuddenDeathKillerShowcaseComponent) },
           { path: 'disconnected', loadComponent: () => import('./component-showcase/killer/disconnected-killer-showcase.component').then(m => m.DisconnectedKillerShowcaseComponent) },
           { path: 'no-game', loadComponent: () => import('./component-showcase/killer/no-game-killer-showcase.component').then(m => m.NoGameKillerShowcaseComponent) },
+        ]
+      },
+      {
+        path: 'match-history',
+        children: [
+          { path: 'empty', loadComponent: () => import('./component-showcase/match-history/empty-match-history-showcase.component').then(m => m.EmptyMatchHistoryShowcaseComponent) },
+          { path: 'mixed', loadComponent: () => import('./component-showcase/match-history/mixed-match-history-showcase.component').then(m => m.MixedMatchHistoryShowcaseComponent) },
+          { path: 'last-page-partial', loadComponent: () => import('./component-showcase/match-history/last-page-partial-match-history-showcase.component').then(m => m.LastPagePartialMatchHistoryShowcaseComponent) },
+          { path: 'loading', loadComponent: () => import('./component-showcase/match-history/loading-match-history-showcase.component').then(m => m.LoadingMatchHistoryShowcaseComponent) },
         ]
       }
     ]

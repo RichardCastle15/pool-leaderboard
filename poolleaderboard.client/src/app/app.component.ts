@@ -36,6 +36,11 @@ export class AppComponent implements OnInit, OnDestroy {
       icon: 'close-circle-outline',
       link: '/killer'
     },
+    {
+      title: 'Match History',
+      icon: 'clock-outline',
+      link: '/match-history'
+    },
   ]);
 
   private subscriptions = new Subscription();
@@ -82,6 +87,15 @@ export class AppComponent implements OnInit, OnDestroy {
                 { title: 'Sudden death', link: '/showcase/killer/sudden-death' },
                 { title: 'Disconnected', link: '/showcase/killer/disconnected' },
                 { title: 'No game', link: '/showcase/killer/no-game' },
+              ]
+            },
+            {
+              title: 'Match history',
+              children: [
+                { title: 'Empty', link: '/showcase/match-history/empty' },
+                { title: 'Mixed', link: '/showcase/match-history/mixed' },
+                { title: 'Last page partial', link: '/showcase/match-history/last-page-partial' },
+                { title: 'Loading', link: '/showcase/match-history/loading' },
               ]
             }
           ]
