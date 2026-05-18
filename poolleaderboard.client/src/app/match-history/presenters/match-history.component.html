@@ -16,7 +16,7 @@
             } @else {
               <span class="row-body">
                 @for (player of asKiller(row).players; track player.id; let last = $last) {
-                  <span>
+                  <span class="player-entry">
                     @if (player.isWinner) { <strong>{{ player.name }}</strong> } @else { {{ player.name }} }
                     ({{ formatDelta(player.delta) }})
                   </span>@if (!last) {<span>, </span>}
