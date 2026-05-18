@@ -4,7 +4,8 @@ CREATE TABLE killer_game_player (
     player_id INT NOT NULL,
     delta SMALLINT NOT NULL,
     is_winner BIT NOT NULL,
-    FOREIGN KEY (killer_game_id) REFERENCES killer_game(id),
-    FOREIGN KEY (player_id) REFERENCES rating(id)
+    CONSTRAINT FK_killer_game_player_killer_game FOREIGN KEY (killer_game_id) REFERENCES killer_game(id),
+    CONSTRAINT FK_killer_game_player_rating FOREIGN KEY (player_id) REFERENCES rating(id)
 );
+GO
 CREATE INDEX IX_killer_game_player_game ON killer_game_player(killer_game_id);

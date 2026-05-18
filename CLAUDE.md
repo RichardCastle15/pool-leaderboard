@@ -58,6 +58,7 @@ Key design points worth knowing before changing things:
 - **`KillerGameService` is the concurrency boundary.** It holds a single `_currentGame` plus the player roster and serialises every operation behind an `object _lock`. The engine itself is not thread-safe — do not bypass the service.
 - **DTOs vs. engine types.** The engine's `KillerGameState` is internal-shaped (e.g. `internal SuddenDeathState`); the wire shape is `KillerGameStateDto` / `KillerGameRowDto` in `KillerGameService.cs`. When changing the engine's state, update the mapping in `GetStateDto()`.
 - **DB access is raw ADO.NET via `IDbConnectionFactory`** (no EF, no Dapper). Repositories open a connection per call, parameterise queries manually, and read columns by name. The connection string comes from `ConnectionStrings:DefaultConnection`, set in the devcontainer Dockerfile (`Server=db,1433;Database=leaderboard;...`).
+- **SQL constraints must be explicitly named.** When writing SQL schema files (in `PoolLeaderboard.Database/`), always name all foreign key, primary key, and other constraints explicitly (e.g., `CONSTRAINT fk_match_player_id FOREIGN KEY (player_id) ...`). The dacpac deployment process requires named constraints and will fail with anonymous ones.
 - **SignalR error channel.** Hubs catch their own exceptions and emit `LeaderboardError` / `KillerError` to `Clients.Caller`. The Angular services subscribe to those alongside the data events.
 
 ## Frontend architecture
