@@ -10,12 +10,15 @@
             <span class="played-at">{{ row.playedAt | date: 'short' }}</span>
             @if (isOneVsOne(row)) {
               <span class="row-body">
-                {{ asOneVsOne(row).winner.name }} vs. {{ asOneVsOne(row).loser.name }} (+/-{{ asOneVsOne(row).delta }})
+                <strong>{{ asOneVsOne(row).winner.name }}</strong> vs. {{ asOneVsOne(row).loser.name }} (+/-{{ asOneVsOne(row).delta }})
               </span>
             } @else {
               <span class="row-body">
                 @for (player of asKiller(row).players; track player.id; let last = $last) {
-                  <span>{{ player.name }} ({{ formatDelta(player.delta) }})</span>@if (!last) {<span>, </span>}
+                  <span>
+                    @if (player.isWinner) { <strong>{{ player.name }}</strong> } @else { {{ player.name }} }
+                    ({{ formatDelta(player.delta) }})
+                  </span>@if (!last) {<span>, </span>}
                 }
               </span>
             }
