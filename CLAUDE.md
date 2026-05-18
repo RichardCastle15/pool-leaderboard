@@ -67,6 +67,7 @@ Key design points worth knowing before changing things:
 - **SignalR connections.** Each container creates its own hub connection through a service (`LeaderboardService.connect()`, `KillerService` similarly). The proxy ([src/proxy.conf.js](poolleaderboard.client/src/proxy.conf.js)) forwards `/api`, `/leaderboardHub`, `/killerHub`, `/exampleHub` from the Angular dev server to the backend.
 - **Adding a new backend endpoint** requires updating `proxy.conf.js` if it's not under one of the existing context paths, and restarting the Angular dev server.
 - **UI library is Nebular** (`@nebular/theme`, `@nebular/eva-icons`). Prefer Nebular components over hand-rolled equivalents.
+- For frontend color/theming guidance, see `poolleaderboard.client/CLAUDE.md`.
 
 ## Dev environment
 

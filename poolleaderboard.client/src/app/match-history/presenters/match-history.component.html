@@ -7,6 +7,7 @@
       <nb-list>
         @for (row of entries(); track $index) {
           <nb-list-item class="match-row">
+            <span class="match-type">{{ row.type === 'Killer' ? 'Killer' : '1v1' }}</span>
             <span class="played-at">{{ row.playedAt | date: 'short' }}</span>
             @if (isOneVsOne(row)) {
               <span class="row-body">
