@@ -5,7 +5,12 @@
       <nb-icon icon="menu-arrow-outline" class="sidebar-collapse-toggle" [class.sidebar-collapse-toggle--expanded]="showExpandSidebar()"></nb-icon>
     </button>
     }
-    Xceptor Pool Leaderboard
+    <span class="header-title">Xceptor Pool Leaderboard</span>
+    <app-theme-switcher
+      class="header-theme-switcher"
+      [selectedTheme]="themeService.currentTheme()"
+      (themeChange)="themeService.setTheme($event)">
+    </app-theme-switcher>
   </nb-layout-header>
 
   <nb-sidebar #sidebar responsive (responsiveStateChange)="sidebarResponsiveChange($event)" [compactedBreakpoints]="['xs', 'is', 'sm', 'md']"

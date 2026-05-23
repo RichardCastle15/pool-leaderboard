@@ -1,3 +1,15 @@
+.header-title {
+  flex: 1;
+
+  @media (max-width: 767px) {
+    display: none;
+  }
+}
+
+.header-theme-switcher {
+  margin-left: auto;
+}
+
 th, td {
   padding-left: 1rem;
   padding-right: 1rem;
@@ -17,7 +29,7 @@ table {
     flex-shrink: 0;
 }
 
-::ng-deep .nb-theme-default nb-sidebar.compacted nb-menu .menu-item .menu-icon {
+::ng-deep nb-sidebar.compacted nb-menu .menu-item .menu-icon {
   margin: 0px !important;
 }
 

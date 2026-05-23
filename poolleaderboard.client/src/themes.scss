@@ -2,3 +2,6 @@
 @forward '@nebular/theme/styles/theming';
 @use '@nebular/theme/styles/theming' as *;
 @use '@nebular/theme/styles/themes/default';
+@use '@nebular/theme/styles/themes/dark';
+@use '@nebular/theme/styles/themes/cosmic';
+@use '@nebular/theme/styles/themes/corporate';
