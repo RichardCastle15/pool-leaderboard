@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { NbThemeService } from '@nebular/theme';
 
-export type AppTheme = 'default' | 'dark' | 'cosmic' | 'corporate';
+export type AppTheme = 'default' | 'dark' | 'cosmic';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
@@ -21,7 +21,7 @@ export class ThemeService {
 
   private loadFromStorage(): AppTheme {
     const stored = localStorage.getItem(ThemeService.STORAGE_KEY);
-    if (stored === 'default' || stored === 'dark' || stored === 'cosmic' || stored === 'corporate')
+    if (stored === 'default' || stored === 'dark' || stored === 'cosmic')
       return stored;
     return 'default';
   }

@@ -5,19 +5,19 @@
       <nb-icon icon="menu-arrow-outline" class="sidebar-collapse-toggle" [class.sidebar-collapse-toggle--expanded]="showExpandSidebar()"></nb-icon>
     </button>
     }
-    <span class="header-title">Xceptor Pool Leaderboard</span>
-    <app-theme-switcher
-      class="header-theme-switcher"
-      [selectedTheme]="themeService.currentTheme()"
-      (themeChange)="themeService.setTheme($event)">
-    </app-theme-switcher>
+    Xceptor Pool Leaderboard
   </nb-layout-header>
 
   <nb-sidebar #sidebar responsive (responsiveStateChange)="sidebarResponsiveChange($event)" [compactedBreakpoints]="['xs', 'is', 'sm', 'md']"
               [state]="sidebarState()" (stateChange)="sidebarStateChange($event)">
     <nb-menu [items]="items()">
     </nb-menu>
-
+    <div class="sidebar-theme-footer">
+      <app-theme-switcher
+        [selectedTheme]="themeService.currentTheme()"
+        (themeChange)="themeService.setTheme($event)">
+      </app-theme-switcher>
+    </div>
   </nb-sidebar>
 
   <nb-layout-column>

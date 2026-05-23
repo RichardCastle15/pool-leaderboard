@@ -29,6 +29,7 @@
     padding: 0.12rem 0.4rem;
     border-radius: 4px;
     background: nb-theme(color-primary-200);
+    color: nb-theme(color-primary-900);
     display: inline-block;
   }
 
@@ -80,6 +81,7 @@
     th {
       font-weight: 600;
       background: nb-theme(color-basic-200);
+      color: nb-theme(color-basic-800);
     }
 
     .num-col {
