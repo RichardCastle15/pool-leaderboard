@@ -21,6 +21,9 @@ namespace PoolLeaderboard.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] AddParticipantBody request)
         {
+            if (leaderboardRepository.ExistsByName(request.Name))
+                return Conflict($"A participant named '{request.Name}' already exists.");
+
             leaderboardRepository.Add(request.Name);
 
             var entries = leaderboardRepository.GetAll();

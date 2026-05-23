@@ -9,6 +9,20 @@ public class LeaderboardRepository : ILeaderboardRepository
         this.dbConnectionFactory = dbConnectionFactory;
     }
 
+    public bool ExistsByName(string name)
+    {
+        using var connection = dbConnectionFactory.CreateConnection();
+        connection.Open();
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT COUNT(1) FROM rating WHERE name = @name COLLATE SQL_Latin1_General_CP1_CI_AS";
+        var param = command.CreateParameter();
+        param.ParameterName = "@name";
+        param.Value = name;
+        command.Parameters.Add(param);
+        var result = command.ExecuteScalar();
+        return Convert.ToInt32(result) > 0;
+    }
+
     public void Add(string name)
     {
         using var connection = dbConnectionFactory.CreateConnection();

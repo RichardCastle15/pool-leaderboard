@@ -9,6 +9,7 @@ import { KillerService } from '../../killer/killer.service';
 import { HubConnection } from '@microsoft/signalr';
 import { NbToastrService } from '@nebular/theme';
 import { ViewportSizeService } from '../../core/services/viewport-size.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-leaderboard-container',
@@ -51,7 +52,12 @@ export class LeaderboardContainerComponent implements OnInit, OnDestroy {
 
   addParticipant(name: string): void {
     const addSub = this.leaderboardService.addParticipant(name).subscribe({
-      error: () => this.toastrService.danger('Failed to add participant', 'Error')
+      error: (err: HttpErrorResponse) => {
+        const message = err.status === 409 && typeof err.error === 'string'
+          ? err.error
+          : 'Failed to add participant';
+        this.toastrService.danger(message, 'Error');
+      }
     });
     this.subscription.add(addSub);
   }

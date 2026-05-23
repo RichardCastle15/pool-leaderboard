@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component, input, output, signal } from '@angular/core';
 import { Subject, of, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { LeaderboardContainerComponent } from './leaderboard-container.component';
 import { LeaderboardComponent } from '../presenters/leaderboard.component';
@@ -114,10 +115,17 @@ describe('LeaderboardContainerComponent', () => {
     expect(mockLeaderboardService.addParticipant).toHaveBeenCalledOnceWith('Alice');
   });
 
-  it('should show a danger toast when addParticipant throws an error', () => {
+  it('should show a generic danger toast when addParticipant throws a non-409 error', () => {
     mockLeaderboardService.addParticipant.and.returnValue(throwError(() => new Error('server error')));
     component.addParticipant('Alice');
     expect(mockToastrService.danger).toHaveBeenCalledOnceWith('Failed to add participant', 'Error');
+  });
+
+  it('should show a 409 conflict message from the server when addParticipant returns 409', () => {
+    const conflictError = new HttpErrorResponse({ status: 409, error: "A participant named 'Alice' already exists." });
+    mockLeaderboardService.addParticipant.and.returnValue(throwError(() => conflictError));
+    component.addParticipant('Alice');
+    expect(mockToastrService.danger).toHaveBeenCalledOnceWith("A participant named 'Alice' already exists.", 'Error');
   });
 
   describe('startKiller', () => {

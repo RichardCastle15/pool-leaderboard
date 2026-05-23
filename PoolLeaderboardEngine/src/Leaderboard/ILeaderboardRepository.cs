@@ -12,6 +12,13 @@ namespace PoolLeaderboardEngine.Leaderboard
         List<LeaderboardEntry> GetAll();
 
         /// <summary>
+        /// Checks whether a player with the given name already exists (case-insensitive).
+        /// </summary>
+        /// <param name="name">The name to check.</param>
+        /// <returns><c>true</c> if a player with that name exists; otherwise <c>false</c>.</returns>
+        bool ExistsByName(string name);
+
+        /// <summary>
         /// Adds a new entry to the leaderboard for the specified player name.
         /// </summary>
         /// <param name="name">The name of the player to add to the leaderboard.</param>
