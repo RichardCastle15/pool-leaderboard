@@ -26,10 +26,10 @@
             font-size: 32px;
             padding: 0px 2px;
             &.killer-life{
-                color: nb-theme(color-basic-800);
+                color: inherit;
             }
             &.killer-death {
-                color: nb-theme(color-basic-500);
+                color: nb-theme(color-basic-400);
             }
             &.killer-sudden-death-miss {
                 color: nb-theme(color-danger-500);
