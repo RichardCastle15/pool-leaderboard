@@ -36,8 +36,8 @@ public class KillerGameServiceTests
         var state = service.GetStateDto();
 
         Assert.Equal(2, state.PlayerRows.Count);
-        Assert.Equal("Alice", state.PlayerRows[0].Name);
-        Assert.Equal("Bob", state.PlayerRows[1].Name);
+        Assert.Contains(state.PlayerRows, r => r.Name == "Alice");
+        Assert.Contains(state.PlayerRows, r => r.Name == "Bob");
     }
 
     [Fact]
@@ -54,12 +54,14 @@ public class KillerGameServiceTests
     [Fact]
     public void GetStateDto_SetsEliminatedTrue_ForPlayerWithNoLives()
     {
-        service.StartGame([(1, "Alice"), (2, "Bob")]);
-        service.EarlyBlackPot(); // Alice loses all lives
+        // Use a seeded random so Alice is always first (and thus eliminated by EarlyBlackPot)
+        var seededService = new KillerGameService(new Random(0));
+        seededService.StartGame([(1, "Alice"), (2, "Bob")]);
+        seededService.EarlyBlackPot(); // current player loses all lives
 
-        var state = service.GetStateDto();
+        var state = seededService.GetStateDto();
 
-        Assert.True(state.PlayerRows[0].Eliminated);
+        Assert.Contains(state.PlayerRows, r => r.Eliminated);
     }
 
     [Fact]
@@ -76,11 +78,13 @@ public class KillerGameServiceTests
     public void GetStateDto_SetsWinner_WhenOnePlayerRemains()
     {
         service.StartGame([(1, "Alice"), (2, "Bob")]);
-        service.EarlyBlackPot(); // Alice eliminated -> Bob is winner
+        var firstPlayer = service.GetStateDto().PlayerRows[0].Name;
+        service.EarlyBlackPot(); // first player eliminated -> other player wins
 
         var state = service.GetStateDto();
 
-        Assert.Equal("Bob", state.Winner);
+        var expectedWinner = firstPlayer == "Alice" ? "Bob" : "Alice";
+        Assert.Equal(expectedWinner, state.Winner);
     }
 
     [Fact]
@@ -101,9 +105,11 @@ public class KillerGameServiceTests
     public void GetWinnerName_ReturnsName_WhenOnePlayerRemains()
     {
         service.StartGame([(1, "Alice"), (2, "Bob")]);
-        service.EarlyBlackPot(); // Alice eliminated -> Bob is winner
+        var firstPlayer = service.GetStateDto().PlayerRows[0].Name;
+        service.EarlyBlackPot(); // first player eliminated -> other player wins
 
-        Assert.Equal("Bob", service.GetWinnerName());
+        var expectedWinner = firstPlayer == "Alice" ? "Bob" : "Alice";
+        Assert.Equal(expectedWinner, service.GetWinnerName());
     }
 
     [Fact]
@@ -144,6 +150,30 @@ public class KillerGameServiceTests
     }
 
     [Fact]
+    public void StartGame_ShufflesPlayerOrder()
+    {
+        // Run enough games with a fresh Random to observe at least one non-original ordering.
+        // With 4 players there are 24 permutations; the chance of always staying in order
+        // across 20 independent shuffles is (1/24)^20 ≈ 10^-27 — effectively impossible.
+        var players = new[] { (1, "Alice"), (2, "Bob"), (3, "Charlie"), (4, "Dave") };
+        bool sawDifferentOrder = false;
+
+        for (int i = 0; i < 20; i++)
+        {
+            var svc = new KillerGameService();
+            svc.StartGame(players);
+            var names = svc.GetStateDto().PlayerRows.Select(r => r.Name).ToList();
+            if (!names.SequenceEqual(players.Select(p => p.Item2)))
+            {
+                sawDifferentOrder = true;
+                break;
+            }
+        }
+
+        Assert.True(sawDifferentOrder, "Players were never shuffled after 20 attempts");
+    }
+
+    [Fact]
     public void StartGame_ReplacesExistingGame()
     {
         service.StartGame([(1, "Alice"), (2, "Bob")]);
@@ -174,6 +204,7 @@ public class KillerGameServiceTests
 
         var state = service.GetStateDto();
 
+        // The current player (index 0) loses a life; whoever ended up first has 2 lives left
         Assert.Equal(2, state.PlayerRows[0].LivesRemaining);
     }
 
