@@ -115,37 +115,46 @@ public class KillerControllerTests
     public async Task Delete_UpdatesWinnerRating_WithCorrectDelta()
     {
         killerGameService.StartGame([(1, "Alice"), (2, "Bob")]);
-        killerGameService.EarlyBlackPot(); // Alice eliminated -> Bob wins
+        // Determine which player is first (and will be eliminated by EarlyBlackPot)
+        var firstPlayerId = killerGameService.GetStateDto().PlayerRows[0].Name == "Alice" ? 1 : 2;
+        var winnerId = firstPlayerId == 1 ? 2 : 1;
+        killerGameService.EarlyBlackPot(); // first player eliminated -> other wins
 
         await controller.ConfirmEnd();
 
-        // Bob (id=2) is winner in a 2-player game: +10 * (2-1) = +10
-        leaderboardRepository.Received(1).UpdateRating(2, 10);
+        // Winner in a 2-player game: +10 * (2-1) = +10
+        leaderboardRepository.Received(1).UpdateRating(winnerId, 10);
     }
 
     [Fact]
     public async Task Delete_UpdatesLoserRating_WithNegativeDelta()
     {
         killerGameService.StartGame([(1, "Alice"), (2, "Bob")]);
-        killerGameService.EarlyBlackPot(); // Alice eliminated -> Bob wins
+        // Determine which player is first (and will be eliminated by EarlyBlackPot)
+        var firstPlayerId = killerGameService.GetStateDto().PlayerRows[0].Name == "Alice" ? 1 : 2;
+        killerGameService.EarlyBlackPot(); // first player eliminated
 
         await controller.ConfirmEnd();
 
-        // Alice (id=1) is loser: -10
-        leaderboardRepository.Received(1).UpdateRating(1, -10);
+        // Eliminated player is loser: -10
+        leaderboardRepository.Received(1).UpdateRating(firstPlayerId, -10);
     }
 
     [Fact]
     public async Task Delete_WinnerGetsPointsPerPlayer_InLargerGame()
     {
         killerGameService.StartGame([(1, "Alice"), (2, "Bob"), (3, "Charlie")]);
-        killerGameService.EarlyBlackPot(); // Alice eliminated
-        killerGameService.EarlyBlackPot(); // Bob eliminated -> Charlie wins
+        // Record which player ends up last (the winner) after two EarlyBlackPots
+        var rows = killerGameService.GetStateDto().PlayerRows;
+        var winnerName = rows[2].Name;
+        var winnerId = winnerName == "Alice" ? 1 : winnerName == "Bob" ? 2 : 3;
+        killerGameService.EarlyBlackPot(); // first player eliminated
+        killerGameService.EarlyBlackPot(); // second player eliminated -> last player wins
 
         await controller.ConfirmEnd();
 
-        // Charlie (id=3) wins 3-player game: +10 * (3-1) = +20
-        leaderboardRepository.Received(1).UpdateRating(3, 20);
+        // Winner in 3-player game: +10 * (3-1) = +20
+        leaderboardRepository.Received(1).UpdateRating(winnerId, 20);
     }
 
     [Fact]
@@ -206,19 +215,21 @@ public class KillerControllerTests
     public async Task Delete_PersistsKillerGame_WithExpectedDeltas()
     {
         killerGameService.StartGame([(1, "Alice"), (2, "Bob"), (3, "Charlie")]);
-        killerGameService.EarlyBlackPot(); // Alice eliminated
-        killerGameService.EarlyBlackPot(); // Bob eliminated -> Charlie wins
+        // Record which player ends up last (the winner) after two EarlyBlackPots
+        var rows = killerGameService.GetStateDto().PlayerRows;
+        var winnerName = rows[2].Name;
+        var winnerId = winnerName == "Alice" ? 1 : winnerName == "Bob" ? 2 : 3;
+        killerGameService.EarlyBlackPot(); // first player eliminated
+        killerGameService.EarlyBlackPot(); // second player eliminated -> last player wins
 
         await controller.ConfirmEnd();
 
         killerGameRepository.Received(1).Add(Arg.Is<IReadOnlyList<KillerGamePlayerRecord>>(list =>
             list.Count == 3 &&
-            list.Single(p => p.PlayerId == 3).Delta == 20 &&
-            list.Single(p => p.PlayerId == 3).IsWinner == true &&
-            list.Single(p => p.PlayerId == 1).Delta == -10 &&
-            list.Single(p => p.PlayerId == 1).IsWinner == false &&
-            list.Single(p => p.PlayerId == 2).Delta == -10 &&
-            list.Single(p => p.PlayerId == 2).IsWinner == false));
+            list.Single(p => p.PlayerId == winnerId).Delta == 20 &&
+            list.Single(p => p.PlayerId == winnerId).IsWinner == true &&
+            list.Where(p => p.PlayerId != winnerId).All(p => p.Delta == -10) &&
+            list.Where(p => p.PlayerId != winnerId).All(p => p.IsWinner == false)));
     }
 
     [Fact]

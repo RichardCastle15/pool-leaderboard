@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using PoolLeaderboardEngine.Killer;
 
 namespace PoolLeaderboard.Server.Services;
@@ -23,6 +24,14 @@ public class KillerGameService
     private KillerGame? _currentGame;
     private List<(int Id, string Name)>? _players;
     private readonly object _lock = new();
+    private readonly Random _random;
+
+    public KillerGameService() : this(Random.Shared) { }
+
+    public KillerGameService(Random random)
+    {
+        _random = random;
+    }
 
     public bool IsActive
     {
@@ -34,6 +43,7 @@ public class KillerGameService
         lock (_lock)
         {
             _players = players.ToList();
+            _random.Shuffle(CollectionsMarshal.AsSpan(_players));
             _currentGame = new KillerGame(_players.Select(p => p.Name));
         }
     }
