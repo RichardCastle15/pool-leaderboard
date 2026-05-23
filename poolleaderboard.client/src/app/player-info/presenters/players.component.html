@@ -1,0 +1,20 @@
+<nb-card [nbSpinner]="loading()" nbSpinnerStatus="primary">
+  <nb-card-header>Players</nb-card-header>
+  <nb-card-body class="players-body">
+    @if (!loading() && players().length === 0) {
+      <p class="empty-message">No players yet.</p>
+    } @else {
+      <nb-list>
+        @for (player of players(); track player.id) {
+          <nb-list-item class="player-row">
+            <a class="player-link" [routerLink]="['/player', player.id]">
+              <span class="player-rank">#{{ player.rank }}</span>
+              <span class="player-name">{{ player.name }}</span>
+              <span class="player-points">{{ player.points }} pts</span>
+            </a>
+          </nb-list-item>
+        }
+      </nb-list>
+    }
+  </nb-card-body>
+</nb-card>
