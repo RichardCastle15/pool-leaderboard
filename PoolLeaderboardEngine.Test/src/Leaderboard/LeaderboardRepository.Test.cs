@@ -19,6 +19,69 @@ public class LeaderboardRepositoryTests
     }
 
     [Fact]
+    public void ExistsByName_OpensConnection()
+    {
+        var scalar = Substitute.For<IDbCommand>();
+        scalar.Parameters.Returns(parameters);
+        scalar.ExecuteScalar().Returns(0);
+        command.ExecuteScalar().Returns(0);
+        var repo = new LeaderboardRepository(connectionFactory);
+
+        repo.ExistsByName("Alice");
+
+        connection.Received().Open();
+    }
+
+    [Fact]
+    public void ExistsByName_SetsCorrectCommandText()
+    {
+        command.ExecuteScalar().Returns(0);
+        var repo = new LeaderboardRepository(connectionFactory);
+
+        repo.ExistsByName("Alice");
+
+        Assert.Equal(
+            "SELECT COUNT(1) FROM rating WHERE name = @name COLLATE SQL_Latin1_General_CP1_CI_AS",
+            command.CommandText);
+    }
+
+    [Fact]
+    public void ExistsByName_CreatesNameParameterWithCorrectValue()
+    {
+        var param = Substitute.For<IDbDataParameter>();
+        command.CreateParameter().Returns(param);
+        command.ExecuteScalar().Returns(0);
+        var repo = new LeaderboardRepository(connectionFactory);
+
+        repo.ExistsByName("Alice");
+
+        Assert.Equal("@name", param.ParameterName);
+        Assert.Equal("Alice", param.Value);
+    }
+
+    [Fact]
+    public void ExistsByName_ReturnsFalse_WhenCountIsZero()
+    {
+        command.ExecuteScalar().Returns(0);
+        var repo = new LeaderboardRepository(connectionFactory);
+
+        var result = repo.ExistsByName("Alice");
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void ExistsByName_ReturnsTrue_WhenCountIsGreaterThanZero()
+    {
+        command.ExecuteScalar().Returns(1);
+        var repo = new LeaderboardRepository(connectionFactory);
+
+        var result = repo.ExistsByName("Alice");
+
+        Assert.True(result);
+    }
+
+    [Fact]
     public void Add_OpensConnection()
     {
         var repo = new LeaderboardRepository(connectionFactory);

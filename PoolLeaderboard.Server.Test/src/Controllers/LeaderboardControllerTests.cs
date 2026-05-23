@@ -29,6 +29,8 @@ public class LeaderboardControllerTests
     [Fact]
     public async Task Post_AddsParticipantWithCorrectName()
     {
+        repository.ExistsByName("Alice").Returns(false);
+
         await controller.Post(new AddParticipantBody { Name = "Alice" });
 
         repository.Received(1).Add("Alice");
@@ -37,6 +39,7 @@ public class LeaderboardControllerTests
     [Fact]
     public async Task Post_BroadcastsUpdatedLeaderboard()
     {
+        repository.ExistsByName("Alice").Returns(false);
         var entries = new List<LeaderboardEntry> { new() { Name = "Alice", Rating = 1000, Id = 1 } };
         repository.GetAll().Returns(entries);
 
@@ -52,8 +55,44 @@ public class LeaderboardControllerTests
     [Fact]
     public async Task Post_ReturnsOk()
     {
+        repository.ExistsByName("Alice").Returns(false);
+
         var result = await controller.Post(new AddParticipantBody { Name = "Alice" });
 
         Assert.IsType<OkResult>(result);
+    }
+
+    [Fact]
+    public async Task Post_ReturnsConflict_WhenNameAlreadyExists()
+    {
+        repository.ExistsByName("Alice").Returns(true);
+
+        var result = await controller.Post(new AddParticipantBody { Name = "Alice" });
+
+        Assert.IsType<ConflictObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task Post_DoesNotAddParticipant_WhenNameAlreadyExists()
+    {
+        repository.ExistsByName("Alice").Returns(true);
+
+        await controller.Post(new AddParticipantBody { Name = "Alice" });
+
+        repository.DidNotReceive().Add(Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task Post_DoesNotBroadcast_WhenNameAlreadyExists()
+    {
+        repository.ExistsByName("Alice").Returns(true);
+
+        await controller.Post(new AddParticipantBody { Name = "Alice" });
+
+        await allClients.DidNotReceive().SendCoreAsync(
+            Arg.Any<string>(),
+            Arg.Any<object?[]>(),
+            Arg.Any<CancellationToken>()
+        );
     }
 }
