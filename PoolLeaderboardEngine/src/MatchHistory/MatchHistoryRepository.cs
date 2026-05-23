@@ -41,10 +41,51 @@ public class MatchHistoryRepository : IMatchHistoryRepository
         };
     }
 
+    public MatchHistoryPage GetPlayerPage(int playerId, int skip, int take)
+    {
+        using var connection = dbConnectionFactory.CreateConnection();
+        connection.Open();
+
+        int total = GetScalarIntWithParam(connection,
+                        "select count(*) from [match] where winner_id=@p or loser_id=@p", "@p", playerId)
+                  + GetScalarIntWithParam(connection,
+                        "select count(*) from killer_game where id in " +
+                        "(select killer_game_id from killer_game_player where player_id=@p)", "@p", playerId);
+
+        int limit = skip + take;
+
+        var oneVsOne = LoadOneVsOneForPlayer(connection, playerId, limit);
+        var killer = LoadKillerForPlayer(connection, playerId, limit);
+
+        var merged = oneVsOne
+            .Concat(killer)
+            .OrderByDescending(e => e.PlayedAt)
+            .ThenByDescending(e => e.SortId)
+            .Skip(skip)
+            .Take(take)
+            .Select(e => e.Entry)
+            .ToList();
+
+        return new MatchHistoryPage
+        {
+            Total = total,
+            Items = merged
+        };
+    }
+
     private static int GetScalarInt(IDbConnection connection, string sql)
     {
         using var command = connection.CreateCommand();
         command.CommandText = sql;
+        var scalar = command.ExecuteScalar();
+        return scalar == null ? 0 : Convert.ToInt32(scalar);
+    }
+
+    private static int GetScalarIntWithParam(IDbConnection connection, string sql, string paramName, object paramValue)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = sql;
+        AddParameter(command, paramName, paramValue);
         var scalar = command.ExecuteScalar();
         return scalar == null ? 0 : Convert.ToInt32(scalar);
     }
@@ -107,6 +148,99 @@ public class MatchHistoryRepository : IMatchHistoryRepository
             "join rating r on r.id = p.player_id " +
             "order by g.played_at desc, g.id desc, p.id asc";
         AddParameter(command, "@limit", limit);
+
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            var gameId = (int)reader["game_id"];
+            if (!byGameId.ContainsKey(gameId))
+            {
+                byGameId[gameId] = ((DateTime)reader["played_at"], new List<MatchHistoryKillerPlayer>());
+                order.Add(gameId);
+            }
+            byGameId[gameId].Players.Add(new MatchHistoryKillerPlayer
+            {
+                Id = (int)reader["player_id"],
+                Name = (string)reader["name"],
+                Delta = (short)reader["delta"],
+                IsWinner = (bool)reader["is_winner"]
+            });
+        }
+
+        return order.Select(gameId => new SortableEntry(
+            byGameId[gameId].PlayedAt,
+            gameId,
+            new MatchHistoryEntry
+            {
+                Type = MatchHistoryEntryType.Killer,
+                PlayedAt = byGameId[gameId].PlayedAt,
+                Players = byGameId[gameId].Players
+            })).ToList();
+    }
+
+    private static List<SortableEntry> LoadOneVsOneForPlayer(IDbConnection connection, int playerId, int limit)
+    {
+        var results = new List<SortableEntry>();
+
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            "select top (@limit) m.id, m.played_at, m.winner_id, w.name as winner_name, " +
+            "m.loser_id, l.name as loser_name, m.winner_delta " +
+            "from [match] m " +
+            "join rating w on w.id = m.winner_id " +
+            "join rating l on l.id = m.loser_id " +
+            "where m.winner_id = @playerId or m.loser_id = @playerId " +
+            "order by m.played_at desc, m.id desc";
+        AddParameter(command, "@limit", limit);
+        AddParameter(command, "@playerId", playerId);
+
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            var id = (int)reader["id"];
+            var playedAt = (DateTime)reader["played_at"];
+            results.Add(new SortableEntry(
+                playedAt,
+                id,
+                new MatchHistoryEntry
+                {
+                    Type = MatchHistoryEntryType.OneVsOne,
+                    PlayedAt = playedAt,
+                    Winner = new MatchHistoryPlayer
+                    {
+                        Id = (int)reader["winner_id"],
+                        Name = (string)reader["winner_name"]
+                    },
+                    Loser = new MatchHistoryPlayer
+                    {
+                        Id = (int)reader["loser_id"],
+                        Name = (string)reader["loser_name"]
+                    },
+                    Delta = (short)reader["winner_delta"]
+                }));
+        }
+        return results;
+    }
+
+    private static List<SortableEntry> LoadKillerForPlayer(IDbConnection connection, int playerId, int limit)
+    {
+        var byGameId = new Dictionary<int, (DateTime PlayedAt, List<MatchHistoryKillerPlayer> Players)>();
+        var order = new List<int>();
+
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            "with top_games as (" +
+            "  select top (@limit) id, played_at from killer_game " +
+            "  where exists (select 1 from killer_game_player where killer_game_id = killer_game.id and player_id = @playerId) " +
+            "  order by played_at desc, id desc" +
+            ") " +
+            "select g.id as game_id, g.played_at, p.id as player_row_id, p.player_id, r.name, p.delta, p.is_winner " +
+            "from top_games g " +
+            "join killer_game_player p on p.killer_game_id = g.id " +
+            "join rating r on r.id = p.player_id " +
+            "order by g.played_at desc, g.id desc, p.id asc";
+        AddParameter(command, "@limit", limit);
+        AddParameter(command, "@playerId", playerId);
 
         using var reader = command.ExecuteReader();
         while (reader.Read())

@@ -16,6 +16,14 @@ const prodRoutes: Routes = [
     path: 'match-history',
     loadComponent: () => import('./match-history/containers/match-history-container.component').then(m => m.MatchHistoryContainerComponent)
   },
+  {
+    path: 'players',
+    loadComponent: () => import('./player-info/containers/players-container.component').then(m => m.PlayersContainerComponent)
+  },
+  {
+    path: 'player/:id',
+    loadComponent: () => import('./player-info/containers/player-info-container.component').then(m => m.PlayerInfoContainerComponent)
+  },
 ];
 
 const developmentRoutes: Routes = [
@@ -52,6 +60,13 @@ const developmentRoutes: Routes = [
           { path: 'mixed', loadComponent: () => import('./component-showcase/match-history/mixed-match-history-showcase.component').then(m => m.MixedMatchHistoryShowcaseComponent) },
           { path: 'last-page-partial', loadComponent: () => import('./component-showcase/match-history/last-page-partial-match-history-showcase.component').then(m => m.LastPagePartialMatchHistoryShowcaseComponent) },
           { path: 'loading', loadComponent: () => import('./component-showcase/match-history/loading-match-history-showcase.component').then(m => m.LoadingMatchHistoryShowcaseComponent) },
+        ]
+      },
+      {
+        path: 'player-info',
+        children: [
+          { path: 'players', loadComponent: () => import('./component-showcase/player-info/players-showcase.component').then(m => m.PlayersShowcaseComponent) },
+          { path: 'detail', loadComponent: () => import('./component-showcase/player-info/player-info-showcase.component').then(m => m.PlayerInfoShowcaseComponent) },
         ]
       }
     ]

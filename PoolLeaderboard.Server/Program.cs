@@ -5,6 +5,7 @@ using PoolLeaderboardEngine.Killer;
 using PoolLeaderboardEngine.Leaderboard;
 using PoolLeaderboardEngine.Match;
 using PoolLeaderboardEngine.MatchHistory;
+using PoolLeaderboardEngine.Player;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,7 @@ builder.Services.AddScoped<ILeaderboardRepository, LeaderboardRepository>();
 builder.Services.AddScoped<IMatchRepository, MatchRepository>();
 builder.Services.AddScoped<IKillerGameRepository, KillerGameRepository>();
 builder.Services.AddScoped<IMatchHistoryRepository, MatchHistoryRepository>();
+builder.Services.AddScoped<IHeadToHeadRepository, HeadToHeadRepository>();
 builder.Services.AddSingleton<KillerGameService>();
 
 var app = builder.Build();

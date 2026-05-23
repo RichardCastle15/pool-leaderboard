@@ -52,7 +52,7 @@ describe('MatchHistoryComponent', () => {
     fixture.detectChanges();
 
     const body = fixture.debugElement.query(By.css('.row-body')).nativeElement.textContent;
-    expect(body.trim()).toContain('Richard vs. James (+/-50)');
+    expect(body.trim()).toContain('Richard vs. James (50)');
   });
 
   it('renders a killer row in the expected format', () => {
