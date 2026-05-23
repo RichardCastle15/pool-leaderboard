@@ -68,7 +68,8 @@ const developmentRoutes: Routes = [
           { path: 'players', loadComponent: () => import('./component-showcase/player-info/players-showcase.component').then(m => m.PlayersShowcaseComponent) },
           { path: 'detail', loadComponent: () => import('./component-showcase/player-info/player-info-showcase.component').then(m => m.PlayerInfoShowcaseComponent) },
         ]
-      }
+      },
+      { path: 'theme-switcher', loadComponent: () => import('./component-showcase/theme-switcher/theme-switcher-showcase.component').then(m => m.ThemeSwitcherShowcaseComponent) },
     ]
   }
 ];

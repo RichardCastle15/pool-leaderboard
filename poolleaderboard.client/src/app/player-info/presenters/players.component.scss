@@ -16,7 +16,8 @@
     cursor: pointer;
 
     &:hover {
-      background: nb-theme(color-basic-200);
+      background: nb-theme(color-basic-300);
+      color: nb-theme(color-basic-800);
     }
   }
 

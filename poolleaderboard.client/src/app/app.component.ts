@@ -4,6 +4,7 @@ import { NbMenuItem, NbSidebarResponsiveState, NbSidebarState } from '@nebular/t
 import { environment } from '../environments/environment';
 import { NavigationEnd, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { ThemeService } from './core/services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -51,7 +52,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
   private connection!: HubConnection;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, protected themeService: ThemeService) {}
 
   ngOnInit() {
     this.connection = new HubConnectionBuilder().withUrl("/exampleHub").configureLogging(LogLevel.Debug).build();
@@ -109,7 +110,8 @@ export class AppComponent implements OnInit, OnDestroy {
                 { title: 'Players list', link: '/showcase/player-info/players' },
                 { title: 'Player detail', link: '/showcase/player-info/detail' },
               ]
-            }
+            },
+            { title: 'Theme switcher', link: '/showcase/theme-switcher' },
           ]
         });
         return items;

@@ -12,7 +12,12 @@
               [state]="sidebarState()" (stateChange)="sidebarStateChange($event)">
     <nb-menu [items]="items()">
     </nb-menu>
-
+    <nb-sidebar-footer>
+      <app-theme-switcher
+        [selectedTheme]="themeService.currentTheme()"
+        (themeChange)="themeService.setTheme($event)">
+      </app-theme-switcher>
+    </nb-sidebar-footer>
   </nb-sidebar>
 
   <nb-layout-column>

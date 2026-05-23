@@ -1,10 +1,11 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { Subject } from 'rxjs';
 import { HubConnectionBuilder } from '@microsoft/signalr';
 
 import { AppComponent } from './app.component';
+import { ThemeService } from './core/services/theme.service';
 
 describe('AppComponent', () => {
   let component: AppComponent;
@@ -28,7 +29,8 @@ describe('AppComponent', () => {
       declarations: [AppComponent],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
-        { provide: Router, useValue: { events: routerEvents$.asObservable() } }
+        { provide: Router, useValue: { events: routerEvents$.asObservable() } },
+        { provide: ThemeService, useValue: { currentTheme: signal('default'), setTheme: jasmine.createSpy('setTheme') } }
       ]
     }).compileComponents();
 

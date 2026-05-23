@@ -9,9 +9,9 @@
             background-color: nb-theme(color-primary-200);
         }
         &.eliminated {
-            background-color: rgba(128, 128, 128, 0.055);
+            background-color: nb-theme(color-basic-transparent-100);
             text-decoration: line-through;
-            color: grey;
+            color: nb-theme(color-basic-500);
             font-style: italic;
         }
     }
@@ -26,20 +26,20 @@
             font-size: 32px;
             padding: 0px 2px;
             &.killer-life{
-                color: black;
+                color: inherit;
             }
             &.killer-death {
-                color: lightgrey;
+                color: nb-theme(color-basic-400);
             }
             &.killer-sudden-death-miss {
-                color: red;
+                color: nb-theme(color-danger-500);
             }
         }
     }
 
     hr.action-row-divider {
         border: none;
-        border-top: 1px solid lightgray;
+        border-top: 1px solid nb-theme(color-basic-300);
         margin: 8px 0px;
     }
     
