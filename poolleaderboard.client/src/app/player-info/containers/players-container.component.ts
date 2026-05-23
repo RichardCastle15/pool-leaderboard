@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { HubConnection } from '@microsoft/signalr';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { LeaderboardEntryRow } from '../../leaderboard/models/leaderboard-entry-row.model';
 import { LeaderboardService } from '../../leaderboard/services/leaderboard.service';
@@ -8,7 +9,7 @@ import { PlayersComponent } from '../presenters/players.component';
 @Component({
   selector: 'app-players-container',
   imports: [PlayersComponent],
-  template: `<app-players [players]="players()" [loading]="loading()"></app-players>`
+  template: `<app-players [players]="players()" [loading]="loading()" (playerSelected)="navigateToPlayer($event)"></app-players>`
 })
 export class PlayersContainerComponent implements OnInit, OnDestroy {
   loading = signal(true);
@@ -17,7 +18,11 @@ export class PlayersContainerComponent implements OnInit, OnDestroy {
   private subscription = new Subscription();
   private hubConnection: HubConnection | undefined;
 
-  constructor(private leaderboardService: LeaderboardService) {}
+  constructor(private leaderboardService: LeaderboardService, private router: Router) {}
+
+  navigateToPlayer(playerId: number): void {
+    this.router.navigate(['/player', playerId]);
+  }
 
   ngOnInit(): void {
     const sub = this.leaderboardService.leaderboard$.subscribe(entries => {

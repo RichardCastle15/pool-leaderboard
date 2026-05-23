@@ -6,12 +6,10 @@
     } @else {
       <nb-list>
         @for (player of players(); track player.id) {
-          <nb-list-item class="player-row">
-            <a class="player-link" [routerLink]="['/player', player.id]">
-              <span class="player-rank">#{{ player.rank }}</span>
-              <span class="player-name">{{ player.name }}</span>
-              <span class="player-points">{{ player.points }} pts</span>
-            </a>
+          <nb-list-item class="player-row" (click)="player.id !== undefined && playerSelected.emit(player.id)">
+            <span class="player-rank">#{{ player.rank }}</span>
+            <span class="player-name">{{ player.name }}</span>
+            <span class="player-points">{{ player.points }} pts</span>
           </nb-list-item>
         }
       </nb-list>

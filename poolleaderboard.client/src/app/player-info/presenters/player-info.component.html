@@ -55,8 +55,6 @@
             <th class="num-col">W</th>
             <th class="num-col">L</th>
             <th class="num-col">Win %</th>
-            <th class="num-col">Won</th>
-            <th class="num-col">Lost</th>
             <th class="num-col">Delta</th>
           </tr>
         </thead>
@@ -67,8 +65,6 @@
               <td class="num-col win">{{ record.wins }}</td>
               <td class="num-col loss">{{ record.losses }}</td>
               <td class="num-col">{{ winPct(record) }}</td>
-              <td class="num-col">+{{ record.pointsWon }}</td>
-              <td class="num-col">-{{ record.pointsLost }}</td>
               <td class="num-col" [class.positive]="record.pointsWon >= record.pointsLost" [class.negative]="record.pointsWon < record.pointsLost">
                 {{ netPoints(record) }}
               </td>
