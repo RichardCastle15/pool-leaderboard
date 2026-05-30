@@ -8,6 +8,9 @@ EXPOSE 8080
 EXPOSE 8081
 
 
+FROM flyway/flyway:10-community AS flyway-stage
+
+
 # This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS with-node
 RUN apt-get update
@@ -39,7 +42,14 @@ RUN dotnet publish "./PoolLeaderboard.Server.csproj" -c $BUILD_CONFIGURATION -o 
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends default-jre-headless postgresql-client && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY --from=flyway-stage /flyway /flyway
+COPY --from=build /src/PoolLeaderboard.Database/migrations /app/migrations
+COPY PoolLeaderboard.Server/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 LABEL org.opencontainers.image.source=https://github.com/RichardCastle15/pool-leaderboard
-ENTRYPOINT ["dotnet", "PoolLeaderboard.Server.dll"]
+USER $APP_UID
+ENTRYPOINT ["/app/entrypoint.sh"]

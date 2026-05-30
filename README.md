@@ -92,6 +92,22 @@ The icon pack used is: https://akveo.github.io/eva-icons
 
 Run this command from the root to build a docker image of the prod build: `docker build -f PoolLeaderboard.Server/Dockerfile -t poolleaderboard .`.
 
+### Database migrations
+
+The production container runs Flyway migrations automatically on startup, before the app begins serving traffic. No manual migration step is needed on deploy.
+
+The container requires the following environment variables to connect to the database:
+
+| Variable      | Description               |
+|---------------|---------------------------|
+| `PGHOST`      | PostgreSQL host           |
+| `PGPORT`      | PostgreSQL port (default `5432`) |
+| `PGDATABASE`  | Database name             |
+| `PGUSER`      | PostgreSQL user           |
+| `PGPASSWORD`  | PostgreSQL password       |
+
+On Railway, link the Postgres service to the app service via the Railway UI and select these variables to share with the app.
+
 ### Push docker image
 
 To push a new version of the latest docker image, first you need a PAT (classic) with the right permissions from github.

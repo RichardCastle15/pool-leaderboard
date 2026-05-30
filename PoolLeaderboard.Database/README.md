@@ -4,7 +4,23 @@ The database schema is managed using [Flyway](https://flywaydb.org/) migrations.
 
 ## Deploy
 
-Run the `deploy.sh` script to apply any pending migrations to the database:
+### Production (Railway)
+
+Migrations run automatically when the production Docker container starts. The app container's entrypoint runs `flyway migrate` before starting the .NET server, so no manual step is needed on deploy.
+
+The following environment variables must be set. Link the Postgres service to the app service via the Railway UI and select these variables to share:
+
+| Variable      | Description                      |
+|---------------|----------------------------------|
+| `PGHOST`      | PostgreSQL host                  |
+| `PGPORT`      | PostgreSQL port (default `5432`) |
+| `PGDATABASE`  | Database name                    |
+| `PGUSER`      | PostgreSQL user                  |
+| `PGPASSWORD`  | PostgreSQL password              |
+
+### Dev environment
+
+Run the `deploy.sh` script to apply any pending migrations to the local dev database:
 
 ```bash
 ./PoolLeaderboard.Database/deploy.sh
