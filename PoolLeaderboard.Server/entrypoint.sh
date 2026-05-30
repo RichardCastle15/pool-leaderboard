@@ -15,5 +15,8 @@ echo "Running Flyway migrations..."
   -locations="filesystem:/app/migrations" \
   migrate
 
+# ASP.NET Core reads ConnectionStrings__DefaultConnection as ConnectionStrings:DefaultConnection
+export ConnectionStrings__DefaultConnection="Host=${PGHOST};Port=${PGPORT:-5432};Database=${PGDATABASE};Username=${PGUSER};Password=${PGPASSWORD}"
+
 echo "Starting PoolLeaderboard..."
 exec dotnet PoolLeaderboard.Server.dll
