@@ -17,7 +17,7 @@ public class MatchHistoryRepository : IMatchHistoryRepository
         using var connection = dbConnectionFactory.CreateConnection();
         connection.Open();
 
-        int total = GetScalarInt(connection, "select count(*) from [match]")
+        int total = GetScalarInt(connection, "select count(*) from \"match\"")
                   + GetScalarInt(connection, "select count(*) from killer_game");
 
         int limit = skip + take;
@@ -47,7 +47,7 @@ public class MatchHistoryRepository : IMatchHistoryRepository
         connection.Open();
 
         int total = GetScalarIntWithParam(connection,
-                        "select count(*) from [match] where winner_id=@p or loser_id=@p", "@p", playerId)
+                        "select count(*) from \"match\" where winner_id=@p or loser_id=@p", "@p", playerId)
                   + GetScalarIntWithParam(connection,
                         "select count(*) from killer_game where id in " +
                         "(select killer_game_id from killer_game_player where player_id=@p)", "@p", playerId);
@@ -96,12 +96,13 @@ public class MatchHistoryRepository : IMatchHistoryRepository
 
         using var command = connection.CreateCommand();
         command.CommandText =
-            "select top (@limit) m.id, m.played_at, m.winner_id, w.name as winner_name, " +
+            "select m.id, m.played_at, m.winner_id, w.name as winner_name, " +
             "m.loser_id, l.name as loser_name, m.winner_delta " +
-            "from [match] m " +
+            "from \"match\" m " +
             "join rating w on w.id = m.winner_id " +
             "join rating l on l.id = m.loser_id " +
-            "order by m.played_at desc, m.id desc";
+            "order by m.played_at desc, m.id desc " +
+            "limit @limit";
         AddParameter(command, "@limit", limit);
 
         using var reader = command.ExecuteReader();
@@ -140,7 +141,7 @@ public class MatchHistoryRepository : IMatchHistoryRepository
         using var command = connection.CreateCommand();
         command.CommandText =
             "with top_games as (" +
-            "  select top (@limit) id, played_at from killer_game order by played_at desc, id desc" +
+            "  select id, played_at from killer_game order by played_at desc, id desc limit @limit" +
             ") " +
             "select g.id as game_id, g.played_at, p.id as player_row_id, p.player_id, r.name, p.delta, p.is_winner " +
             "from top_games g " +
@@ -184,13 +185,14 @@ public class MatchHistoryRepository : IMatchHistoryRepository
 
         using var command = connection.CreateCommand();
         command.CommandText =
-            "select top (@limit) m.id, m.played_at, m.winner_id, w.name as winner_name, " +
+            "select m.id, m.played_at, m.winner_id, w.name as winner_name, " +
             "m.loser_id, l.name as loser_name, m.winner_delta " +
-            "from [match] m " +
+            "from \"match\" m " +
             "join rating w on w.id = m.winner_id " +
             "join rating l on l.id = m.loser_id " +
             "where m.winner_id = @playerId or m.loser_id = @playerId " +
-            "order by m.played_at desc, m.id desc";
+            "order by m.played_at desc, m.id desc " +
+            "limit @limit";
         AddParameter(command, "@limit", limit);
         AddParameter(command, "@playerId", playerId);
 
@@ -230,9 +232,9 @@ public class MatchHistoryRepository : IMatchHistoryRepository
         using var command = connection.CreateCommand();
         command.CommandText =
             "with top_games as (" +
-            "  select top (@limit) id, played_at from killer_game " +
+            "  select id, played_at from killer_game " +
             "  where exists (select 1 from killer_game_player where killer_game_id = killer_game.id and player_id = @playerId) " +
-            "  order by played_at desc, id desc" +
+            "  order by played_at desc, id desc limit @limit" +
             ") " +
             "select g.id as game_id, g.played_at, p.id as player_row_id, p.player_id, r.name, p.delta, p.is_winner " +
             "from top_games g " +

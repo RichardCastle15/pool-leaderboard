@@ -25,7 +25,7 @@ public class KillerGameRepository : IKillerGameRepository
             {
                 insertGame.Transaction = transaction;
                 insertGame.CommandText =
-                    "insert into killer_game default values; select cast(SCOPE_IDENTITY() as int);";
+                    "insert into killer_game default values returning id";
                 var scalar = insertGame.ExecuteScalar();
                 killerGameId = Convert.ToInt32(scalar);
             }

@@ -4,20 +4,17 @@ RUN apt-get install -y curl
 RUN curl -sL https://deb.nodesource.com/setup_20.x | bash
 RUN apt-get -y install nodejs
 RUN npm install -g @angular/cli
-RUN dotnet tool install -g microsoft.sqlpackage
-ENV PATH="$PATH:/root/.dotnet/tools"
 
-# Install Microsoft SQL Server tools (sqlcmd and bcp)
-RUN apt-get update && \
-    ACCEPT_EULA=Y apt-get install -y curl gnupg unixodbc-dev && \
-    curl https://packages.microsoft.com/keys/microsoft.asc -o microsoft.asc && \
-    gpg --dearmor < microsoft.asc > /etc/apt/trusted.gpg.d/microsoft.gpg && \
-    curl https://packages.microsoft.com/config/debian/11/prod.list -o /etc/apt/sources.list.d/mssql-release.list && \
-    apt-get update && \
-    ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18 && \
-    echo 'export PATH=$PATH:/opt/mssql-tools18/bin' >> /etc/bash.bashrc && \
-    rm -f microsoft.asc && \
+# Install PostgreSQL client tools
+RUN apt-get update && apt-get install -y postgresql-client && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Flyway
+RUN curl -fsSL "https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/9.22.3/flyway-commandline-9.22.3-linux-x64.tar.gz" \
+    -o /tmp/flyway.tar.gz && \
+    tar -xzf /tmp/flyway.tar.gz -C /opt && \
+    ln -sf /opt/flyway-9.22.3/flyway /usr/local/bin/flyway && \
+    rm /tmp/flyway.tar.gz
 
 # 🧩 Required dependencies for Puppeteer's Chromium
 RUN apt-get update && apt-get install -y \
@@ -44,5 +41,5 @@ RUN apt-get update && apt-get install -y docker.io && \
 
 # Set env to CI as docker container has no UI so needs same set up.
 ENV CI=true
-ENV ConnectionStrings__DefaultConnection='Server=db,1433;Database=leaderboard;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;'
+ENV ConnectionStrings__DefaultConnection='Host=db;Port=5432;Database=leaderboard;Username=postgres;Password=YourStrong!Passw0rd;'
 WORKDIR /workspaces/pool-leaderboard

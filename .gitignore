@@ -6,5 +6,7 @@
 /PoolLeaderboard.Server/PoolLeaderboard.Server.csproj.user
 /PoolLeaderboard.Database/PoolLeaderboard.Database.dbmdl
 /PoolLeaderboard.Database/PoolLeaderboard.Database.jfm
+/PoolLeaderboard.Database/report.html
+/PoolLeaderboard.Database/report.json
 **\\package.g.props
 .claude/settings.local.json

@@ -16,7 +16,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddSignalR();
 
-builder.Services.AddScoped<IDbConnectionFactory, SqlServerConnectionFactory>();
+builder.Services.AddScoped<IDbConnectionFactory, PostgresConnectionFactory>();
 builder.Services.AddScoped<ILeaderboardRepository, LeaderboardRepository>();
 builder.Services.AddScoped<IMatchRepository, MatchRepository>();
 builder.Services.AddScoped<IKillerGameRepository, KillerGameRepository>();
