@@ -29,10 +29,6 @@ const prodRoutes: Routes = [
     path: 'player/:id',
     loadComponent: () => import('./player-info/containers/player-info-container.component').then(m => m.PlayerInfoContainerComponent)
   },
-  {
-    path: '**',
-    redirectTo: 'leaderboard'
-  },
 ];
 
 const developmentRoutes: Routes = [
