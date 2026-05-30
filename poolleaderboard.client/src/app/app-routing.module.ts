@@ -5,6 +5,11 @@ import { LeaderboardContainerComponent } from './leaderboard/containers/leaderbo
 
 const prodRoutes: Routes = [
   {
+    path: '',
+    redirectTo: 'leaderboard',
+    pathMatch: 'full'
+  },
+  {
     path: 'leaderboard',
     component: LeaderboardContainerComponent
   },
@@ -23,6 +28,10 @@ const prodRoutes: Routes = [
   {
     path: 'player/:id',
     loadComponent: () => import('./player-info/containers/player-info-container.component').then(m => m.PlayerInfoContainerComponent)
+  },
+  {
+    path: '**',
+    redirectTo: 'leaderboard'
   },
 ];
 
