@@ -5,6 +5,11 @@ import { LeaderboardContainerComponent } from './leaderboard/containers/leaderbo
 
 const prodRoutes: Routes = [
   {
+    path: '',
+    redirectTo: 'leaderboard',
+    pathMatch: 'full'
+  },
+  {
     path: 'leaderboard',
     component: LeaderboardContainerComponent
   },
