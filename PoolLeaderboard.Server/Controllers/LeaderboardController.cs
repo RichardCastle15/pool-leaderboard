@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using PoolLeaderboard.Server.Hubs;
@@ -9,6 +10,8 @@ namespace PoolLeaderboard.Server.Controllers
     [ApiController]
     public class LeaderboardController : ControllerBase
     {
+        private static readonly Regex FullNameRegex = new(@"^[^\s]+\s+\S.*$", RegexOptions.Compiled);
+
         private readonly ILeaderboardRepository leaderboardRepository;
         private readonly IHubContext<LeaderboardHub> hubContext;
 
@@ -21,6 +24,9 @@ namespace PoolLeaderboard.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] AddParticipantBody request)
         {
+            if (!FullNameRegex.IsMatch(request.Name.Trim()))
+                return BadRequest("Name must include at least a first name and an initial (e.g. \"Richard C\").");
+
             if (leaderboardRepository.ExistsByName(request.Name))
                 return Conflict($"A participant named '{request.Name}' already exists.");
 

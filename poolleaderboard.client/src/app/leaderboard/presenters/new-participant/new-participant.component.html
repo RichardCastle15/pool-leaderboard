@@ -1,7 +1,10 @@
 <nb-card>
   <nb-card-header>Add to leaderboard</nb-card-header>
   <nb-card-body>
-    <input type="text" nbInput placeholder="Name" [(ngModel)]="suppliedName">
+    <input type="text" nbInput fullWidth placeholder="Name (e.g. Richard C)" [formControl]="nameControl">
+    @if (nameControl.touched && nameControl.invalid) {
+      <p class="error-message">Please enter a first name and at least an initial (e.g. "Richard C").</p>
+    }
   </nb-card-body>
   <nb-card-footer>
     <div class="buttons">

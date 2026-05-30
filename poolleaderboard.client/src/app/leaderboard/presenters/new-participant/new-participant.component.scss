@@ -1,4 +1,12 @@
+@use '../../../../themes.scss' as *;
+
 .buttons {
     display: flex;
     gap: var(--gap-grouped-horizontal);
+}
+
+.error-message {
+    color: nb-theme(color-danger-500);
+    font-size: 0.75rem;
+    margin: 0.25rem 0 0;
 }
