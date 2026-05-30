@@ -14,7 +14,7 @@ public class LeaderboardRepository : ILeaderboardRepository
         using var connection = dbConnectionFactory.CreateConnection();
         connection.Open();
         using var command = connection.CreateCommand();
-        command.CommandText = "SELECT COUNT(1) FROM rating WHERE name = @name COLLATE SQL_Latin1_General_CP1_CI_AS";
+        command.CommandText = "SELECT COUNT(1) FROM rating WHERE name = @name";
         var param = command.CreateParameter();
         param.ParameterName = "@name";
         param.Value = name;

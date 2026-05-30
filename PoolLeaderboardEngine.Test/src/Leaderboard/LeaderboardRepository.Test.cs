@@ -41,7 +41,7 @@ public class LeaderboardRepositoryTests
         repo.ExistsByName("Alice");
 
         Assert.Equal(
-            "SELECT COUNT(1) FROM rating WHERE name = @name COLLATE SQL_Latin1_General_CP1_CI_AS",
+            "SELECT COUNT(1) FROM rating WHERE name = @name",
             command.CommandText);
     }
 

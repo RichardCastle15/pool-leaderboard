@@ -3,9 +3,16 @@
 # Set working directory to the script's location
 cd "$(dirname "$0")"
 
-echo 'Building...'
-dotnet build
+# Wait for PostgreSQL to be ready
+until pg_isready -h "${DB_HOST:-db}" -p "${DB_PORT:-5432}" -U "${DB_USER:-postgres}" 2>/dev/null; do
+  echo 'Waiting for PostgreSQL...'
+  sleep 1
+done
 
-echo 'Deploying...'
-sqlpackage /Action:Publish /SourceFile:"bin/Debug/PoolLeaderboard.Database.dacpac" \
-    /TargetConnectionString:"$ConnectionStrings__DefaultConnection"
+echo 'Deploying migrations...'
+flyway \
+  -url="jdbc:postgresql://${DB_HOST:-db}:${DB_PORT:-5432}/${DB_NAME:-leaderboard}" \
+  -user="${DB_USER:-postgres}" \
+  -password="${DB_PASSWORD:-YourStrong!Passw0rd}" \
+  -locations="filesystem:$(pwd)/migrations" \
+  migrate

@@ -1,40 +1,51 @@
-# New SDK-style SQL project with Microsoft.Build.Sql
+# Database
 
-## Build
+The database schema is managed using [Flyway](https://flywaydb.org/) migrations. Migration SQL files live in the `migrations/` directory, named following Flyway's convention: `V{version}__{description}.sql`.
 
-To build the project, run the following command:
+## Deploy
 
-```bash
-dotnet build
-```
-
-🎉 Congrats! You have successfully built the project and now have a `dacpac` to deploy anywhere.
-
-## Publish
-
-To publish the project, the SqlPackage CLI or the SQL Database Projects extension for Azure Data Studio/VS Code is required. The following command will publish the project to a local SQL Server instance:
+Run the `deploy.sh` script to apply any pending migrations to the database:
 
 ```bash
-sqlpackage /Action:Publish /SourceFile:"bin/Debug/PoolLeaderboard.Database.dacpac" \
-    /TargetConnectionString:'Server=db,1433;Database=leaderboard;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;'
+./PoolLeaderboard.Database/deploy.sh
 ```
 
-Learn more about authentication and other options for SqlPackage here: https://aka.ms/sqlpackage-ref
+The script waits for PostgreSQL to be ready before running, so it is safe to call immediately after the container starts.
 
-There is a `deploy.sh` file which can be run to deploy the database with the latest schema.
+It reads the following environment variables (with the defaults shown):
 
-## Query the dev db
+| Variable      | Default               | Description                |
+|---------------|-----------------------|----------------------------|
+| `DB_HOST`     | `db`                  | PostgreSQL host            |
+| `DB_PORT`     | `5432`                | PostgreSQL port            |
+| `DB_USER`     | `postgres`            | PostgreSQL user            |
+| `DB_PASSWORD` | `YourStrong!Passw0rd` | PostgreSQL password        |
+| `DB_NAME`     | `leaderboard`         | Database name              |
 
-### sqlcmd cli
+These are set automatically in the devcontainer via `docker-compose.yml`.
 
-`sqlcmd` is preinstalled in the container. You can start running queries with:
+## Adding a migration
+
+Create a new file in `migrations/` following the naming pattern:
+
+```
+V2__describe_your_change.sql
+```
+
+Flyway tracks which migrations have already been applied, so only new files will be run.
+
+## Query the dev database
+
+`psql` is preinstalled in the devcontainer. Connect with:
 
 ```bash
-sqlcmd -S db -d leaderboard -U sa -P 'YourStrong!Passw0rd' -C 
+psql -h db -U postgres -d leaderboard
 ```
 
-Type in your query, and then type `go` to run them. Finish the session by typing `quit`.
+Enter the password `YourStrong!Passw0rd` when prompted.
 
-### SSMS
+You can also connect from outside the devcontainer using the forwarded port:
 
-You can use SSMS for a UI when working with the database. The server name is `localhost,51433`. The username and password can be found in the `docker-compose.yml` file.
+```bash
+psql -h localhost -p 5432 -U postgres -d leaderboard
+```

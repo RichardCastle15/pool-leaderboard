@@ -27,7 +27,7 @@ public class HeadToHeadRepository : IHeadToHeadRepository
             "sum(case when m.winner_id = @p then cast(m.winner_delta as int) else 0 end) as points_won, " +
             "sum(case when m.loser_id  = @p then abs(cast(m.loser_delta as int)) else 0 end) as points_lost " +
             "from rating r " +
-            "join [match] m on (m.winner_id = @p and m.loser_id = r.id) " +
+            "join \"match\" m on (m.winner_id = @p and m.loser_id = r.id) " +
             "                or (m.loser_id  = @p and m.winner_id = r.id) " +
             "where r.id != @p " +
             "group by r.id, r.name " +
@@ -40,12 +40,12 @@ public class HeadToHeadRepository : IHeadToHeadRepository
         {
             results.Add(new HeadToHeadRecord
             {
-                OpponentId = (int)reader["id"],
+                OpponentId = Convert.ToInt32(reader["id"]),
                 OpponentName = (string)reader["name"],
-                Wins = (int)reader["wins"],
-                Losses = (int)reader["losses"],
-                PointsWon = (int)reader["points_won"],
-                PointsLost = (int)reader["points_lost"]
+                Wins = Convert.ToInt32(reader["wins"]),
+                Losses = Convert.ToInt32(reader["losses"]),
+                PointsWon = Convert.ToInt32(reader["points_won"]),
+                PointsLost = Convert.ToInt32(reader["points_lost"])
             });
         }
 

@@ -17,7 +17,7 @@ public class MatchRepository : IMatchRepository
         connection.Open();
         using var command = connection.CreateCommand();
         command.CommandText =
-            "insert into [match] (winner_id, loser_id, winner_delta, loser_delta) " +
+            "insert into \"match\" (winner_id, loser_id, winner_delta, loser_delta) " +
             "values (@winnerId, @loserId, @winnerDelta, @loserDelta)";
 
         AddParameter(command, "@winnerId", winnerId);
