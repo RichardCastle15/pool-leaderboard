@@ -21,7 +21,8 @@
         "ms-vscode.vscode-typescript-next",
         "lucono.karma-test-explorer",
         "hbenl.vscode-test-explorer",
-        "ms-vscode.test-adapter-converter"
+        "ms-vscode.test-adapter-converter",
+        "anthropic.claude-code"
       ]
     }
   },
