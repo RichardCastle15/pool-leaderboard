@@ -72,6 +72,23 @@ This will set up a database container. There is a readme in the database project
 
 Jasmine test explorer may error as it can start before the container has installed the needed testing dependencies. Refreshing the test explorer in VS Code usually works.
 
+#### Troubleshooting
+
+**Dev container fails to start with "ports are not available"**
+
+Windows (via Hyper-V) dynamically reserves blocks of ports at boot time. The reserved ranges shift on every restart, so ports used by the dev container (60125, 5166, 7114) are sometimes claimed and sometimes not. To permanently reserve those ports for your own use so Windows never grabs them, run the following once in an elevated PowerShell (Run as Administrator):
+
+```powershell
+net stop winnat
+netsh int ipv4 add excludedportrange protocol=tcp startport=60125 numberofports=1
+netsh int ipv4 add excludedportrange protocol=tcp startport=5166 numberofports=1
+netsh int ipv4 add excludedportrange protocol=tcp startport=7114 numberofports=1
+net start winnat
+
+```
+
+These exclusions persist across reboots. After running them, retry opening the dev container.
+
 ### Component showcase
 
 In the front end, the aim is to follow the presenter-container pattern. This splits components into 2 types: presenters, which have no business logic and communicate exclusively through inputs/outputs; and containers, which coordinate presenters with business logic. The presenters will be displayed in a component showcase so you can see how they look in various states. This component showcase is added to the navigation bar when building the front end with a development build.
