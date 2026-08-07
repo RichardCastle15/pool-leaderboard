@@ -25,15 +25,7 @@ public class KillerGame
     }
 
     public IReadOnlyList<KillerGameActionRecord> GetActionStack() =>
-        gameActions.Select(ActionToRecord).ToArray();
-
-    private static KillerGameActionRecord ActionToRecord(IGameAction action) => action switch
-    {
-        PotGameAction p => p.GetRecord(),
-        MissGameAction m => m.GetRecord(),
-        PotBlackBallEarlyGameAction e => e.GetRecord(),
-        _ => throw new InvalidOperationException($"Unknown action type: {action.GetType()}")
-    };
+        gameActions.Select(a => a.GetRecord()).ToArray();
 
     private static IGameAction ActionFromRecord(KillerGameActionRecord record) => record.ActionType switch
     {

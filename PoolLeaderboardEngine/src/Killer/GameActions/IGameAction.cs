@@ -16,4 +16,6 @@ internal interface IGameAction
     /// </summary>
     /// <param name="toGame">The game to undo the modification.</param>
     void Undo(KillerGameState toGame);
+
+    KillerGameActionRecord GetRecord();
 }

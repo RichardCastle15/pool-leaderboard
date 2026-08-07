@@ -33,7 +33,7 @@ internal class PotBlackBallEarlyGameAction : BaseGameAction
         base.Undo(gameState);
     }
 
-    internal KillerGameActionRecord GetRecord() => new(
+    public override KillerGameActionRecord GetRecord() => new(
         "EarlyBlackPot", causedSuddenDeath,
         WasFirstPotInSuddenDeath: false,
         PlayersEliminatedInSuddenDeath: [],

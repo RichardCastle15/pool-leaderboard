@@ -9,17 +9,20 @@ public class KillerGameServiceTests
 {
     private readonly KillerGameService service = MakeService();
 
-    private static KillerGameService MakeService(Random? random = null)
+    private static (KillerGameService Service, IKillerGameInProgressRepository Repo) MakeServiceWithRepo(Random? random = null)
     {
         var scopeFactory = Substitute.For<IServiceScopeFactory>();
         var scope = Substitute.For<IServiceScope>();
         var repo = Substitute.For<IKillerGameInProgressRepository>();
         scopeFactory.CreateScope().Returns(scope);
         scope.ServiceProvider.GetService(typeof(IKillerGameInProgressRepository)).Returns(repo);
-        return random == null
+        var service = random == null
             ? new KillerGameService(scopeFactory)
             : new KillerGameService(random, scopeFactory);
+        return (service, repo);
     }
+
+    private static KillerGameService MakeService(Random? random = null) => MakeServiceWithRepo(random).Service;
 
     [Fact]
     public void IsActive_ReturnsFalse_BeforeStart()
@@ -198,6 +201,105 @@ public class KillerGameServiceTests
 
         Assert.Single(state.PlayerRows);
         Assert.Equal("Charlie", state.PlayerRows[0].Name);
+    }
+
+    [Fact]
+    public void StartGame_PersistsState()
+    {
+        var (svc, repo) = MakeServiceWithRepo();
+        svc.StartGame([(1, "Alice"), (2, "Bob")]);
+        repo.Received(1).Save(Arg.Any<KillerGameInProgressState>());
+    }
+
+    [Fact]
+    public void Pot_PersistsState()
+    {
+        var (svc, repo) = MakeServiceWithRepo();
+        svc.StartGame([(1, "Alice"), (2, "Bob")]);
+        repo.ClearReceivedCalls();
+        svc.Pot();
+        repo.Received(1).Save(Arg.Any<KillerGameInProgressState>());
+    }
+
+    [Fact]
+    public void Miss_PersistsState()
+    {
+        var (svc, repo) = MakeServiceWithRepo();
+        svc.StartGame([(1, "Alice"), (2, "Bob")]);
+        repo.ClearReceivedCalls();
+        svc.Miss();
+        repo.Received(1).Save(Arg.Any<KillerGameInProgressState>());
+    }
+
+    [Fact]
+    public void EarlyBlackPot_PersistsState()
+    {
+        var (svc, repo) = MakeServiceWithRepo();
+        svc.StartGame([(1, "Alice"), (2, "Bob")]);
+        repo.ClearReceivedCalls();
+        svc.EarlyBlackPot();
+        repo.Received(1).Save(Arg.Any<KillerGameInProgressState>());
+    }
+
+    [Fact]
+    public void Undo_PersistsState()
+    {
+        var (svc, repo) = MakeServiceWithRepo();
+        svc.StartGame([(1, "Alice"), (2, "Bob")]);
+        svc.Miss();
+        repo.ClearReceivedCalls();
+        svc.Undo();
+        repo.Received(1).Save(Arg.Any<KillerGameInProgressState>());
+    }
+
+    [Fact]
+    public void EndGame_DeletesPersistedState()
+    {
+        var (svc, repo) = MakeServiceWithRepo();
+        svc.StartGame([(1, "Alice"), (2, "Bob")]);
+        svc.EndGame();
+        repo.Received(1).Delete();
+    }
+
+    [Fact]
+    public void TryRestore_RestoresGameState()
+    {
+        var (svc, _) = MakeServiceWithRepo();
+        var persisted = new KillerGameInProgressState(
+            CurrentPlayerIndex: 1,
+            SuddenDeathState: "NotActive",
+            ActionStackJson: "[]",
+            Players:
+            [
+                new KillerGameInProgressPlayer(RatingId: 1, PlayerName: "Alice", TurnOrder: 0, LivesRemaining: 3, MissedInSuddenDeath: false),
+                new KillerGameInProgressPlayer(RatingId: 2, PlayerName: "Bob", TurnOrder: 1, LivesRemaining: 2, MissedInSuddenDeath: false)
+            ]
+        );
+        var repo = Substitute.For<IKillerGameInProgressRepository>();
+        repo.Load().Returns(persisted);
+
+        svc.TryRestore(repo);
+
+        Assert.True(svc.IsActive);
+        var state = svc.GetStateDto();
+        Assert.Equal(1, state.CurrentPlayerIndex);
+        Assert.Equal(2, state.PlayerRows.Count);
+        Assert.Equal("Alice", state.PlayerRows[0].Name);
+        Assert.Equal(3, state.PlayerRows[0].LivesRemaining);
+        Assert.Equal("Bob", state.PlayerRows[1].Name);
+        Assert.Equal(2, state.PlayerRows[1].LivesRemaining);
+    }
+
+    [Fact]
+    public void TryRestore_DoesNothing_WhenNothingPersisted()
+    {
+        var (svc, _) = MakeServiceWithRepo();
+        var repo = Substitute.For<IKillerGameInProgressRepository>();
+        repo.Load().Returns((KillerGameInProgressState?)null);
+
+        svc.TryRestore(repo);
+
+        Assert.False(svc.IsActive);
     }
 
     [Fact]

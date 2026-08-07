@@ -55,7 +55,7 @@ internal class PotGameAction : BaseGameAction
         base.Undo(game);
     }
 
-    internal KillerGameActionRecord GetRecord() => new(
+    public override KillerGameActionRecord GetRecord() => new(
         "Pot", causedSuddenDeath,
         WasFirstPotInSuddenDeath: wasFirstPotInSuddenDeath,
         PlayersEliminatedInSuddenDeath: [.. playersEliminatedInSuddenDeath],

@@ -117,7 +117,7 @@ internal class MissGameAction : BaseGameAction
         }
     }
 
-    internal KillerGameActionRecord GetRecord() => new(
+    public override KillerGameActionRecord GetRecord() => new(
         "Miss", causedSuddenDeath,
         WasFirstPotInSuddenDeath: false,
         PlayersEliminatedInSuddenDeath: [],

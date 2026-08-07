@@ -11,6 +11,8 @@ internal abstract class BaseGameAction : IGameAction
     /// </summary>
     protected bool causedSuddenDeath;
 
+    public abstract KillerGameActionRecord GetRecord();
+
     /// <summary>
     /// Common behaviours on apply, like moving to the next alive player.
     /// </summary>

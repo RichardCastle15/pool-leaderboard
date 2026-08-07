@@ -9,7 +9,7 @@ CREATE TABLE killer_game_in_progress (
 
 CREATE TABLE killer_game_in_progress_player (
     id SERIAL NOT NULL,
-    turn_order INTEGER NOT NULL,
+    turn_order INTEGER NOT NULL, -- position in the shuffled player order; used to restore the game in the original shuffled sequence
     rating_id INTEGER NOT NULL,
     player_name TEXT NOT NULL,
     lives_remaining INTEGER NOT NULL,
