@@ -20,11 +20,18 @@ builder.Services.AddScoped<IDbConnectionFactory, PostgresConnectionFactory>();
 builder.Services.AddScoped<ILeaderboardRepository, LeaderboardRepository>();
 builder.Services.AddScoped<IMatchRepository, MatchRepository>();
 builder.Services.AddScoped<IKillerGameRepository, KillerGameRepository>();
+builder.Services.AddScoped<IKillerGameInProgressRepository, KillerGameInProgressRepository>();
 builder.Services.AddScoped<IMatchHistoryRepository, MatchHistoryRepository>();
 builder.Services.AddScoped<IHeadToHeadRepository, HeadToHeadRepository>();
 builder.Services.AddSingleton<KillerGameService>();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var repo = scope.ServiceProvider.GetRequiredService<IKillerGameInProgressRepository>();
+    app.Services.GetRequiredService<KillerGameService>().TryRestore(repo);
+}
 
 app.UseDefaultFiles();
 app.MapStaticAssets();

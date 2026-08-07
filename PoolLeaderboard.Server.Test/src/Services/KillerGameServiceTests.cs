@@ -1,10 +1,25 @@
+using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
 using PoolLeaderboard.Server.Services;
+using PoolLeaderboardEngine.Killer;
 
 namespace PoolLeaderboard.Server.Test.Services;
 
 public class KillerGameServiceTests
 {
-    private readonly KillerGameService service = new();
+    private readonly KillerGameService service = MakeService();
+
+    private static KillerGameService MakeService(Random? random = null)
+    {
+        var scopeFactory = Substitute.For<IServiceScopeFactory>();
+        var scope = Substitute.For<IServiceScope>();
+        var repo = Substitute.For<IKillerGameInProgressRepository>();
+        scopeFactory.CreateScope().Returns(scope);
+        scope.ServiceProvider.GetService(typeof(IKillerGameInProgressRepository)).Returns(repo);
+        return random == null
+            ? new KillerGameService(scopeFactory)
+            : new KillerGameService(random, scopeFactory);
+    }
 
     [Fact]
     public void IsActive_ReturnsFalse_BeforeStart()
@@ -55,7 +70,7 @@ public class KillerGameServiceTests
     public void GetStateDto_SetsEliminatedTrue_ForPlayerWithNoLives()
     {
         // Use a seeded random so Alice is always first (and thus eliminated by EarlyBlackPot)
-        var seededService = new KillerGameService(new Random(0));
+        var seededService = MakeService(new Random(0));
         seededService.StartGame([(1, "Alice"), (2, "Bob")]);
         seededService.EarlyBlackPot(); // current player loses all lives
 
@@ -160,7 +175,7 @@ public class KillerGameServiceTests
 
         for (int i = 0; i < 20; i++)
         {
-            var svc = new KillerGameService();
+            var svc = MakeService();
             svc.StartGame(players);
             var names = svc.GetStateDto().PlayerRows.Select(r => r.Name).ToList();
             if (!names.SequenceEqual(players.Select(p => p.Item2)))

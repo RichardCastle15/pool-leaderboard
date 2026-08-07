@@ -54,4 +54,18 @@ internal class PotGameAction : BaseGameAction
         }
         base.Undo(game);
     }
+
+    internal KillerGameActionRecord GetRecord() => new(
+        "Pot", causedSuddenDeath,
+        WasFirstPotInSuddenDeath: wasFirstPotInSuddenDeath,
+        PlayersEliminatedInSuddenDeath: [.. playersEliminatedInSuddenDeath],
+        PlayerIndexOfLifeTaken: null, PlayersRestoredByMiss: null,
+        EarlyBlackPotPlayerIndex: null, EarlyBlackPotLivesTaken: null);
+
+    internal static PotGameAction FromRecord(KillerGameActionRecord r) => new()
+    {
+        causedSuddenDeath = r.CausedSuddenDeath,
+        wasFirstPotInSuddenDeath = r.WasFirstPotInSuddenDeath,
+        playersEliminatedInSuddenDeath = [.. r.PlayersEliminatedInSuddenDeath]
+    };
 }
