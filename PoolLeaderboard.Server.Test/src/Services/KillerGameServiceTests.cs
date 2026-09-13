@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using PoolLeaderboard.Server.Services;
@@ -337,4 +338,85 @@ public class KillerGameServiceTests
         Assert.Equal(0, state.CurrentPlayerIndex);
         Assert.Equal(3, state.PlayerRows[0].LivesRemaining);
     }
+
+    [Fact]
+    public void EndGame_DeletesPersistedState_BeforeClearingMemory()
+    {
+        // If the delete fails, the in-memory game must survive: otherwise the game disappears
+        // for players while a stale row stays behind for the next restart to resurrect.
+        var (svc, repo) = MakeServiceWithRepo();
+        svc.StartGame([(1, "Alice"), (2, "Bob")]);
+        repo.When(r => r.Delete()).Do(_ => throw new InvalidOperationException("db down"));
+
+        Assert.Throws<InvalidOperationException>(svc.EndGame);
+
+        Assert.True(svc.IsActive);
+        Assert.NotNull(svc.GetPlayers());
+    }
+
+    [Fact]
+    public void Pot_DoesNotPersist_WhenNoGameInProgress()
+    {
+        var (svc, repo) = MakeServiceWithRepo();
+
+        svc.Pot();
+
+        repo.DidNotReceive().Save(Arg.Any<KillerGameInProgressState>());
+    }
+
+    [Fact]
+    public void TryRestore_LeavesServiceUntouched_WhenSuddenDeathStateIsUnrecognised()
+    {
+        var (svc, _) = MakeServiceWithRepo();
+        var repo = Substitute.For<IKillerGameInProgressRepository>();
+        repo.Load().Returns(new KillerGameInProgressState(
+            CurrentPlayerIndex: 0,
+            SuddenDeathState: "NotARealState",
+            ActionStackJson: "[]",
+            Players: [new KillerGameInProgressPlayer(1, "Alice", 0, 3, false)]
+        ));
+
+        Assert.ThrowsAny<Exception>(() => svc.TryRestore(repo));
+
+        Assert.False(svc.IsActive);
+        Assert.Null(svc.GetPlayers());
+    }
+
+    [Fact]
+    public void TryRestore_RestoresUndoHistory_AcrossSerialisation()
+    {
+        // Play a game, take what was persisted, and feed it to a fresh service: undo must
+        // still reverse each action, which only works if the action stack round-tripped.
+        var (original, repo) = MakeServiceWithRepo(new Random(0));
+        original.StartGame([(1, "Alice"), (2, "Bob"), (3, "Charlie")]);
+        original.Miss();
+        original.Pot();
+        original.EarlyBlackPot();
+
+        var persisted = repo.ReceivedCalls()
+            .Where(c => c.GetMethodInfo().Name == nameof(IKillerGameInProgressRepository.Save))
+            .Select(c => (KillerGameInProgressState)c.GetArguments()[0]!)
+            .Last();
+
+        var (restored, _) = MakeServiceWithRepo();
+        var restoreRepo = Substitute.For<IKillerGameInProgressRepository>();
+        restoreRepo.Load().Returns(persisted);
+        restored.TryRestore(restoreRepo);
+
+        Assert.Equal(Serialise(original.GetStateDto()), Serialise(restored.GetStateDto()));
+
+        original.Undo();
+        restored.Undo();
+        Assert.Equal(Serialise(original.GetStateDto()), Serialise(restored.GetStateDto()));
+
+        original.Undo();
+        restored.Undo();
+        Assert.Equal(Serialise(original.GetStateDto()), Serialise(restored.GetStateDto()));
+
+        original.Undo();
+        restored.Undo();
+        Assert.Equal(Serialise(original.GetStateDto()), Serialise(restored.GetStateDto()));
+    }
+
+    private static string Serialise(KillerGameStateDto dto) => JsonSerializer.Serialize(dto);
 }

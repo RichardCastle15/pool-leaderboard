@@ -33,18 +33,15 @@ internal class PotBlackBallEarlyGameAction : BaseGameAction
         base.Undo(gameState);
     }
 
-    public override KillerGameActionRecord GetRecord() => new(
-        "EarlyBlackPot", causedSuddenDeath,
-        WasFirstPotInSuddenDeath: false,
-        PlayersEliminatedInSuddenDeath: [],
-        PlayerIndexOfLifeTaken: null, PlayersRestoredByMiss: null,
-        EarlyBlackPotPlayerIndex: playerIndex,
-        EarlyBlackPotLivesTaken: livesTaken);
+    public override KillerGameActionRecord GetRecord() => new EarlyBlackPotActionRecord(
+        CausedSuddenDeath: causedSuddenDeath,
+        PlayerIndex: playerIndex,
+        LivesTaken: livesTaken);
 
-    internal static PotBlackBallEarlyGameAction FromRecord(KillerGameActionRecord r) => new()
+    internal static PotBlackBallEarlyGameAction FromRecord(EarlyBlackPotActionRecord r) => new()
     {
         causedSuddenDeath = r.CausedSuddenDeath,
-        playerIndex = r.EarlyBlackPotPlayerIndex,
-        livesTaken = r.EarlyBlackPotLivesTaken
+        playerIndex = r.PlayerIndex,
+        livesTaken = r.LivesTaken
     };
 }

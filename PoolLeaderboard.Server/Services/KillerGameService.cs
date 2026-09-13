@@ -80,39 +80,26 @@ public class KillerGameService
         }
     }
 
-    public void Pot()
-    {
-        lock (_lock)
-        {
-            _currentGame?.Pot();
-            if (_currentGame != null) PersistCurrentState();
-        }
-    }
+    public void Pot() => Mutate(game => game.Pot());
 
-    public void Miss()
-    {
-        lock (_lock)
-        {
-            _currentGame?.Miss();
-            if (_currentGame != null) PersistCurrentState();
-        }
-    }
+    public void Miss() => Mutate(game => game.Miss());
 
-    public void EarlyBlackPot()
-    {
-        lock (_lock)
-        {
-            _currentGame?.EarlyBlackPot();
-            if (_currentGame != null) PersistCurrentState();
-        }
-    }
+    public void EarlyBlackPot() => Mutate(game => game.EarlyBlackPot());
 
-    public void Undo()
+    public void Undo() => Mutate(game => game.Undo());
+
+    /// <summary>
+    /// Runs a mutation against the in-progress game and persists the result, so that
+    /// "every mutation persists" is enforced in one place rather than by each caller.
+    /// Does nothing when no game is in progress.
+    /// </summary>
+    private void Mutate(Action<KillerGame> mutation)
     {
         lock (_lock)
         {
-            _currentGame?.Undo();
-            if (_currentGame != null) PersistCurrentState();
+            if (_currentGame == null) return;
+            mutation(_currentGame);
+            PersistCurrentState();
         }
     }
 
@@ -134,42 +121,49 @@ public class KillerGameService
     {
         lock (_lock)
         {
+            // Delete first: if the delete throws, in-memory state still matches the DB row and
+            // the caller sees the failure, rather than the game vanishing from memory while a
+            // stale row survives to be resurrected by the next TryRestore().
+            DeletePersistedState();
             _currentGame = null;
             _players = null;
-            DeletePersistedState();
         }
     }
 
+    /// <summary>
+    /// Restores a game persisted by a previous run of the process, if there is one.
+    /// Everything is rebuilt before anything is assigned, so a malformed row throws without
+    /// leaving the service half-restored.
+    /// </summary>
     public void TryRestore(IKillerGameInProgressRepository repo)
     {
         var persisted = repo.Load();
         if (persisted == null) return;
 
+        var orderedPlayers = persisted.Players.OrderBy(p => p.TurnOrder).ToList();
+
+        var state = new KillerGameState
+        {
+            CurrentPlayerIndex = persisted.CurrentPlayerIndex,
+            SuddenDeathState = Enum.Parse<SuddenDeathState>(persisted.SuddenDeathState),
+            PlayerRows = orderedPlayers
+                .Select(p => new KillerGameRow
+                {
+                    PlayerName = p.PlayerName,
+                    LivesRemaining = p.LivesRemaining,
+                    MissedInSuddenDeath = p.MissedInSuddenDeath
+                })
+                .ToList<KillerGameRow>()
+        };
+
+        var actions = JsonSerializer.Deserialize<KillerGameActionRecord[]>(persisted.ActionStackJson)
+            ?? [];
+        var restoredGame = new KillerGame(state, actions);
+
         lock (_lock)
         {
-            _players = persisted.Players
-                .OrderBy(p => p.TurnOrder)
-                .Select(p => (p.RatingId, p.PlayerName))
-                .ToList();
-
-            var state = new KillerGameState
-            {
-                CurrentPlayerIndex = persisted.CurrentPlayerIndex,
-                SuddenDeathState = Enum.Parse<SuddenDeathState>(persisted.SuddenDeathState),
-                PlayerRows = persisted.Players
-                    .OrderBy(p => p.TurnOrder)
-                    .Select(p => new KillerGameRow
-                    {
-                        PlayerName = p.PlayerName,
-                        LivesRemaining = p.LivesRemaining,
-                        MissedInSuddenDeath = p.MissedInSuddenDeath
-                    })
-                    .ToList<KillerGameRow>()
-            };
-
-            var actions = JsonSerializer.Deserialize<KillerGameActionRecord[]>(persisted.ActionStackJson)
-                ?? [];
-            _currentGame = new KillerGame(state, actions);
+            _players = orderedPlayers.Select(p => (p.RatingId, p.PlayerName)).ToList();
+            _currentGame = restoredGame;
         }
     }
 

@@ -1,5 +1,6 @@
 using System.Data;
 using PoolLeaderboardEngine.Leaderboard;
+using PoolLeaderboardEngine.Data;
 
 namespace PoolLeaderboardEngine.Killer;
 
@@ -37,10 +38,10 @@ public class KillerGameRepository : IKillerGameRepository
                 insertPlayer.CommandText =
                     "insert into killer_game_player (killer_game_id, player_id, delta, is_winner) " +
                     "values (@killerGameId, @playerId, @delta, @isWinner)";
-                AddParameter(insertPlayer, "@killerGameId", killerGameId);
-                AddParameter(insertPlayer, "@playerId", player.PlayerId);
-                AddParameter(insertPlayer, "@delta", player.Delta);
-                AddParameter(insertPlayer, "@isWinner", player.IsWinner);
+                insertPlayer.AddParameter("@killerGameId", killerGameId);
+                insertPlayer.AddParameter("@playerId", player.PlayerId);
+                insertPlayer.AddParameter("@delta", player.Delta);
+                insertPlayer.AddParameter("@isWinner", player.IsWinner);
                 insertPlayer.ExecuteNonQuery();
             }
 
@@ -53,11 +54,4 @@ public class KillerGameRepository : IKillerGameRepository
         }
     }
 
-    private static void AddParameter(IDbCommand command, string name, object value)
-    {
-        var param = command.CreateParameter();
-        param.ParameterName = name;
-        param.Value = value;
-        command.Parameters.Add(param);
-    }
 }

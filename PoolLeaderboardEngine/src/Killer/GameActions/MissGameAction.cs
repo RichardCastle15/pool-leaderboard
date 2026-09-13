@@ -117,15 +117,12 @@ internal class MissGameAction : BaseGameAction
         }
     }
 
-    public override KillerGameActionRecord GetRecord() => new(
-        "Miss", causedSuddenDeath,
-        WasFirstPotInSuddenDeath: false,
-        PlayersEliminatedInSuddenDeath: [],
+    public override KillerGameActionRecord GetRecord() => new MissActionRecord(
+        CausedSuddenDeath: causedSuddenDeath,
         PlayerIndexOfLifeTaken: playerIndexOfLifeTaken,
-        PlayersRestoredByMiss: suddenDeath?.GetRestoredPlayers(),
-        EarlyBlackPotPlayerIndex: null, EarlyBlackPotLivesTaken: null);
+        PlayersRestoredByMiss: suddenDeath?.GetRestoredPlayers());
 
-    internal static MissGameAction FromRecord(KillerGameActionRecord r) => new()
+    internal static MissGameAction FromRecord(MissActionRecord r) => new()
     {
         causedSuddenDeath = r.CausedSuddenDeath,
         playerIndexOfLifeTaken = r.PlayerIndexOfLifeTaken,

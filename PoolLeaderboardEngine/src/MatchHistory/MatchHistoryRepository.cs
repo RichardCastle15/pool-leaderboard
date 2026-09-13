@@ -1,5 +1,6 @@
 using System.Data;
 using PoolLeaderboardEngine.Leaderboard;
+using PoolLeaderboardEngine.Data;
 
 namespace PoolLeaderboardEngine.MatchHistory;
 
@@ -85,7 +86,7 @@ public class MatchHistoryRepository : IMatchHistoryRepository
     {
         using var command = connection.CreateCommand();
         command.CommandText = sql;
-        AddParameter(command, paramName, paramValue);
+        command.AddParameter(paramName, paramValue);
         var scalar = command.ExecuteScalar();
         return scalar == null ? 0 : Convert.ToInt32(scalar);
     }
@@ -103,7 +104,7 @@ public class MatchHistoryRepository : IMatchHistoryRepository
             "join rating l on l.id = m.loser_id " +
             "order by m.played_at desc, m.id desc " +
             "limit @limit";
-        AddParameter(command, "@limit", limit);
+        command.AddParameter("@limit", limit);
 
         using var reader = command.ExecuteReader();
         while (reader.Read())
@@ -148,7 +149,7 @@ public class MatchHistoryRepository : IMatchHistoryRepository
             "join killer_game_player p on p.killer_game_id = g.id " +
             "join rating r on r.id = p.player_id " +
             "order by g.played_at desc, g.id desc, p.id asc";
-        AddParameter(command, "@limit", limit);
+        command.AddParameter("@limit", limit);
 
         using var reader = command.ExecuteReader();
         while (reader.Read())
@@ -193,8 +194,8 @@ public class MatchHistoryRepository : IMatchHistoryRepository
             "where m.winner_id = @playerId or m.loser_id = @playerId " +
             "order by m.played_at desc, m.id desc " +
             "limit @limit";
-        AddParameter(command, "@limit", limit);
-        AddParameter(command, "@playerId", playerId);
+        command.AddParameter("@limit", limit);
+        command.AddParameter("@playerId", playerId);
 
         using var reader = command.ExecuteReader();
         while (reader.Read())
@@ -241,8 +242,8 @@ public class MatchHistoryRepository : IMatchHistoryRepository
             "join killer_game_player p on p.killer_game_id = g.id " +
             "join rating r on r.id = p.player_id " +
             "order by g.played_at desc, g.id desc, p.id asc";
-        AddParameter(command, "@limit", limit);
-        AddParameter(command, "@playerId", playerId);
+        command.AddParameter("@limit", limit);
+        command.AddParameter("@playerId", playerId);
 
         using var reader = command.ExecuteReader();
         while (reader.Read())
@@ -273,13 +274,6 @@ public class MatchHistoryRepository : IMatchHistoryRepository
             })).ToList();
     }
 
-    private static void AddParameter(IDbCommand command, string name, object value)
-    {
-        var param = command.CreateParameter();
-        param.ParameterName = name;
-        param.Value = value;
-        command.Parameters.Add(param);
-    }
 
     private record SortableEntry(DateTime PlayedAt, int SortId, MatchHistoryEntry Entry);
 }

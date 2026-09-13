@@ -1,5 +1,6 @@
 using System.Data;
 using PoolLeaderboardEngine.Leaderboard;
+using PoolLeaderboardEngine.Data;
 
 namespace PoolLeaderboardEngine.Killer;
 
@@ -20,19 +21,7 @@ public class KillerGameInProgressRepository : IKillerGameInProgressRepository
 
         try
         {
-            using (var deletePlayers = connection.CreateCommand())
-            {
-                deletePlayers.Transaction = transaction;
-                deletePlayers.CommandText = "DELETE FROM killer_game_in_progress_player";
-                deletePlayers.ExecuteNonQuery();
-            }
-
-            using (var deleteHeader = connection.CreateCommand())
-            {
-                deleteHeader.Transaction = transaction;
-                deleteHeader.CommandText = "DELETE FROM killer_game_in_progress";
-                deleteHeader.ExecuteNonQuery();
-            }
+            ClearPersistedGame(connection, transaction);
 
             using (var insertHeader = connection.CreateCommand())
             {
@@ -40,9 +29,9 @@ public class KillerGameInProgressRepository : IKillerGameInProgressRepository
                 insertHeader.CommandText =
                     "INSERT INTO killer_game_in_progress (id, current_player_index, sudden_death_state, action_stack) " +
                     "VALUES (1, @currentPlayerIndex, @suddenDeathState, @actionStack)";
-                AddParameter(insertHeader, "@currentPlayerIndex", state.CurrentPlayerIndex);
-                AddParameter(insertHeader, "@suddenDeathState", state.SuddenDeathState);
-                AddParameter(insertHeader, "@actionStack", state.ActionStackJson);
+                insertHeader.AddParameter("@currentPlayerIndex", state.CurrentPlayerIndex);
+                insertHeader.AddParameter("@suddenDeathState", state.SuddenDeathState);
+                insertHeader.AddParameter("@actionStack", state.ActionStackJson);
                 insertHeader.ExecuteNonQuery();
             }
 
@@ -53,11 +42,11 @@ public class KillerGameInProgressRepository : IKillerGameInProgressRepository
                 insertPlayer.CommandText =
                     "INSERT INTO killer_game_in_progress_player (turn_order, rating_id, player_name, lives_remaining, missed_in_sudden_death) " +
                     "VALUES (@turnOrder, @ratingId, @playerName, @livesRemaining, @missedInSuddenDeath)";
-                AddParameter(insertPlayer, "@turnOrder", player.TurnOrder);
-                AddParameter(insertPlayer, "@ratingId", player.RatingId);
-                AddParameter(insertPlayer, "@playerName", player.PlayerName);
-                AddParameter(insertPlayer, "@livesRemaining", player.LivesRemaining);
-                AddParameter(insertPlayer, "@missedInSuddenDeath", player.MissedInSuddenDeath);
+                insertPlayer.AddParameter("@turnOrder", player.TurnOrder);
+                insertPlayer.AddParameter("@ratingId", player.RatingId);
+                insertPlayer.AddParameter("@playerName", player.PlayerName);
+                insertPlayer.AddParameter("@livesRemaining", player.LivesRemaining);
+                insertPlayer.AddParameter("@missedInSuddenDeath", player.MissedInSuddenDeath);
                 insertPlayer.ExecuteNonQuery();
             }
 
@@ -121,19 +110,7 @@ public class KillerGameInProgressRepository : IKillerGameInProgressRepository
 
         try
         {
-            using (var deletePlayers = connection.CreateCommand())
-            {
-                deletePlayers.Transaction = transaction;
-                deletePlayers.CommandText = "DELETE FROM killer_game_in_progress_player";
-                deletePlayers.ExecuteNonQuery();
-            }
-
-            using (var deleteHeader = connection.CreateCommand())
-            {
-                deleteHeader.Transaction = transaction;
-                deleteHeader.CommandText = "DELETE FROM killer_game_in_progress";
-                deleteHeader.ExecuteNonQuery();
-            }
+            ClearPersistedGame(connection, transaction);
 
             transaction.Commit();
         }
@@ -144,11 +121,24 @@ public class KillerGameInProgressRepository : IKillerGameInProgressRepository
         }
     }
 
-    private static void AddParameter(IDbCommand command, string name, object value)
+    /// <summary>
+    /// Removes the single persisted game and its players. Both <see cref="Save"/> and
+    /// <see cref="Delete"/> start by clearing out whatever is already stored.
+    /// </summary>
+    private static void ClearPersistedGame(IDbConnection connection, IDbTransaction transaction)
     {
-        var param = command.CreateParameter();
-        param.ParameterName = name;
-        param.Value = value;
-        command.Parameters.Add(param);
+        using (var deletePlayers = connection.CreateCommand())
+        {
+            deletePlayers.Transaction = transaction;
+            deletePlayers.CommandText = "DELETE FROM killer_game_in_progress_player";
+            deletePlayers.ExecuteNonQuery();
+        }
+
+        using (var deleteHeader = connection.CreateCommand())
+        {
+            deleteHeader.Transaction = transaction;
+            deleteHeader.CommandText = "DELETE FROM killer_game_in_progress";
+            deleteHeader.ExecuteNonQuery();
+        }
     }
 }

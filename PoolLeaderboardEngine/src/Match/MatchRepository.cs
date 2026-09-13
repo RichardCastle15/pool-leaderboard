@@ -1,4 +1,5 @@
 using PoolLeaderboardEngine.Leaderboard;
+using PoolLeaderboardEngine.Data;
 
 namespace PoolLeaderboardEngine.Match;
 
@@ -20,19 +21,12 @@ public class MatchRepository : IMatchRepository
             "insert into \"match\" (winner_id, loser_id, winner_delta, loser_delta) " +
             "values (@winnerId, @loserId, @winnerDelta, @loserDelta)";
 
-        AddParameter(command, "@winnerId", winnerId);
-        AddParameter(command, "@loserId", loserId);
-        AddParameter(command, "@winnerDelta", winnerDelta);
-        AddParameter(command, "@loserDelta", loserDelta);
+        command.AddParameter("@winnerId", winnerId);
+        command.AddParameter("@loserId", loserId);
+        command.AddParameter("@winnerDelta", winnerDelta);
+        command.AddParameter("@loserDelta", loserDelta);
 
         command.ExecuteNonQuery();
     }
 
-    private static void AddParameter(System.Data.IDbCommand command, string name, object value)
-    {
-        var param = command.CreateParameter();
-        param.ParameterName = name;
-        param.Value = value;
-        command.Parameters.Add(param);
-    }
 }

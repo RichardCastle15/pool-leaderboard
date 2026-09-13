@@ -27,12 +27,12 @@ public class KillerGame
     public IReadOnlyList<KillerGameActionRecord> GetActionStack() =>
         gameActions.Select(a => a.GetRecord()).ToArray();
 
-    private static IGameAction ActionFromRecord(KillerGameActionRecord record) => record.ActionType switch
+    private static IGameAction ActionFromRecord(KillerGameActionRecord record) => record switch
     {
-        "Pot" => PotGameAction.FromRecord(record),
-        "Miss" => MissGameAction.FromRecord(record),
-        "EarlyBlackPot" => PotBlackBallEarlyGameAction.FromRecord(record),
-        _ => throw new InvalidOperationException($"Unknown action type: {record.ActionType}")
+        PotActionRecord r => PotGameAction.FromRecord(r),
+        MissActionRecord r => MissGameAction.FromRecord(r),
+        EarlyBlackPotActionRecord r => PotBlackBallEarlyGameAction.FromRecord(r),
+        _ => throw new InvalidOperationException($"Unknown action record: {record.GetType().Name}")
     };
 
     public KillerGameState GetState()
