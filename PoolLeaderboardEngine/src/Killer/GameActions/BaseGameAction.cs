@@ -9,7 +9,9 @@ internal abstract class BaseGameAction : IGameAction
     /// Sudden death is triggered when this action is the last of a round and the next round has all remaining players with 1 life.
     /// True = applying this action triggered sudden death.
     /// </summary>
-    private bool causedSuddenDeath;
+    protected bool causedSuddenDeath;
+
+    public abstract KillerGameActionRecord GetRecord();
 
     /// <summary>
     /// Common behaviours on apply, like moving to the next alive player.

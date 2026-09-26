@@ -1,6 +1,6 @@
 namespace PoolLeaderboardEngine.Killer;
 
-internal enum SuddenDeathState
+public enum SuddenDeathState
 {
     /// <summary>
     /// Not in sudden death.

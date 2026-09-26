@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using PoolLeaderboard.Server.Controllers;
 using PoolLeaderboard.Server.Hubs;
@@ -20,7 +21,12 @@ public class KillerControllerTests
 
     public KillerControllerTests()
     {
-        killerGameService = new KillerGameService();
+        var scopeFactory = Substitute.For<IServiceScopeFactory>();
+        var scope = Substitute.For<IServiceScope>();
+        var inProgressRepo = Substitute.For<IKillerGameInProgressRepository>();
+        scopeFactory.CreateScope().Returns(scope);
+        scope.ServiceProvider.GetService(typeof(IKillerGameInProgressRepository)).Returns(inProgressRepo);
+        killerGameService = new KillerGameService(scopeFactory);
         leaderboardRepository = Substitute.For<ILeaderboardRepository>();
         killerGameRepository = Substitute.For<IKillerGameRepository>();
 

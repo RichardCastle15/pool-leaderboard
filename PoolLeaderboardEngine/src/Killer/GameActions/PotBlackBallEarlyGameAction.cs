@@ -32,4 +32,16 @@ internal class PotBlackBallEarlyGameAction : BaseGameAction
         gameState.PlayerRows[playerIndex.Value].LivesRemaining = livesTaken.Value;
         base.Undo(gameState);
     }
+
+    public override KillerGameActionRecord GetRecord() => new EarlyBlackPotActionRecord(
+        CausedSuddenDeath: causedSuddenDeath,
+        PlayerIndex: playerIndex,
+        LivesTaken: livesTaken);
+
+    internal static PotBlackBallEarlyGameAction FromRecord(EarlyBlackPotActionRecord r) => new()
+    {
+        causedSuddenDeath = r.CausedSuddenDeath,
+        playerIndex = r.PlayerIndex,
+        livesTaken = r.LivesTaken
+    };
 }

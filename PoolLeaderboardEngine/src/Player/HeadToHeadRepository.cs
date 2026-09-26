@@ -1,5 +1,6 @@
 using System.Data;
 using PoolLeaderboardEngine.Leaderboard;
+using PoolLeaderboardEngine.Data;
 
 namespace PoolLeaderboardEngine.Player;
 
@@ -33,7 +34,7 @@ public class HeadToHeadRepository : IHeadToHeadRepository
             "group by r.id, r.name " +
             "order by (sum(case when m.winner_id = @p then 1 else 0 end) + " +
             "          sum(case when m.loser_id  = @p then 1 else 0 end)) desc";
-        AddParameter(command, "@p", playerId);
+        command.AddParameter("@p", playerId);
 
         using var reader = command.ExecuteReader();
         while (reader.Read())
@@ -52,11 +53,4 @@ public class HeadToHeadRepository : IHeadToHeadRepository
         return results;
     }
 
-    private static void AddParameter(IDbCommand command, string name, object value)
-    {
-        var param = command.CreateParameter();
-        param.ParameterName = name;
-        param.Value = value;
-        command.Parameters.Add(param);
-    }
 }

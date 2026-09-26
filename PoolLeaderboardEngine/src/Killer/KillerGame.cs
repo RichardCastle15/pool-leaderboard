@@ -16,6 +16,25 @@ public class KillerGame
         };
     }
 
+    public KillerGame(KillerGameState state, IReadOnlyList<KillerGameActionRecord> actionStack)
+    {
+        gameState = state;
+        // actionStack is ordered top-to-bottom (most recent first); push bottom-first so top ends up on top
+        foreach (var record in actionStack.Reverse())
+            gameActions.Push(ActionFromRecord(record));
+    }
+
+    public IReadOnlyList<KillerGameActionRecord> GetActionStack() =>
+        gameActions.Select(a => a.GetRecord()).ToArray();
+
+    private static IGameAction ActionFromRecord(KillerGameActionRecord record) => record switch
+    {
+        PotActionRecord r => PotGameAction.FromRecord(r),
+        MissActionRecord r => MissGameAction.FromRecord(r),
+        EarlyBlackPotActionRecord r => PotBlackBallEarlyGameAction.FromRecord(r),
+        _ => throw new InvalidOperationException($"Unknown action record: {record.GetType().Name}")
+    };
+
     public KillerGameState GetState()
     {
         return gameState;

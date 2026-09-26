@@ -105,5 +105,29 @@ internal class MissGameAction : BaseGameAction
                     gameState.PlayerRows[pidx].MissedInSuddenDeath = true;
             }
         }
+
+        internal int[] GetRestoredPlayers() => [.. playersWhoWereRestoredByMiss];
+
+        internal static SuddenDeath FromRestoredPlayers(int[] restored)
+        {
+            var sd = new SuddenDeath();
+            foreach (var p in restored)
+                sd.playersWhoWereRestoredByMiss.Add(p);
+            return sd;
+        }
     }
+
+    public override KillerGameActionRecord GetRecord() => new MissActionRecord(
+        CausedSuddenDeath: causedSuddenDeath,
+        PlayerIndexOfLifeTaken: playerIndexOfLifeTaken,
+        PlayersRestoredByMiss: suddenDeath?.GetRestoredPlayers());
+
+    internal static MissGameAction FromRecord(MissActionRecord r) => new()
+    {
+        causedSuddenDeath = r.CausedSuddenDeath,
+        playerIndexOfLifeTaken = r.PlayerIndexOfLifeTaken,
+        suddenDeath = r.PlayersRestoredByMiss != null
+            ? SuddenDeath.FromRestoredPlayers(r.PlayersRestoredByMiss)
+            : null
+    };
 }
