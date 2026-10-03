@@ -84,3 +84,5 @@ To query the dev DB: `psql -h db -U postgres -d leaderboard` (password: `YourStr
 ## CI / deploy
 
 [`.github/workflows/docker-publish.yml`](.github/workflows/docker-publish.yml) on push to `main`: runs the `e2e` job (Postgres service + `npx playwright test`, HTML report uploaded as an artifact), then `npm run test:ci`, then builds the `test` stage of [PoolLeaderboard.Server/Dockerfile](PoolLeaderboard.Server/Dockerfile) (which runs `dotnet test` inside Docker), then builds and pushes `ghcr.io/richardcastle15/poolleaderboard:latest`. Failing tests (including E2E) block the image push.
+
+[`.github/workflows/bug-triage.yml`](.github/workflows/bug-triage.yml) runs the [`triage-bug` skill](.claude/skills/triage-bug/SKILL.md) via `anthropics/claude-code-action` when a `bug` issue is opened, when the author replies to a `needs-info` issue, or on manual dispatch. It starts the same E2E app on :5180, and Claude reproduces the bug with the Playwright MCP, comments its findings, and opens a fix PR when confident. Run it locally with `/triage-bug <N> --dry-run`.
