@@ -18,7 +18,8 @@ li {
   flex-direction: column;
   align-items: flex-start;
   gap: 0.5rem;
-  margin: 0 0 1rem;
+  // Match the default 1em vertical margin that the surrounding p/ul elements get.
+  margin: 1em 0;
 }
 
 .rack-triangle {
