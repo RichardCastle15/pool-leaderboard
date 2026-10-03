@@ -47,6 +47,11 @@ export class AppComponent implements OnInit, OnDestroy {
       icon: 'person-outline',
       link: '/players'
     },
+    {
+      title: 'Rules',
+      icon: 'book-open-outline',
+      link: '/rules'
+    },
   ]);
 
   private subscriptions = new Subscription();
