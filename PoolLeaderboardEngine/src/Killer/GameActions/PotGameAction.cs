@@ -57,12 +57,14 @@ internal class PotGameAction : BaseGameAction
 
     public override KillerGameActionRecord GetRecord() => new PotActionRecord(
         CausedSuddenDeath: causedSuddenDeath,
+        PreviousPlayerIndex: previousPlayerIndex,
         WasFirstPotInSuddenDeath: wasFirstPotInSuddenDeath,
         PlayersEliminatedInSuddenDeath: [.. playersEliminatedInSuddenDeath]);
 
     internal static PotGameAction FromRecord(PotActionRecord r) => new()
     {
         causedSuddenDeath = r.CausedSuddenDeath,
+        previousPlayerIndex = r.PreviousPlayerIndex,
         wasFirstPotInSuddenDeath = r.WasFirstPotInSuddenDeath,
         playersEliminatedInSuddenDeath = [.. r.PlayersEliminatedInSuddenDeath]
     };

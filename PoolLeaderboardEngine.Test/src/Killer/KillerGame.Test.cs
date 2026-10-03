@@ -1,4 +1,5 @@
 using PoolLeaderboardEngine.Killer;
+using PoolLeaderboardEngine.Killer.GameActions;
 
 namespace PoolLeaderboardEngineTests.Killer;
 
@@ -296,6 +297,157 @@ public class KillerGameTests
         KillerGameState state = game.GetState();
         Assert.Equal(1, state.PlayerRows[0].LivesRemaining);
         Assert.Equal(0, state.PlayerRows[1].LivesRemaining);
+    }
+
+    #endregion
+
+    #region Game over
+
+    private static void Perform(KillerGame game, string action)
+    {
+        switch (action)
+        {
+            case "Pot": game.Pot(); break;
+            case "Miss": game.Miss(); break;
+            case "EarlyBlackPot": game.EarlyBlackPot(); break;
+            default: throw new ArgumentException(action);
+        }
+    }
+
+    /// <summary>
+    /// Four players, the first three pot the black early, leaving PersonD as the winner.
+    /// </summary>
+    private static KillerGame WonByEarlyBlacks()
+    {
+        KillerGame game = new(["PersonA", "PersonB", "PersonC", "PersonD"]);
+        game.EarlyBlackPot();
+        game.EarlyBlackPot();
+        game.EarlyBlackPot();
+        return game;
+    }
+
+    [Fact]
+    public void ShouldBeOverWhenOnePlayerRemains()
+    {
+        KillerGame game = WonByEarlyBlacks();
+
+        Assert.True(game.IsOver);
+    }
+
+    [Fact]
+    public void ShouldNotBeOverWhileTwoPlayersRemain()
+    {
+        KillerGame game = new(["PersonA", "PersonB", "PersonC"]);
+        game.EarlyBlackPot();
+
+        Assert.False(game.IsOver);
+    }
+
+    [Theory]
+    [InlineData("Pot")]
+    [InlineData("Miss")]
+    [InlineData("EarlyBlackPot")]
+    public void ShouldRejectActionsOnceGameIsOver(string action)
+    {
+        KillerGame game = WonByEarlyBlacks();
+
+        Assert.Throws<InvalidOperationException>(() => Perform(game, action));
+
+        // The winner is untouched and still the current player.
+        KillerGameState state = game.GetState();
+        Assert.Equal(3, state.CurrentPlayerIndex);
+        Assert.Equal(3, state.PlayerRows[3].LivesRemaining);
+    }
+
+    [Fact]
+    public void ShouldRejectMissByWinnerOnLastLife()
+    {
+        KillerGame game = new(["PersonA", "PersonB"]);
+        // Both players to 1 life, then PersonA pots and PersonB misses out in sudden death.
+        game.Miss();
+        game.Miss();
+        game.Miss();
+        game.Miss();
+        game.Pot();
+        game.Miss();
+
+        Assert.Throws<InvalidOperationException>(game.Miss);
+        Assert.Equal(1, game.GetState().PlayerRows[0].LivesRemaining);
+    }
+
+    [Fact]
+    public void ShouldUndoWinningMoveAfterRejectedAction()
+    {
+        KillerGame game = WonByEarlyBlacks();
+        Assert.Throws<InvalidOperationException>(game.EarlyBlackPot);
+
+        game.Undo();
+
+        // The rejected action was never put on the stack, so one undo reverses the winning early black.
+        KillerGameState state = game.GetState();
+        Assert.False(game.IsOver);
+        Assert.Equal(2, state.CurrentPlayerIndex);
+        Assert.Equal(3, state.PlayerRows[2].LivesRemaining);
+    }
+
+    [Fact]
+    public void ShouldReturnTurnToPotterOnUndoOfSuddenDeathPotThatWinsGame()
+    {
+        KillerGame game = new(["PersonA", "PersonB"]);
+        // Both players to 1 life.
+        game.Miss();
+        game.Miss();
+        game.Miss();
+        game.Miss();
+        // PersonA misses, PersonB pots and so eliminates PersonA.
+        game.Miss();
+        game.Pot();
+        Assert.True(game.IsOver);
+
+        game.Undo();
+
+        KillerGameState state = game.GetState();
+        Assert.Equal(1, state.CurrentPlayerIndex);
+        Assert.Equal(1, state.PlayerRows[0].LivesRemaining);
+        Assert.True(state.PlayerRows[0].MissedInSuddenDeath);
+    }
+
+    [Fact]
+    public void ShouldReturnTurnToActingPlayerOnUndoAfterRestore()
+    {
+        KillerGame game = new(["PersonA", "PersonB"]);
+        game.Miss();
+        game.Miss();
+        game.Miss();
+        game.Miss();
+        game.Miss();
+        game.Pot();
+
+        KillerGame restored = new(game.GetState(), game.GetActionStack());
+        restored.Undo();
+
+        Assert.Equal(1, restored.GetState().CurrentPlayerIndex);
+    }
+
+    [Fact]
+    public void ShouldStepBackToPreviousAlivePlayerOnUndoOfRecordWithoutPreviousPlayerIndex()
+    {
+        // Records persisted before the previous player index was tracked deserialise with it as null.
+        KillerGameState state = new()
+        {
+            CurrentPlayerIndex = 2,
+            PlayerRows =
+            [
+                new KillerGameRow { PlayerName = "PersonA", LivesRemaining = 3, MissedInSuddenDeath = false },
+                new KillerGameRow { PlayerName = "PersonB", LivesRemaining = 3, MissedInSuddenDeath = false },
+                new KillerGameRow { PlayerName = "PersonC", LivesRemaining = 3, MissedInSuddenDeath = false },
+            ]
+        };
+        KillerGame game = new(state, [new PotActionRecord(false, null, false, [])]);
+
+        game.Undo();
+
+        Assert.Equal(1, game.GetState().CurrentPlayerIndex);
     }
 
     #endregion

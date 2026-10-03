@@ -254,6 +254,36 @@ public class KillerGameServiceTests
     }
 
     [Fact]
+    public void EarlyBlackPot_AfterGameWon_ThrowsWithoutChangingOrPersistingState()
+    {
+        var (svc, repo) = MakeServiceWithRepo();
+        svc.StartGame([(1, "Alice"), (2, "Bob")]);
+        svc.EarlyBlackPot(); // first player eliminated -> other player wins
+        var winner = svc.GetWinnerName();
+        repo.ClearReceivedCalls();
+
+        Assert.Throws<InvalidOperationException>(svc.EarlyBlackPot);
+
+        Assert.Equal(winner, svc.GetWinnerName());
+        repo.DidNotReceive().Save(Arg.Any<KillerGameInProgressState>());
+    }
+
+    [Fact]
+    public void Undo_AfterGameWon_ResumesGame()
+    {
+        var (svc, _) = MakeServiceWithRepo();
+        svc.StartGame([(1, "Alice"), (2, "Bob")]);
+        svc.EarlyBlackPot();
+
+        svc.Undo();
+
+        var state = svc.GetStateDto();
+        Assert.Null(state.Winner);
+        Assert.Equal(0, state.CurrentPlayerIndex);
+        Assert.All(state.PlayerRows, r => Assert.Equal(3, r.LivesRemaining));
+    }
+
+    [Fact]
     public void EndGame_DeletesPersistedState()
     {
         var (svc, repo) = MakeServiceWithRepo();

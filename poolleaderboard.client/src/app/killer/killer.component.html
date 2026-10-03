@@ -32,15 +32,15 @@
   <nb-card class="action-card">
     <nb-card-body>
       <nb-actions size="medium" fullWidth>
-        <nb-action id="killer-pot-action" aria-label="Pot" (click)="pot.emit()">
+        <nb-action id="killer-pot-action" aria-label="Pot" [disabled]="gameOver()" [attr.aria-disabled]="gameOver()" (click)="!gameOver() && pot.emit()">
           <span class="material-symbols-outlined">check_circle</span>
           @if(size() === 'full') { Pot }
         </nb-action>
-        <nb-action id="killer-miss-action" aria-label="Miss / Foul" (click)="miss.emit()">
+        <nb-action id="killer-miss-action" aria-label="Miss / Foul" [disabled]="gameOver()" [attr.aria-disabled]="gameOver()" (click)="!gameOver() && miss.emit()">
           <span class="material-symbols-outlined">cancel</span>
           @if(size() === 'full') { Miss / Foul }
         </nb-action>
-        <nb-action id="killer-full-elimination-action" aria-label="Early black" (click)="earlyBlackPot.emit()">
+        <nb-action id="killer-full-elimination-action" aria-label="Early black" [disabled]="gameOver()" [attr.aria-disabled]="gameOver()" (click)="!gameOver() && earlyBlackPot.emit()">
           <span class="material-symbols-outlined">bomb</span>
           @if(size() === 'full') { Early black }
         </nb-action>

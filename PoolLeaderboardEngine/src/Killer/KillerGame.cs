@@ -40,23 +40,23 @@ public class KillerGame
         return gameState;
     }
 
-    public void Pot()
-    {
-        PotGameAction action = new();
-        action.Apply(gameState);
-        gameActions.Push(action);
-    }
+    /// <summary>
+    /// True once one player (or fewer) has lives left. Only <see cref="Undo"/> is allowed from here.
+    /// </summary>
+    public bool IsOver => gameState.PlayerRows.Count(r => r.LivesRemaining > 0) <= 1;
 
-    public void Miss()
-    {
-        MissGameAction action = new();
-        action.Apply(gameState);
-        gameActions.Push(action);
-    }
+    public void Pot() => Perform(new PotGameAction());
 
-    public void EarlyBlackPot()
+    public void Miss() => Perform(new MissGameAction());
+
+    public void EarlyBlackPot() => Perform(new PotBlackBallEarlyGameAction());
+
+    private void Perform(IGameAction action)
     {
-        PotBlackBallEarlyGameAction action = new();
+        // An action after the win would at best leave extra moves to undo before the winning one, and at worst
+        // eliminate the winner too, leaving no one to take the next shot.
+        if (IsOver)
+            throw new InvalidOperationException("The game is over. Undo the last action or confirm the end.");
         action.Apply(gameState);
         gameActions.Push(action);
     }
