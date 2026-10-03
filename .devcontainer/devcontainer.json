@@ -27,5 +27,8 @@
       ]
     }
   },
+  "remoteEnv": {
+    "SSL_CERT_DIR": "/root/.aspnet/dev-certs/trust:/usr/lib/ssl/certs"
+  },
   "remoteUser": "root"
 }
