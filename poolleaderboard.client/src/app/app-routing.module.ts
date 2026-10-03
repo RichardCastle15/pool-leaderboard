@@ -26,6 +26,10 @@ const prodRoutes: Routes = [
     loadComponent: () => import('./player-info/containers/players-container.component').then(m => m.PlayersContainerComponent)
   },
   {
+    path: 'rules',
+    loadComponent: () => import('./rules/rules.component').then(m => m.RulesComponent)
+  },
+  {
     path: 'player/:id',
     loadComponent: () => import('./player-info/containers/player-info-container.component').then(m => m.PlayerInfoContainerComponent)
   },

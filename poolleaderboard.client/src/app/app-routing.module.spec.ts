@@ -28,6 +28,12 @@ describe('AppRoutingModule', () => {
     expect(paths).toContain('killer');
   });
 
+  it('registers a lazy-loaded rules route', () => {
+    const route = router.config.find(r => r.path === 'rules')!;
+    expect(route).toBeDefined();
+    expect(route.loadComponent).toBeDefined();
+  });
+
   describe('in development mode', () => {
     it('includes a showcase route', () => {
       expect(router.config.some(r => r.path === 'showcase')).toBeTrue();
