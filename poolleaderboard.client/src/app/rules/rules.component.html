@@ -3,68 +3,121 @@
   <nb-card-body>
     <h5>Objective</h5>
     <p>
-      Pot all seven of your group's balls (reds or yellows), then pot the black ball in a nominated pocket to win the frame.
+      Pot all seven balls of your group (reds or yellows), then pot the black to win the frame.
     </p>
 
-    <h5>The break</h5>
+    <h5>Racking and breaking</h5>
+    <figure class="rack">
+      <div class="rack-triangle" role="img"
+           aria-label="Rack from front to back: yellow; yellow, red; red, black, yellow; yellow, red, yellow, red; red, yellow, red, red, yellow">
+        @for (row of rack; track $index) {
+          <div class="rack-row">
+            @for (ball of row; track $index) {
+              <span class="ball" [class]="ball"></span>
+            }
+          </div>
+        }
+      </div>
+      <figcaption class="text-hint">Our rack, with the front (apex) ball at the top.</figcaption>
+    </figure>
     <ul>
-      <li>The balls are racked in a triangle with the black in the centre and a red and a yellow ball in the back corners.</li>
-      <li>The breaker plays from behind the baulk line and must pot a ball or drive at least two balls to a cushion.</li>
-      <li>If the break is illegal, the opponent may ask for a re-rack or take the table as it stands.</li>
-      <li>If the black is potted on the break, the frame is re-racked (or the black is re-spotted).</li>
+      <li>The black sits in the middle of the third row, where the two diagonals of the triangle cross.</li>
+      <li>The winner of the lag decides who breaks. Players then take turns to break in each frame.</li>
+      <li>The cue ball can be placed anywhere in baulk for the break.</li>
     </ul>
 
-    <h5>Choosing groups</h5>
+    <h5>Legal and illegal breaks</h5>
     <ul>
-      <li>The table is "open" until a player legally pots a red or yellow after the break. That player takes that colour and their opponent takes the other.</li>
-      <li>While the table is open, a player may hit either colour first, but not the black.</li>
+      <li>A break is legal if at least one ball is potted, or at least two object balls completely cross the line between the middle pockets.</li>
+      <li>If neither happens, the opponent gets one free shot and one visit. They can play the cue ball from where it lies or from baulk, or ask for a re-rack.</li>
+      <li>Potting the cue ball on the break is a foul, and the cue ball is then played from baulk.</li>
+      <li>If the black is potted on the break, the balls are re-racked and the same player breaks again.</li>
+      <li>The table is always still open after the break, whatever was potted. Groups are never decided on the break.</li>
     </ul>
 
-    <h5>Taking a shot</h5>
+    <h5>Open table and choosing groups</h5>
     <ul>
-      <li>The first ball the white touches must be one of your own group's balls.</li>
-      <li>After contact, a ball must be potted or any ball must reach a cushion.</li>
-      <li>If you pot one of your own balls, you continue your visit.</li>
-      <li>If you pot nothing, or commit a foul, your visit ends.</li>
-      <li>You may only play the black once all your own balls are potted.</li>
+      <li>While the table is open, you can hit a red or a yellow first. You cannot play the black first unless you have a free shot.</li>
+      <li>Once you pot balls from only one group, that group is yours for the rest of the frame.</li>
+      <li>
+        The table stays open if the pot comes from the break, from a shot that is a foul, from a free shot,
+        or from a combination shot that pots both a red and a yellow.
+      </li>
+      <li>Groups are never called or nominated. They are decided only by what is potted.</li>
     </ul>
 
-    <h5>Fouls</h5>
+    <h5>A legal shot</h5>
+    <p>The cue ball must hit one of your "on" balls first, and then either:</p>
+    <ul>
+      <li>pot one of your "on" balls, or</li>
+      <li>send the cue ball or any other ball into a cushion.</li>
+    </ul>
+    <p>
+      If nothing is potted and no ball hits a cushion after contact, it is a foul. This means you cannot simply roll up
+      behind a ball to leave a snooker: a ball still has to reach a cushion.
+    </p>
+
+    <h5>Snookers</h5>
+    <ul>
+      <li>You are snookered when no straight line from the cue ball reaches any part of an "on" ball.</li>
+      <li>Before playing out of a snooker, get your opponent (or the referee) to agree that it is a full snooker.</li>
+      <li>When escaping a snooker, you only need to hit an "on" ball. No ball has to reach a cushion afterwards.</li>
+    </ul>
+
+    <h5>Touching balls</h5>
+    <ul>
+      <li>If the cue ball is touching an object ball, you must play away from it. If the touching ball moves, it is a foul.</li>
+      <li>If the touching ball is one of yours (or is otherwise "on"), it counts as already hit, so you only need to pot a ball or reach a cushion.</li>
+      <li>If the touching ball is not "on", you must still hit an "on" ball first as well.</li>
+    </ul>
+
+    <h5>Combination shots</h5>
+    <ul>
+      <li>You can pot two or more balls in one shot, in any order and in any pockets, including balls from both groups. The first ball the cue ball hits must still be one you can legally hit.</li>
+      <li>You can pot your last group ball and the black in the same shot to win the frame, even in the same pocket.</li>
+    </ul>
+
+    <h5>Fouls and free shots</h5>
     <p>It is a foul if you:</p>
     <ul>
-      <li>Pot the white.</li>
-      <li>Hit an opponent's ball or the black first.</li>
-      <li>Miss every ball.</li>
-      <li>Fail to pot a ball or send a ball to a cushion after contact.</li>
-      <li>Move a ball by any means other than a legal shot.</li>
-      <li>Hit the white more than once in a shot.</li>
-      <li>Have both feet off the floor when playing a shot.</li>
+      <li>Hit a ball that is not "on" first.</li>
+      <li>Pot nothing and do not get a ball to a cushion after contact (unless you are escaping a snooker).</li>
+      <li>Pot the cue ball.</li>
+      <li>Move a ball you are touching when playing away from it.</li>
+      <li>Pot only your opponent's ball, even after hitting your own first. This can still be a useful tactic, as it is not a loss of frame.</li>
+    </ul>
+    <p>After a foul, your opponent gets a <strong>free shot</strong>:</p>
+    <ul>
+      <li>The table is treated as open for that shot, so they can hit any object ball first, including the black.</li>
+      <li>Any ball they pot counts. Potting balls on a free shot does not decide groups.</li>
+      <li>If the cue ball was potted, they play it from baulk.</li>
+      <li>On a free shot you may pot the black and then your last group ball in the same shot to win. Potting only the black loses the frame.</li>
     </ul>
 
-    <h5>After a foul</h5>
+    <h5>Balls off the table</h5>
     <ul>
-      <li>Your opponent gets two visits.</li>
-      <li>Your opponent has the white in hand and may place it anywhere on the table.</li>
-      <li>Any balls potted on the foul stay down.</li>
-    </ul>
-
-    <h5>The black</h5>
-    <ul>
-      <li>Once all your balls are potted, nominate a pocket for the black before you play it.</li>
-      <li>Potting the black in the nominated pocket wins the frame.</li>
+      <li>Any ball that leaves the table goes back onto it. If it is the cue ball, it is played from baulk.</li>
+      <li>Object balls are re-spotted on the black spot, or as close to it as possible, in a straight line towards the nearest end cushion without touching each other.</li>
+      <li>The black goes back first, then any balls belonging to the player about to play. On an open table, the order is black, then red, then yellow.</li>
     </ul>
 
     <h5>Losing the frame</h5>
     <p>You lose the frame if you:</p>
     <ul>
-      <li>Pot the black before clearing all your own balls.</li>
-      <li>Pot the black and the white in the same shot.</li>
-      <li>Pot the black in a pocket other than the one you nominated.</li>
-      <li>Knock the black off the table.</li>
+      <li>Pot the black while you still have balls of your own group on the table at the end of the shot.</li>
+      <li>Make no real attempt to hit an "on" ball, or deliberately play a ball that is not "on". The referee or your opponent decides whether it was deliberate. Otherwise it is a standard foul.</li>
     </ul>
 
-    <p class="text-hint">
-      These are the commonly played blackball rules. House rules vary, so agree any differences before you start.
+    <h5>Stalemate</h5>
+    <p>
+      If no legal shot is possible, whether by accident or on purpose, the frame is re-racked. If there is any path
+      to an "on" ball, even an unlikely one, it is not a stalemate and you must try to play it.
+    </p>
+
+    <p class="text-hint source">
+      Adapted from the
+      <a href="https://www.blackball.uk/2016/02/blackball-rules-visual-guide.html" target="_blank" rel="noopener">blackball.uk visual guide to blackball rules</a>,
+      which includes diagrams for each rule.
     </p>
   </nb-card-body>
 </nb-card>

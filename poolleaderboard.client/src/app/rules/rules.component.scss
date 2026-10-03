@@ -1,3 +1,56 @@
+@use '../../themes.scss' as *;
+
+h5 {
+  margin: 1.5rem 0 0.5rem;
+
+  // The card body already provides padding, so the first heading doesn't need its own top margin.
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
 li {
   margin-bottom: 0.5rem;
+}
+
+.rack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+}
+
+.rack-triangle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rack-row {
+  display: flex;
+}
+
+.ball {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  border: 1px solid nb-theme(color-basic-600);
+
+  // Ball colours intentionally don't follow the theme: they match the real balls.
+  &.red {
+    background-color: #d32f2f;
+  }
+
+  &.yellow {
+    background-color: #fbc02d;
+  }
+
+  &.black {
+    background-color: #000;
+  }
+}
+
+.source {
+  margin-bottom: 0;
 }
