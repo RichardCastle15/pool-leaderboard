@@ -11,6 +11,7 @@ This is an ASP.NET Core (`net10.0`) + Angular 19 SPA generated from the standard
 - `PoolLeaderboard.Server.Test/` — xUnit + NSubstitute tests for controllers and `KillerGameService`.
 - `PoolLeaderboardEngine.Test/` — xUnit + NSubstitute tests for engine internals.
 - `PoolLeaderboard.Database/` — Flyway migration project. `deploy.sh` applies pending migrations via Flyway. Schema lives in `migrations/V*.sql` files.
+- `e2e/` — Playwright end-to-end tests (own npm project). Runs the published app on :5180 against a throwaway `leaderboard_e2e` DB reset to `seed.sql` before each test. See [e2e/CLAUDE.md](e2e/CLAUDE.md) before writing or changing E2E tests.
 - `poolleaderboard.client/` — Angular 19 app using **Nebular** components and **Eva Icons**. Built artifacts get served by ASP.NET in production via `MapStaticAssets()` + `MapFallbackToFile("/index.html")`.
 
 ## Common commands
@@ -37,6 +38,10 @@ cd poolleaderboard.client && npm start              # ng serve --host=0.0.0.0
 # Frontend tests
 cd poolleaderboard.client && npm test               # interactive Karma/Jasmine
 cd poolleaderboard.client && npm run test:ci        # ChromeHeadless, single run (used in CI)
+
+# E2E tests (Playwright) - starts the app on :5180 with a fresh leaderboard_e2e DB if one isn't already running
+cd e2e && npx playwright test
+cd e2e && ./scripts/start-server.sh                 # keep an E2E server up between runs (or VS Code task "Start E2E Server")
 
 # Database: apply Flyway migrations to the dev PostgreSQL container
 ./PoolLeaderboard.Database/deploy.sh                # uses $DB_HOST/$DB_PORT/$DB_USER/$DB_PASSWORD/$DB_NAME
@@ -78,4 +83,4 @@ To query the dev DB: `psql -h db -U postgres -d leaderboard` (password: `YourStr
 
 ## CI / deploy
 
-[`.github/workflows/docker-publish.yml`](.github/workflows/docker-publish.yml) on push to `main`: runs `npm run test:ci`, then builds the `test` stage of [PoolLeaderboard.Server/Dockerfile](PoolLeaderboard.Server/Dockerfile) (which runs `dotnet test` inside Docker), then builds and pushes `ghcr.io/richardcastle15/poolleaderboard:latest`. Failing tests block the image push.
+[`.github/workflows/docker-publish.yml`](.github/workflows/docker-publish.yml) on push to `main`: runs the `e2e` job (Postgres service + `npx playwright test`, HTML report uploaded as an artifact), then `npm run test:ci`, then builds the `test` stage of [PoolLeaderboard.Server/Dockerfile](PoolLeaderboard.Server/Dockerfile) (which runs `dotnet test` inside Docker), then builds and pushes `ghcr.io/richardcastle15/poolleaderboard:latest`. Failing tests (including E2E) block the image push.

@@ -5,7 +5,75 @@ on:
     branches: [ main ]
 
 jobs:
+  # 🎭 End-to-end tests: published app + fresh Postgres, driven by Playwright (see e2e/)
+  e2e:
+    runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    # Same version as the devcontainer; the linux-x64 bundle ships its own JRE
+    - name: Install Flyway
+      run: |
+        curl -fsSL "https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/9.22.3/flyway-commandline-9.22.3-linux-x64.tar.gz" \
+          | sudo tar -xz -C /opt
+        echo "/opt/flyway-9.22.3" >> "$GITHUB_PATH"
+
+    - name: Install frontend dependencies
+      working-directory: ./poolleaderboard.client
+      run: npm ci
+
+    - name: Install E2E dependencies
+      working-directory: ./e2e
+      run: |
+        npm ci
+        npx playwright install --with-deps chromium
+
+    - name: Run E2E tests
+      working-directory: ./e2e
+      run: npx playwright test
+
+    - name: Upload Playwright report
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report
+        path: e2e/playwright-report/
+        retention-days: 14
+
   build-and-push:
+    needs: e2e
     runs-on: ubuntu-latest
 
     permissions:

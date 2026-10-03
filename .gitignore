@@ -10,3 +10,9 @@
 /PoolLeaderboard.Database/report.json
 **\\package.g.props
 .claude/settings.local.json
+
+# Playwright MCP snapshots/logs
+.playwright-mcp/
+
+# E2E server publish output (e2e/scripts/start-server.sh)
+/artifacts/

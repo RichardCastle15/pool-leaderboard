@@ -39,6 +39,38 @@
       }
     },
     {
+      "label": "Start E2E Server",
+      "detail": "Fresh leaderboard_e2e DB + published app on :5180. Playwright reuses it while running.",
+      "type": "shell",
+      "command": "./scripts/start-server.sh",
+      "options": {
+        "cwd": "${workspaceFolder}/e2e"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": ".",
+            "file": 1,
+            "location": 2,
+            "message": 3
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Recreating database",
+          "endsPattern": "Application started"
+        }
+      }
+    },
+    {
+      "label": "Stop E2E Server",
+      "type": "shell",
+      "command": "pkill",
+      "args": ["-f", "[d]otnet PoolLeaderboard\\.Server\\.dll"],
+      "problemMatcher": []
+    },
+    {
       "label": "Stop Angular",
       "type": "shell",
       "command": "pkill",

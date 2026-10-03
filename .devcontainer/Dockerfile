@@ -35,6 +35,12 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Playwright MCP server for Claude Code (see .mcp.json). Version is pinned because each release
+# expects a specific Chromium build; install that build using the server's own bundled Playwright.
+RUN npm install -g @playwright/mcp@0.0.83 && \
+    cd "$(npm root -g)/@playwright/mcp" && npx --no-install playwright-core install --with-deps chromium && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # Install Docker CLI for Docker-outside-of-Docker (DooD)
 RUN apt-get update && apt-get install -y docker.io && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
