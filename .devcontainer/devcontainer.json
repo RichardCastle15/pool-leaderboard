@@ -7,7 +7,7 @@
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
-  "postCreateCommand": "cd /workspaces/pool-leaderboard && dotnet restore ./PoolLeaderboard.Server && dotnet build && dotnet dev-certs https --trust && echo 'Installing puppeteer chrome...' && npx --prefix ./poolleaderboard.client puppeteer browsers install chrome && echo 'Deploying DB' && ./PoolLeaderboard.Database/deploy.sh && (gh auth setup-git || true) && echo 'Done!'",
+  "postCreateCommand": "cd /workspaces/pool-leaderboard && dotnet restore ./PoolLeaderboard.Server && dotnet build && dotnet dev-certs https --trust && echo 'Installing puppeteer chrome...' && npx --prefix ./poolleaderboard.client puppeteer browsers install chrome && echo 'Deploying DB' && ./PoolLeaderboard.Database/deploy.sh && echo 'Installing E2E test deps...' && (cd e2e && npm ci && npx playwright install chromium) && (gh auth setup-git || true) && echo 'Done!'",
   "customizations": {
     "vscode": {
       "settings": {
@@ -22,9 +22,13 @@
         "lucono.karma-test-explorer",
         "hbenl.vscode-test-explorer",
         "ms-vscode.test-adapter-converter",
-        "anthropic.claude-code"
+        "anthropic.claude-code",
+        "ms-playwright.playwright"
       ]
     }
+  },
+  "remoteEnv": {
+    "SSL_CERT_DIR": "/root/.aspnet/dev-certs/trust:/usr/lib/ssl/certs"
   },
   "remoteUser": "root"
 }
