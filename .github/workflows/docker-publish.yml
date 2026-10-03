@@ -48,6 +48,9 @@ jobs:
       run: |
         curl -fsSL "https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/9.22.3/flyway-commandline-9.22.3-linux-x64.tar.gz" \
           | sudo tar -xz -C /opt
+        # The archive's launcher is rwxr--r-- and sudo tar keeps its original (non-runner) owner,
+        # so without this the runner user gets "Permission denied" running flyway.
+        sudo chmod a+rx /opt/flyway-9.22.3/flyway
         echo "/opt/flyway-9.22.3" >> "$GITHUB_PATH"
 
     - name: Install frontend dependencies
