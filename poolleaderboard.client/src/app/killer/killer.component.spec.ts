@@ -272,6 +272,53 @@ describe('KillerComponent', () => {
     });
   });
 
+  describe('game won', () => {
+    const shotActions: [string, 'pot' | 'miss' | 'earlyBlackPot'][] = [
+      ['#killer-pot-action', 'pot'],
+      ['#killer-miss-action', 'miss'],
+      ['#killer-full-elimination-action', 'earlyBlackPot'],
+    ];
+
+    function setGame(winner?: string): void {
+      const game: KillerGame = {
+        currentPlayerIndex: 1,
+        playerRows: [{ livesRemaining: 0, name: 'Alice', eliminated: true }, { livesRemaining: 3, name: 'Bob' }],
+        winner
+      };
+      fixture.componentRef.setInput('game', game);
+      fixture.componentRef.setInput('isActive', true);
+      fixture.detectChanges();
+    }
+
+    for (const [selector, output] of shotActions) {
+      it(`should disable ${output} and not emit it when there is a winner`, () => {
+        setGame('Bob');
+        let emitted = false;
+        component[output].subscribe(() => emitted = true);
+        const action = fixture.debugElement.query(By.css(selector));
+        action.triggerEventHandler('click');
+        expect(emitted).toBeFalse();
+        expect(action.classes['disabled']).toBeTrue();
+        expect(action.attributes['aria-disabled']).toBe('true');
+      });
+
+      it(`should leave ${output} enabled when there is no winner`, () => {
+        setGame(undefined);
+        const action = fixture.debugElement.query(By.css(selector));
+        expect(action.classes['disabled']).toBeFalsy();
+        expect(action.attributes['aria-disabled']).toBe('false');
+      });
+    }
+
+    it('should still emit undo when there is a winner', () => {
+      setGame('Bob');
+      let emitted = false;
+      component.undo.subscribe(() => emitted = true);
+      fixture.debugElement.query(By.css('#killer-undo-action')).triggerEventHandler('click');
+      expect(emitted).toBeTrue();
+    });
+  });
+
   it('should show the correct sudden death icons', () => {
     const game: KillerGame = {
       currentPlayerIndex: 3,

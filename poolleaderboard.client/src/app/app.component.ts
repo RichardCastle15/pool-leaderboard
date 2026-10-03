@@ -92,6 +92,7 @@ export class AppComponent implements OnInit, OnDestroy {
                 { title: 'Long list', link: '/showcase/killer/long-list' },
                 { title: 'Sudden death', link: '/showcase/killer/sudden-death' },
                 { title: 'Disconnected', link: '/showcase/killer/disconnected' },
+                { title: 'Game won', link: '/showcase/killer/game-won' },
                 { title: 'No game', link: '/showcase/killer/no-game' },
               ]
             },

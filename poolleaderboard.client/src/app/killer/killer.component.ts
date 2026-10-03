@@ -29,6 +29,12 @@ export class KillerComponent implements OnDestroy {
 
   tableData: Signal<TreeNode<KillerGameRow>[] | undefined>;
 
+  /**
+   * Once someone has won, only Undo, Abandon and Confirm end make sense. nb-action's `disabled` is styling only
+   * and still lets clicks through, so the shot actions also check this before emitting.
+   */
+  gameOver = computed(() => !!this.game()?.winner);
+
   private subscriptions = new Subscription();
 
   constructor(private readonly dialogService: NbDialogService) {

@@ -35,12 +35,14 @@ internal class PotBlackBallEarlyGameAction : BaseGameAction
 
     public override KillerGameActionRecord GetRecord() => new EarlyBlackPotActionRecord(
         CausedSuddenDeath: causedSuddenDeath,
+        PreviousPlayerIndex: previousPlayerIndex,
         PlayerIndex: playerIndex,
         LivesTaken: livesTaken);
 
     internal static PotBlackBallEarlyGameAction FromRecord(EarlyBlackPotActionRecord r) => new()
     {
         causedSuddenDeath = r.CausedSuddenDeath,
+        previousPlayerIndex = r.PreviousPlayerIndex,
         playerIndex = r.PlayerIndex,
         livesTaken = r.LivesTaken
     };

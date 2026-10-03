@@ -11,6 +11,14 @@ internal abstract class BaseGameAction : IGameAction
     /// </summary>
     protected bool causedSuddenDeath;
 
+    /// <summary>
+    /// The index of the player whose turn it was when this action was applied, so undo can hand the turn
+    /// straight back to them. Stepping back to the previous alive player isn't enough: if this action
+    /// eliminated other players, they are alive again after undo and would wrongly be stopped on.
+    /// Null if the action was not applied yet, or was restored from a record persisted before this was tracked.
+    /// </summary>
+    protected int? previousPlayerIndex;
+
     public abstract KillerGameActionRecord GetRecord();
 
     /// <summary>
@@ -19,6 +27,7 @@ internal abstract class BaseGameAction : IGameAction
     /// <param name="gameState"></param>
     public virtual void Apply(KillerGameState gameState)
     {
+        previousPlayerIndex = gameState.CurrentPlayerIndex;
         MoveToNextAlive(gameState);
     }
 
@@ -30,7 +39,10 @@ internal abstract class BaseGameAction : IGameAction
     {
         if (causedSuddenDeath)
             gameState.SuddenDeathState = SuddenDeathState.NotActive;
-        MoveToPreviousAlive(gameState);
+        if (previousPlayerIndex.HasValue)
+            gameState.CurrentPlayerIndex = previousPlayerIndex.Value;
+        else
+            MoveToPreviousAlive(gameState);
     }
 
     /// <summary>
@@ -39,6 +51,11 @@ internal abstract class BaseGameAction : IGameAction
     /// <param name="game"></param>
     protected void MoveToNextAlive(KillerGameState game)
     {
+        // Without anyone alive the loop below would never end. KillerGame refuses actions once the game is
+        // over, so this is a last line of defence rather than an expected path.
+        if (!game.PlayerRows.Any(pr => pr.LivesRemaining > 0))
+            throw new InvalidOperationException("There are no players left with lives to take the next shot.");
+
         // Move to next player, and keep moving until the current player has remaining lives.
         do
         {

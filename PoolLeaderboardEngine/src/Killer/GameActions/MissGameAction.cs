@@ -119,12 +119,14 @@ internal class MissGameAction : BaseGameAction
 
     public override KillerGameActionRecord GetRecord() => new MissActionRecord(
         CausedSuddenDeath: causedSuddenDeath,
+        PreviousPlayerIndex: previousPlayerIndex,
         PlayerIndexOfLifeTaken: playerIndexOfLifeTaken,
         PlayersRestoredByMiss: suddenDeath?.GetRestoredPlayers());
 
     internal static MissGameAction FromRecord(MissActionRecord r) => new()
     {
         causedSuddenDeath = r.CausedSuddenDeath,
+        previousPlayerIndex = r.PreviousPlayerIndex,
         playerIndexOfLifeTaken = r.PlayerIndexOfLifeTaken,
         suddenDeath = r.PlayersRestoredByMiss != null
             ? SuddenDeath.FromRestoredPlayers(r.PlayersRestoredByMiss)

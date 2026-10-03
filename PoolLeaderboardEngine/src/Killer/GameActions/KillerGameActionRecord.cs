@@ -13,13 +13,18 @@ namespace PoolLeaderboardEngine.Killer.GameActions;
 [JsonDerivedType(typeof(PotActionRecord), PotActionRecord.ActionType)]
 [JsonDerivedType(typeof(MissActionRecord), MissActionRecord.ActionType)]
 [JsonDerivedType(typeof(EarlyBlackPotActionRecord), EarlyBlackPotActionRecord.ActionType)]
-public abstract record KillerGameActionRecord(bool CausedSuddenDeath);
+/// <remarks>
+/// <c>PreviousPlayerIndex</c> is null in records persisted before it was added; undo then falls back to
+/// stepping back to the previous alive player.
+/// </remarks>
+public abstract record KillerGameActionRecord(bool CausedSuddenDeath, int? PreviousPlayerIndex);
 
 /// <summary>Undo-state of <c>PotGameAction</c>.</summary>
 public record PotActionRecord(
     bool CausedSuddenDeath,
+    int? PreviousPlayerIndex,
     bool WasFirstPotInSuddenDeath,
-    int[] PlayersEliminatedInSuddenDeath) : KillerGameActionRecord(CausedSuddenDeath)
+    int[] PlayersEliminatedInSuddenDeath) : KillerGameActionRecord(CausedSuddenDeath, PreviousPlayerIndex)
 {
     public const string ActionType = "Pot";
 }
@@ -27,8 +32,9 @@ public record PotActionRecord(
 /// <summary>Undo-state of <c>MissGameAction</c>.</summary>
 public record MissActionRecord(
     bool CausedSuddenDeath,
+    int? PreviousPlayerIndex,
     int? PlayerIndexOfLifeTaken,
-    int[]? PlayersRestoredByMiss) : KillerGameActionRecord(CausedSuddenDeath)
+    int[]? PlayersRestoredByMiss) : KillerGameActionRecord(CausedSuddenDeath, PreviousPlayerIndex)
 {
     public const string ActionType = "Miss";
 }
@@ -36,8 +42,9 @@ public record MissActionRecord(
 /// <summary>Undo-state of <c>PotBlackBallEarlyGameAction</c>.</summary>
 public record EarlyBlackPotActionRecord(
     bool CausedSuddenDeath,
+    int? PreviousPlayerIndex,
     int? PlayerIndex,
-    int? LivesTaken) : KillerGameActionRecord(CausedSuddenDeath)
+    int? LivesTaken) : KillerGameActionRecord(CausedSuddenDeath, PreviousPlayerIndex)
 {
     public const string ActionType = "EarlyBlackPot";
 }
