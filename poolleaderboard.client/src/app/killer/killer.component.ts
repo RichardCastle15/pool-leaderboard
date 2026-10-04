@@ -20,6 +20,7 @@ export class KillerComponent implements OnDestroy {
   size = input<'full'|'compact'>('full');
   disconnected = input(false);
   isActive = input(true);
+  loading = input(false);
   pendingAction = input<KillerAction | null>(null);
 
   pot = output();

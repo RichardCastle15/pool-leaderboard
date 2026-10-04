@@ -2,7 +2,7 @@ import { Page } from '@playwright/test';
 import { test, expect } from '../fixtures';
 
 /** Holds requests to `url` until the returned function is called, so the in-flight state can be asserted. */
-async function holdRequests(page: Page, url: string): Promise<() => void> {
+async function holdRequests(page: Page, url: string | RegExp): Promise<() => void> {
   let release!: () => void;
   const released = new Promise<void>(resolve => release = resolve);
   await page.route(url, async route => {
@@ -82,5 +82,24 @@ test.describe('Leaderboard', () => {
     const aliceRow = page.getByRole('row').filter({ has: page.getByRole('cell', { name: 'Alice A' }) });
     await expect(aliceRow.getByRole('cell')).toHaveText(['Alice A', '1143', '1']);
     expect(await sql('SELECT COUNT(*)::int AS count FROM "match"')).toEqual([{ count: 4 }]);
+  });
+
+  // The killer page is lazy-loaded, which can take seconds on a slow connection after the game is created.
+  test('keeps the start killer spinner until the killer page has loaded', async ({ page }) => {
+    const startKiller = page.locator('nb-action', { hasText: 'Start killer' });
+    await page.getByRole('cell', { name: 'Alice A' }).click();
+    await page.getByRole('cell', { name: 'Bob B' }).click();
+
+    // The leaderboard is fully loaded by now, so this only holds the killer route's lazy chunks.
+    const release = await holdRequests(page, /\/chunk-[^/]+\.js$/);
+    const gameCreated = page.waitForResponse(response => response.url().endsWith('/api/killer') && response.ok());
+    await startKiller.click();
+    await gameCreated;
+
+    await expect(page).toHaveURL(/\/leaderboard$/);
+    await expect(startKiller).toHaveAttribute('aria-busy', 'true');
+
+    release();
+    await expect(page).toHaveURL(/\/killer$/);
   });
 });

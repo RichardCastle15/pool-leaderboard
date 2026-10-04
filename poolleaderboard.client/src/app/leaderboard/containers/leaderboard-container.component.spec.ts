@@ -49,6 +49,7 @@ describe('LeaderboardContainerComponent', () => {
     mockKillerService.startGame.and.returnValue(of(undefined));
     mockToastrService = jasmine.createSpyObj('NbToastrService', ['danger']);
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
+    mockRouter.navigate.and.resolveTo(true);
     const mockViewport = { size: signal<'full' | 'compact'>('full') };
 
     await TestBed.configureTestingModule({
@@ -208,6 +209,26 @@ describe('LeaderboardContainerComponent', () => {
       component.recordResult({ winnerId: 1, loserId: 2 });
       expect(mockLeaderboardService.addParticipant).not.toHaveBeenCalled();
       expect(mockLeaderboardService.recordResult).not.toHaveBeenCalled();
+    });
+
+    it('should stay pending after startKiller succeeds until navigation to /killer finishes', async () => {
+      let finishNavigation!: (ok: boolean) => void;
+      mockRouter.navigate.and.returnValue(new Promise<boolean>(resolve => finishNavigation = resolve));
+      component.startKiller(players);
+      request$.next(undefined as any);
+      request$.complete();
+      expect(component.pendingAction()).toBe('startKiller');
+
+      finishNavigation(true);
+      await fixture.whenStable();
+      expect(component.pendingAction()).toBeNull();
+    });
+
+    it('should clear the pending action when startKiller fails', () => {
+      component.startKiller(players);
+      request$.error(new Error('server error'));
+      expect(component.pendingAction()).toBeNull();
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
     });
 
     it('should allow another action once the previous one has finished', () => {

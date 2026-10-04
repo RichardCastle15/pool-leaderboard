@@ -125,6 +125,26 @@ describe('KillerComponent', () => {
     });
   });
 
+  describe('loading', () => {
+    it('should show a loading card instead of "No active game" while loading', () => {
+      fixture.componentRef.setInput('isActive', false);
+      fixture.componentRef.setInput('loading', true);
+      fixture.detectChanges();
+      const text: string = fixture.nativeElement.textContent;
+      expect(fixture.debugElement.query(By.css('.loading-card nb-spinner'))).toBeTruthy();
+      expect(text).not.toContain('No active game');
+    });
+
+    it('should not show the game or actions while loading', () => {
+      fixture.componentRef.setInput('game', { currentPlayerIndex: 0, playerRows: [{ livesRemaining: 3, name: 'test' }] });
+      fixture.componentRef.setInput('isActive', true);
+      fixture.componentRef.setInput('loading', true);
+      fixture.detectChanges();
+      expect(fixture.debugElement.queryAll(By.css('.player-row')).length).toBe(0);
+      expect(fixture.debugElement.query(By.css('.action-card'))).toBeNull();
+    });
+  });
+
   describe('isActive', () => {
     it('should show the game table when isActive is true', () => {
       const game: KillerGame = {

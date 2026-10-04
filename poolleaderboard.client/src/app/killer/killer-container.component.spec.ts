@@ -16,6 +16,7 @@ class MockKillerComponent {
   game = input<KillerGame>();
   disconnected = input(false);
   isActive = input(true);
+  loading = input(false);
   size = input<'full' | 'compact'>('full');
   pendingAction = input<KillerAction | null>(null);
   pot = output();
@@ -101,6 +102,20 @@ describe('KillerContainerComponent', () => {
 
   it('should initialise with isActive false', () => {
     expect(component.isActive()).toBeFalse();
+  });
+
+  it('should initialise with loading true so "No active game" isn\'t shown before the hub responds', () => {
+    expect(component.loading()).toBeTrue();
+  });
+
+  it('should set loading false when game$ emits', () => {
+    game$.next({ isActive: false, currentPlayerIndex: 0, playerRows: [] });
+    expect(component.loading()).toBeFalse();
+  });
+
+  it('should set loading false when error$ emits', () => {
+    error$.next('Failed to connect to game server.');
+    expect(component.loading()).toBeFalse();
   });
 
   it('should initialise with disconnected false', () => {

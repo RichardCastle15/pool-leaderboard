@@ -17,6 +17,8 @@ import { KillerAction } from './types/killer-action.model';
 export class KillerContainerComponent implements OnInit, OnDestroy {
   game = signal<KillerGame | undefined>(undefined);
   isActive = signal(false);
+  /** True until the hub sends the first game state (it does so on connect), so we don't flash "No active game". */
+  loading = signal(true);
   disconnected = signal(false);
   /** The request currently in flight, if any. Further actions are ignored until it settles. */
   pendingAction = signal<KillerAction | null>(null);
@@ -35,6 +37,7 @@ export class KillerContainerComponent implements OnInit, OnDestroy {
     this.hubConnection = this.killerService.connect();
 
     const gameSub = this.killerService.game$.subscribe(state => {
+      this.loading.set(false);
       this.isActive.set(state.isActive);
       if (state.isActive) {
         this.game.set(KillerService.toKillerGame(state));
@@ -46,6 +49,7 @@ export class KillerContainerComponent implements OnInit, OnDestroy {
     });
 
     const errorSub = this.killerService.error$.subscribe(message => {
+      this.loading.set(false);
       this.toastrService.danger(message, 'Error');
     });
 

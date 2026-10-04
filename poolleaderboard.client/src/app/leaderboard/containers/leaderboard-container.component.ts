@@ -70,9 +70,14 @@ export class LeaderboardContainerComponent implements OnInit, OnDestroy {
   startKiller(players: { id: number; name: string }[]): void {
     if (!this.beginAction('startKiller'))
       return;
-    const sub = this.killerService.startGame(players).pipe(this.endAction()).subscribe({
-      next: () => this.router.navigate(['/killer']),
-      error: () => this.toastrService.danger('Failed to start killer game', 'Error')
+    // Stay pending until the killer page has loaded, not just until the game is created: the lazy-loaded
+    // route can take seconds on a slow connection and the button shouldn't look idle in the meantime.
+    const sub = this.killerService.startGame(players).subscribe({
+      next: () => this.router.navigate(['/killer']).finally(() => this.pendingAction.set(null)),
+      error: () => {
+        this.pendingAction.set(null);
+        this.toastrService.danger('Failed to start killer game', 'Error');
+      }
     });
     this.subscription.add(sub);
   }

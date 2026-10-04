@@ -63,6 +63,7 @@ const developmentRoutes: Routes = [
           { path: 'game-won', loadComponent: () => import('./component-showcase/killer/game-won-killer-showcase.component').then(m => m.GameWonKillerShowcaseComponent) },
           { path: 'no-game', loadComponent: () => import('./component-showcase/killer/no-game-killer-showcase.component').then(m => m.NoGameKillerShowcaseComponent) },
           { path: 'pending-action', loadComponent: () => import('./component-showcase/killer/pending-action-killer-showcase.component').then(m => m.PendingActionKillerShowcaseComponent) },
+          { path: 'loading', loadComponent: () => import('./component-showcase/killer/loading-killer-showcase.component').then(m => m.LoadingKillerShowcaseComponent) },
         ]
       },
       {

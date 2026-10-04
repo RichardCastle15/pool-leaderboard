@@ -2,7 +2,11 @@
   <nb-alert status="warning" closable="false">Connection lost — attempting to reconnect...</nb-alert>
 }
 
-@if (isActive()) {
+@if (loading()) {
+  <nb-card class="loading-card" [nbSpinner]="true" nbSpinnerStatus="primary" aria-busy="true">
+    <nb-card-body>Loading game...</nb-card-body>
+  </nb-card>
+} @else if (isActive()) {
   @if (tableData() && game()) {
     <table [nbTreeGrid]="tableData()!">
         <tr nbTreeGridRow *nbTreeGridRowDef="let row; let i = index; columns: columns" [clickToToggle]="false"
