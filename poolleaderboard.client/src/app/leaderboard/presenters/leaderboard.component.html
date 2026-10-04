@@ -1,9 +1,3 @@
-<nb-button-group class="mode-button-group" ghost (valueChange)="changeGameTypeFilter($event[0])">
-  <button nbButtonToggle class="mode-button" value="combined" pressed>Combined</button>
-  <button nbButtonToggle class="mode-button" value="singles">Singles</button>
-  <button nbButtonToggle class="mode-button" value="killer">Killer</button>
-</nb-button-group>
-
 <table [nbTreeGrid]="dataSource()" [nbSort]="dataSource()" (sort)="updateSort($event)">
   <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
   <tr nbTreeGridRow *nbTreeGridRowDef="let row; let i = index; columns: allColumns" [clickToToggle]="false" (click)="clickRow(row.data.id)"
