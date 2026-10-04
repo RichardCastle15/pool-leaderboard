@@ -1,18 +1,17 @@
 import { Component, computed, input, OnDestroy, output, Signal, signal } from '@angular/core';
-import { NbActionsModule, NbBadgeModule, NbButtonGroupModule, NbCardModule, NbDialogService, NbIconModule, NbSortDirection, NbSortRequest, NbTreeGridDataSource, NbTreeGridDataSourceBuilder, NbTreeGridModule } from '@nebular/theme';
+import { NbActionsModule, NbBadgeModule, NbCardModule, NbDialogService, NbIconModule, NbSortDirection, NbSortRequest, NbTreeGridDataSource, NbTreeGridDataSourceBuilder, NbTreeGridModule } from '@nebular/theme';
 import { LeaderboardEntryRow } from '../models/leaderboard-entry-row.model';
 import { TreeNode } from '../models/tree-node.model';
 import { NewParticipantComponent } from './new-participant/new-participant.component';
 import { RecordResultDialogComponent, RecordResultDialogResult } from './record-result-dialog/record-result-dialog.component';
 import { Subscription } from 'rxjs';
 import { TitleCasePipe } from '@angular/common';
-import { GameType } from '../models/game-type-filter.type';
 
 @Component({
   selector: 'app-leaderboard',
   templateUrl: './leaderboard.component.html',
   styleUrl: './leaderboard.component.scss',
-  imports: [NbTreeGridModule, NbCardModule, NbActionsModule, NbIconModule, NbBadgeModule, TitleCasePipe, NbButtonGroupModule]
+  imports: [NbTreeGridModule, NbCardModule, NbActionsModule, NbIconModule, NbBadgeModule, TitleCasePipe]
 })
 export class LeaderboardComponent implements OnDestroy {
   readonly defaultRequest = {column: 'rank', direction: NbSortDirection.ASCENDING};
@@ -25,7 +24,6 @@ export class LeaderboardComponent implements OnDestroy {
   size = input<'full'|'compact'>('full');
   // Outputs.
   newParticipant = output<string>();
-  gameTypeFilter = output<GameType>();
   startKiller = output<{ id: number; name: string }[]>();
   recordResult = output<RecordResultDialogResult>();
   // Template data.
@@ -89,10 +87,6 @@ export class LeaderboardComponent implements OnDestroy {
         this.newParticipant.emit(result);
     });
     this.subscriptions.add(dialogCloseSub);
-  }
-
-  changeGameTypeFilter(newType: GameType) {
-    this.gameTypeFilter.emit(newType);
   }
 
   onStartKiller() {

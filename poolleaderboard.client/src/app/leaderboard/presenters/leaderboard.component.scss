@@ -13,18 +13,6 @@
     }
   }
 
-  .mode-button-group {
-    display: flex;
-    width: 100%;
-    background-color: var(--card-background-color);
-    margin-bottom: var(--gap-grouped-vertical);
-
-    .mode-button {
-      flex: 0 0 33.33%;
-      min-width: 0;
-    }
-  }
-
   table {
     tr {
       height: 50px;
