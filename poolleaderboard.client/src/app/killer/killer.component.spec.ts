@@ -319,6 +319,65 @@ describe('KillerComponent', () => {
     });
   });
 
+  describe('pending action', () => {
+    const allActions = ['#killer-pot-action', '#killer-miss-action', '#killer-full-elimination-action', '#killer-undo-action', '#killer-abandon-action'];
+
+    beforeEach(() => {
+      const game: KillerGame = {
+        currentPlayerIndex: 0,
+        playerRows: [{ livesRemaining: 3, name: 'Alice' }, { livesRemaining: 3, name: 'Bob' }]
+      };
+      fixture.componentRef.setInput('game', game);
+      fixture.componentRef.setInput('isActive', true);
+      fixture.componentRef.setInput('pendingAction', 'pot');
+      fixture.detectChanges();
+    });
+
+    it('should show a spinner only on the pending action', () => {
+      expect(fixture.debugElement.query(By.css('#killer-pot-action nb-spinner'))).toBeTruthy();
+      expect(fixture.debugElement.query(By.css('#killer-pot-action')).attributes['aria-busy']).toBe('true');
+      expect(fixture.debugElement.queryAll(By.css('nb-spinner')).length).toBe(1);
+    });
+
+    for (const selector of allActions) {
+      it(`should disable ${selector} while a request is in flight`, () => {
+        const action = fixture.debugElement.query(By.css(selector));
+        expect(action.classes['disabled']).toBeTrue();
+        expect(action.attributes['aria-disabled']).toBe('true');
+      });
+    }
+
+    it('should not emit or open dialogs when actions are clicked while busy', () => {
+      const emitted = jasmine.createSpy('emitted');
+      [component.pot, component.miss, component.earlyBlackPot, component.undo].forEach(o => o.subscribe(emitted));
+      allActions.forEach(selector => fixture.debugElement.query(By.css(selector)).triggerEventHandler('click'));
+      expect(emitted).not.toHaveBeenCalled();
+      expect(mockDialogService.open).not.toHaveBeenCalled();
+    });
+
+    it('should disable confirm end and show a spinner while it is pending', () => {
+      fixture.componentRef.setInput('game', {
+        currentPlayerIndex: 1,
+        playerRows: [{ livesRemaining: 0, name: 'Alice', eliminated: true }, { livesRemaining: 3, name: 'Bob' }],
+        winner: 'Bob'
+      });
+      fixture.componentRef.setInput('pendingAction', 'confirmEnd');
+      fixture.detectChanges();
+      const button = fixture.debugElement.query(By.css('.confirm-end-card button'));
+      expect(button.nativeElement.disabled).toBeTrue();
+      expect(button.query(By.css('nb-spinner'))).toBeTruthy();
+    });
+
+    it('should re-enable actions once the request settles', () => {
+      fixture.componentRef.setInput('pendingAction', null);
+      fixture.detectChanges();
+      allActions.forEach(selector => {
+        expect(fixture.debugElement.query(By.css(selector)).classes['disabled']).withContext(selector).toBeFalsy();
+      });
+      expect(fixture.debugElement.query(By.css('nb-spinner'))).toBeNull();
+    });
+  });
+
   it('should show the correct sudden death icons', () => {
     const game: KillerGame = {
       currentPlayerIndex: 3,

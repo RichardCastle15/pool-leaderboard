@@ -12,14 +12,17 @@ import { LeaderboardEntryRow } from '../models/leaderboard-entry-row.model';
 import { NbToastrService } from '@nebular/theme';
 import { Router } from '@angular/router';
 import { ViewportSizeService } from '../../core/services/viewport-size.service';
+import { LeaderboardAction } from '../models/leaderboard-action.model';
 
 @Component({ selector: 'app-leaderboard', template: '', standalone: true })
 class MockLeaderboardComponent {
   loading = input(false);
   entries = input<TreeNode<LeaderboardEntryRow | {}>[]>([]);
   size = input<'full' | 'compact'>('full');
+  pendingAction = input<LeaderboardAction | null>(null);
   newParticipant = output<string>();
   startKiller = output<{ id: number; name: string }[]>();
+  recordResult = output<{ winnerId: number; loserId: number }>();
 }
 
 describe('LeaderboardContainerComponent', () => {
@@ -37,10 +40,11 @@ describe('LeaderboardContainerComponent', () => {
     mockHubConnection = { stop: jasmine.createSpy('stop') };
     mockLeaderboardService = jasmine.createSpyObj(
       'LeaderboardService',
-      ['connect', 'addParticipant'],
+      ['connect', 'addParticipant', 'recordResult'],
       { leaderboard$: leaderboard$.asObservable(), error$: new Subject().asObservable() }
     );
     mockLeaderboardService.connect.and.returnValue(mockHubConnection as any);
+    mockLeaderboardService.recordResult.and.returnValue(of({}));
     mockKillerService = jasmine.createSpyObj('KillerService', ['startGame']);
     mockKillerService.startGame.and.returnValue(of(undefined));
     mockToastrService = jasmine.createSpyObj('NbToastrService', ['danger']);
@@ -145,6 +149,79 @@ describe('LeaderboardContainerComponent', () => {
       mockKillerService.startGame.and.returnValue(throwError(() => new Error('server error')));
       component.startKiller(players);
       expect(mockToastrService.danger).toHaveBeenCalledOnceWith('Failed to start killer game', 'Error');
+    });
+  });
+
+  describe('recordResult', () => {
+    it('should call leaderboardService.recordResult with the winner and loser', () => {
+      component.recordResult({ winnerId: 1, loserId: 2 });
+      expect(mockLeaderboardService.recordResult).toHaveBeenCalledOnceWith(1, 2);
+    });
+
+    it('should show a danger toast when recordResult fails', () => {
+      mockLeaderboardService.recordResult.and.returnValue(throwError(() => new Error('server error')));
+      component.recordResult({ winnerId: 1, loserId: 2 });
+      expect(mockToastrService.danger).toHaveBeenCalledOnceWith('Failed to record result', 'Error');
+    });
+  });
+
+  describe('pending action', () => {
+    const players = [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }];
+    let request$: Subject<Object>;
+
+    beforeEach(() => {
+      request$ = new Subject();
+      mockLeaderboardService.addParticipant.and.returnValue(request$);
+      mockLeaderboardService.recordResult.and.returnValue(request$);
+      mockKillerService.startGame.and.returnValue(request$ as Subject<any>);
+    });
+
+    it('should start with no pending action', () => {
+      expect(component.pendingAction()).toBeNull();
+    });
+
+    it('should mark the action as pending until the request completes', () => {
+      component.addParticipant('Alice');
+      expect(component.pendingAction()).toBe('addParticipant');
+      request$.next({});
+      request$.complete();
+      expect(component.pendingAction()).toBeNull();
+    });
+
+    it('should clear the pending action when the request fails', () => {
+      component.recordResult({ winnerId: 1, loserId: 2 });
+      expect(component.pendingAction()).toBe('recordResult');
+      request$.error(new Error('server error'));
+      expect(component.pendingAction()).toBeNull();
+    });
+
+    it('should ignore a repeated startKiller while one is in flight', () => {
+      component.startKiller(players);
+      component.startKiller(players);
+      expect(mockKillerService.startGame).toHaveBeenCalledTimes(1);
+      expect(component.pendingAction()).toBe('startKiller');
+    });
+
+    it('should ignore other actions while one is in flight', () => {
+      component.startKiller(players);
+      component.addParticipant('Alice');
+      component.recordResult({ winnerId: 1, loserId: 2 });
+      expect(mockLeaderboardService.addParticipant).not.toHaveBeenCalled();
+      expect(mockLeaderboardService.recordResult).not.toHaveBeenCalled();
+    });
+
+    it('should allow another action once the previous one has finished', () => {
+      component.recordResult({ winnerId: 1, loserId: 2 });
+      request$.complete();
+      component.recordResult({ winnerId: 2, loserId: 1 });
+      expect(mockLeaderboardService.recordResult).toHaveBeenCalledTimes(2);
+    });
+
+    it('should pass the pending action to the presenter', () => {
+      component.addParticipant('Alice');
+      fixture.detectChanges();
+      const presenter = fixture.debugElement.children[0].componentInstance as MockLeaderboardComponent;
+      expect(presenter.pendingAction()).toBe('addParticipant');
     });
   });
 });

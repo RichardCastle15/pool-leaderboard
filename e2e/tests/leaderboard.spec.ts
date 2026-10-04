@@ -1,4 +1,16 @@
+import { Page } from '@playwright/test';
 import { test, expect } from '../fixtures';
+
+/** Holds requests to `url` until the returned function is called, so the in-flight state can be asserted. */
+async function holdRequests(page: Page, url: string): Promise<() => void> {
+  let release!: () => void;
+  const released = new Promise<void>(resolve => release = resolve);
+  await page.route(url, async route => {
+    await released;
+    await route.continue();
+  });
+  return release;
+}
 
 test.describe('Leaderboard', () => {
   test.beforeEach(async ({ page }) => {
@@ -26,5 +38,49 @@ test.describe('Leaderboard', () => {
     await expect(page.getByRole('row').filter({ has: page.getByRole('cell') })).toHaveCount(5);
 
     expect(await sql('SELECT rating FROM rating WHERE name = $1', ['Erin E'])).toEqual([{ rating: 1000 }]);
+  });
+
+  // Issue #84: the swing should be visible without opening the record result dialog.
+  test('shows each player\'s points swing on the record result button once two are selected', async ({ page }) => {
+    const recordResult = page.locator('nb-action', { hasText: 'Record result' });
+
+    await page.getByRole('cell', { name: 'Alice A' }).click();
+    await expect(recordResult).toHaveText('Record result');
+
+    await page.getByRole('cell', { name: 'Bob B' }).click();
+    await expect(recordResult).toContainText('Alice A ±43');
+    await expect(recordResult).toContainText('Bob B ±57');
+
+    await page.getByRole('cell', { name: 'Carol C' }).click();
+    await expect(recordResult).toHaveText('Record result');
+  });
+
+  // Issue #83: show that a result is being recorded and block other changes until it's done.
+  test('shows a loading state and blocks other actions while a result is being recorded', async ({ page, sql }) => {
+    const release = await holdRequests(page, '**/api/match');
+    const recordResult = page.locator('nb-action', { hasText: 'Record result' });
+    const startKiller = page.locator('nb-action', { hasText: 'Start killer' });
+    const addSomeone = page.locator('nb-action', { hasText: 'Add someone' });
+
+    await page.getByRole('cell', { name: 'Alice A' }).click();
+    await page.getByRole('cell', { name: 'Bob B' }).click();
+    await recordResult.click();
+    await page.getByRole('button', { name: /Alice A wins/ }).click();
+
+    await expect(recordResult).toHaveAttribute('aria-busy', 'true');
+    for (const action of [recordResult, startKiller, addSomeone]) {
+      await expect(action).toHaveAttribute('aria-disabled', 'true');
+    }
+    // Clicking again while busy doesn't open another dialog.
+    await recordResult.click();
+    await expect(page.getByRole('button', { name: /Alice A wins/ })).toBeHidden();
+
+    release();
+
+    await expect(recordResult).toHaveAttribute('aria-busy', 'false');
+    await expect(recordResult).toHaveAttribute('aria-disabled', 'false');
+    const aliceRow = page.getByRole('row').filter({ has: page.getByRole('cell', { name: 'Alice A' }) });
+    await expect(aliceRow.getByRole('cell')).toHaveText(['Alice A', '1143', '1']);
+    expect(await sql('SELECT COUNT(*)::int AS count FROM "match"')).toEqual([{ count: 4 }]);
   });
 });

@@ -72,11 +72,18 @@ export class KillerService {
     return this.http.delete<void>('/api/killer');
   }
 
-  pot(): void { this.hubConnection?.invoke('Pot').catch(console.error); }
-  miss(): void { this.hubConnection?.invoke('Miss').catch(console.error); }
-  earlyBlackPot(): void { this.hubConnection?.invoke('EarlyBlackPot').catch(console.error); }
-  undo(): void { this.hubConnection?.invoke('Undo').catch(console.error); }
-  abandon(): void { this.hubConnection?.invoke('Abandon').catch(console.error); }
+  // Each resolves once the hub has handled the call (failures are logged; the hub reports its own errors via KillerError).
+  pot(): Promise<void> { return this.invoke('Pot'); }
+  miss(): Promise<void> { return this.invoke('Miss'); }
+  earlyBlackPot(): Promise<void> { return this.invoke('EarlyBlackPot'); }
+  undo(): Promise<void> { return this.invoke('Undo'); }
+  abandon(): Promise<void> { return this.invoke('Abandon'); }
+
+  private invoke(methodName: string): Promise<void> {
+    if (!this.hubConnection)
+      return Promise.resolve();
+    return this.hubConnection.invoke<void>(methodName).catch(console.error);
+  }
 
   static toKillerGame(state: KillerGameServerState): KillerGame {
     return {

@@ -1,12 +1,13 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 import { HubConnection } from '@microsoft/signalr';
 import { NbToastrService } from '@nebular/theme';
 import { KillerComponent } from './killer.component';
 import { KillerService } from './killer.service';
 import { KillerGame } from './types/killer-game.model';
 import { ViewportSizeService } from '../core/services/viewport-size.service';
+import { KillerAction } from './types/killer-action.model';
 
 @Component({
   selector: 'app-killer-container',
@@ -17,6 +18,8 @@ export class KillerContainerComponent implements OnInit, OnDestroy {
   game = signal<KillerGame | undefined>(undefined);
   isActive = signal(false);
   disconnected = signal(false);
+  /** The request currently in flight, if any. Further actions are ignored until it settles. */
+  pendingAction = signal<KillerAction | null>(null);
 
   private hubConnection: HubConnection | undefined;
   private subscription = new Subscription();
@@ -61,16 +64,31 @@ export class KillerContainerComponent implements OnInit, OnDestroy {
     this.hubConnection?.stop();
   }
 
-  onPot(): void { this.killerService.pot(); }
-  onMiss(): void { this.killerService.miss(); }
-  onEarlyBlackPot(): void { this.killerService.earlyBlackPot(); }
-  onUndo(): void { this.killerService.undo(); }
-  onAbandon(): void { this.killerService.abandon(); }
+  onPot(): void { this.invokeHub('pot', () => this.killerService.pot()); }
+  onMiss(): void { this.invokeHub('miss', () => this.killerService.miss()); }
+  onEarlyBlackPot(): void { this.invokeHub('earlyBlackPot', () => this.killerService.earlyBlackPot()); }
+  onUndo(): void { this.invokeHub('undo', () => this.killerService.undo()); }
+  onAbandon(): void { this.invokeHub('abandon', () => this.killerService.abandon()); }
 
   onConfirmEnd(): void {
-    const sub = this.killerService.confirmEnd().subscribe({
+    if (!this.beginAction('confirmEnd'))
+      return;
+    const sub = this.killerService.confirmEnd().pipe(finalize(() => this.pendingAction.set(null))).subscribe({
       error: () => this.toastrService.danger('Failed to confirm game end', 'Error')
     });
     this.subscription.add(sub);
+  }
+
+  private invokeHub(action: KillerAction, invoke: () => Promise<void>): void {
+    if (!this.beginAction(action))
+      return;
+    invoke().finally(() => this.pendingAction.set(null));
+  }
+
+  private beginAction(action: KillerAction): boolean {
+    if (this.pendingAction())
+      return false;
+    this.pendingAction.set(action);
+    return true;
   }
 }

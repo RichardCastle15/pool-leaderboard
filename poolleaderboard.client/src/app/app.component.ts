@@ -85,6 +85,7 @@ export class AppComponent implements OnInit, OnDestroy {
                 { title: 'Small', link: '/showcase/leaderboard/small' },
                 { title: 'Empty', link: '/showcase/leaderboard/empty' },
                 { title: 'Loading', link: '/showcase/leaderboard/loading' },
+                { title: 'Pending action', link: '/showcase/leaderboard/pending-action' },
               ]
             },
             {
@@ -99,6 +100,7 @@ export class AppComponent implements OnInit, OnDestroy {
                 { title: 'Disconnected', link: '/showcase/killer/disconnected' },
                 { title: 'Game won', link: '/showcase/killer/game-won' },
                 { title: 'No game', link: '/showcase/killer/no-game' },
+                { title: 'Pending action', link: '/showcase/killer/pending-action' },
               ]
             },
             {

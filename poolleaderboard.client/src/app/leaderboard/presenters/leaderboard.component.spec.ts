@@ -190,4 +190,111 @@ describe('LeaderboardComponent', () => {
       expect(participantName).toBe('test user');
     })
   });
+
+  describe('head-to-head swing preview', () => {
+    function selectRows(...indexes: number[]) {
+      const dataRows = fixture.debugElement.queryAll(By.css('table tr')).slice(1);
+      indexes.forEach(i => dataRows[i].nativeElement.click());
+      fixture.detectChanges();
+    }
+
+    function swingText(): string[] {
+      return fixture.debugElement.queryAll(By.css('#head-to-head-action .swing-player'))
+        .map(de => (de.nativeElement as HTMLElement).textContent!.trim());
+    }
+
+    beforeEach(() => {
+      fixture.componentRef.setInput('entries', entries);
+      fixture.detectChanges();
+    });
+
+    it('should not show a swing when fewer than 2 players are selected', () => {
+      selectRows(0);
+      expect(swingText()).toEqual([]);
+    });
+
+    it('should show what each player would win when exactly 2 are selected', () => {
+      selectRows(0, 1);
+      expect(swingText()).toEqual(['Richard ±25', 'Russel ±75']);
+    });
+
+    it('should not show a swing when more than 2 players are selected', () => {
+      selectRows(0, 1, 2);
+      expect(swingText()).toEqual([]);
+    });
+
+    it('should show first names only in compact mode', () => {
+      fixture.componentRef.setInput('size', 'compact');
+      selectRows(1, 2);
+      expect(swingText()).toEqual(['Russel ±17', 'Stephen ±83']);
+    });
+  });
+
+  describe('pending action', () => {
+    function selectRows(...indexes: number[]) {
+      const dataRows = fixture.debugElement.queryAll(By.css('table tr')).slice(1);
+      indexes.forEach(i => dataRows[i].nativeElement.click());
+      fixture.detectChanges();
+    }
+
+    function action(selector: string) {
+      return fixture.debugElement.query(By.css(selector));
+    }
+
+    beforeEach(() => {
+      fixture.componentRef.setInput('entries', entries);
+      fixture.detectChanges();
+      selectRows(0, 1);
+    });
+
+    it('should show a spinner only on the pending action', () => {
+      fixture.componentRef.setInput('pendingAction', 'startKiller');
+      fixture.detectChanges();
+      expect(action('#killer-action nb-spinner')).toBeTruthy();
+      expect(action('#head-to-head-action nb-spinner')).toBeNull();
+      expect(action('.add-participant-action nb-spinner')).toBeNull();
+      expect(action('#killer-action').attributes['aria-busy']).toBe('true');
+    });
+
+    it('should disable every action while a request is in flight', () => {
+      fixture.componentRef.setInput('pendingAction', 'recordResult');
+      fixture.detectChanges();
+      ['#head-to-head-action', '#killer-action', '.add-participant-action'].forEach(selector => {
+        expect(action(selector).componentInstance.disabled).withContext(selector).toBeTrue();
+        expect(action(selector).attributes['aria-disabled']).withContext(selector).toBe('true');
+      });
+    });
+
+    it('should not emit or open dialogs when actions are clicked while busy', () => {
+      const killerSpy = jasmine.createSpy('startKiller');
+      component.startKiller.subscribe(killerSpy);
+      fixture.componentRef.setInput('pendingAction', 'addParticipant');
+      fixture.detectChanges();
+
+      action('#killer-action').nativeElement.click();
+      action('#head-to-head-action').nativeElement.click();
+      action('.add-participant-action').nativeElement.click();
+
+      expect(killerSpy).not.toHaveBeenCalled();
+      expect(mockDialogService.open).not.toHaveBeenCalled();
+    });
+
+    it('should re-enable actions once the request settles', () => {
+      fixture.componentRef.setInput('pendingAction', 'startKiller');
+      fixture.detectChanges();
+      fixture.componentRef.setInput('pendingAction', null);
+      fixture.detectChanges();
+      expect(action('#killer-action').componentInstance.disabled).toBeFalse();
+      expect(action('#killer-action nb-spinner')).toBeNull();
+    });
+  });
+
+  it('should not start killer when fewer than 2 players are selected', () => {
+    const killerSpy = jasmine.createSpy('startKiller');
+    component.startKiller.subscribe(killerSpy);
+    fixture.componentRef.setInput('entries', entries);
+    fixture.detectChanges();
+    fixture.debugElement.query(By.css('#killer-action')).nativeElement.click();
+    expect(killerSpy).not.toHaveBeenCalled();
+  });
 });
