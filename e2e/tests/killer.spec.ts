@@ -28,6 +28,25 @@ async function winByEarlyBlacks(page: Page): Promise<void> {
 }
 
 test.describe('Killer', () => {
+  test('shows a loading state rather than "No active game" until the game state arrives', async ({ page }) => {
+    await startGame(page);
+
+    let release!: () => void;
+    const released = new Promise<void>(resolve => release = resolve);
+    await page.route('**/killerHub/negotiate*', async route => {
+      await released;
+      await route.continue();
+    });
+    await page.reload();
+
+    await expect(page.getByText('Loading game...')).toBeVisible();
+    await expect(page.getByText('No active game')).toBeHidden();
+
+    release();
+    await expect(page.getByRole('row')).toHaveCount(players.length);
+    await expect(page.getByText('Loading game...')).toBeHidden();
+  });
+
   test('disables the shot actions once someone has won, but not undo', async ({ page }) => {
     await startGame(page);
     await winByEarlyBlacks(page);

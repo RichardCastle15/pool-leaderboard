@@ -54,6 +54,31 @@
   .extra-info {
     font-style: italic;
   }
+
+  #head-to-head-action nb-icon {
+    // Don't let the swing preview squash the icon in compact mode.
+    flex-shrink: 0;
+  }
+
+  .action-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+  }
+
+  .swing-preview {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 0.75rem;
+    font-size: nb-theme(text-caption-font-size);
+    font-weight: nb-theme(text-caption-font-weight);
+    color: nb-theme(text-hint-color);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .swing-player {
+    white-space: nowrap;
+  }
 }
 
 :host ::ng-deep {

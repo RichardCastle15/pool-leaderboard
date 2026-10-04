@@ -2,7 +2,11 @@
   <nb-alert status="warning" closable="false">Connection lost — attempting to reconnect...</nb-alert>
 }
 
-@if (isActive()) {
+@if (loading()) {
+  <nb-card class="loading-card" [nbSpinner]="true" nbSpinnerStatus="primary" aria-busy="true">
+    <nb-card-body>Loading game...</nb-card-body>
+  </nb-card>
+} @else if (isActive()) {
   @if (tableData() && game()) {
     <table [nbTreeGrid]="tableData()!">
         <tr nbTreeGridRow *nbTreeGridRowDef="let row; let i = index; columns: columns" [clickToToggle]="false"
@@ -32,26 +36,31 @@
   <nb-card class="action-card">
     <nb-card-body>
       <nb-actions size="medium" fullWidth>
-        <nb-action id="killer-pot-action" aria-label="Pot" [disabled]="gameOver()" [attr.aria-disabled]="gameOver()" (click)="!gameOver() && pot.emit()">
+        <nb-action id="killer-pot-action" aria-label="Pot" [disabled]="shotsDisabled()" [attr.aria-disabled]="shotsDisabled()" [attr.aria-busy]="pendingAction() === 'pot'"
+            [nbSpinner]="pendingAction() === 'pot'" nbSpinnerSize="small" nbSpinnerStatus="primary" (click)="!shotsDisabled() && pot.emit()">
           <span class="material-symbols-outlined">check_circle</span>
           @if(size() === 'full') { Pot }
         </nb-action>
-        <nb-action id="killer-miss-action" aria-label="Miss / Foul" [disabled]="gameOver()" [attr.aria-disabled]="gameOver()" (click)="!gameOver() && miss.emit()">
+        <nb-action id="killer-miss-action" aria-label="Miss / Foul" [disabled]="shotsDisabled()" [attr.aria-disabled]="shotsDisabled()" [attr.aria-busy]="pendingAction() === 'miss'"
+            [nbSpinner]="pendingAction() === 'miss'" nbSpinnerSize="small" nbSpinnerStatus="primary" (click)="!shotsDisabled() && miss.emit()">
           <span class="material-symbols-outlined">cancel</span>
           @if(size() === 'full') { Miss / Foul }
         </nb-action>
-        <nb-action id="killer-full-elimination-action" aria-label="Early black" [disabled]="gameOver()" [attr.aria-disabled]="gameOver()" (click)="!gameOver() && earlyBlackPot.emit()">
+        <nb-action id="killer-full-elimination-action" aria-label="Early black" [disabled]="shotsDisabled()" [attr.aria-disabled]="shotsDisabled()" [attr.aria-busy]="pendingAction() === 'earlyBlackPot'"
+            [nbSpinner]="pendingAction() === 'earlyBlackPot'" nbSpinnerSize="small" nbSpinnerStatus="primary" (click)="!shotsDisabled() && earlyBlackPot.emit()">
           <span class="material-symbols-outlined">bomb</span>
           @if(size() === 'full') { Early black }
         </nb-action>
       </nb-actions>
       <hr class="action-row-divider">
       <nb-actions size="medium" fullWidth>
-        <nb-action id="killer-undo-action" aria-label="Undo" (click)="undo.emit()">
+        <nb-action id="killer-undo-action" aria-label="Undo" [disabled]="busy()" [attr.aria-disabled]="busy()" [attr.aria-busy]="pendingAction() === 'undo'"
+            [nbSpinner]="pendingAction() === 'undo'" nbSpinnerSize="small" nbSpinnerStatus="primary" (click)="!busy() && undo.emit()">
           <span class="material-symbols-outlined">undo</span>
           @if(size() === 'full') { Undo }
         </nb-action>
-        <nb-action id="killer-abandon-action" aria-label="Abandon" (click)="onAbandonClick()">
+        <nb-action id="killer-abandon-action" aria-label="Abandon" [disabled]="busy()" [attr.aria-disabled]="busy()" [attr.aria-busy]="pendingAction() === 'abandon'"
+            [nbSpinner]="pendingAction() === 'abandon'" nbSpinnerSize="small" nbSpinnerStatus="primary" (click)="onAbandonClick()">
           <span class="material-symbols-outlined">delete</span>
           @if(size() === 'full') { Abandon }
         </nb-action>
@@ -63,7 +72,8 @@
     <nb-card class="confirm-end-card">
       <nb-card-body>
         <p>{{game()!.winner}} wins!</p>
-        <button nbButton status="success" fullWidth (click)="confirmEnd.emit()">Confirm end</button>
+        <button nbButton status="success" fullWidth [disabled]="busy()" [attr.aria-busy]="pendingAction() === 'confirmEnd'"
+            [nbSpinner]="pendingAction() === 'confirmEnd'" nbSpinnerSize="small" nbSpinnerStatus="control" (click)="confirmEnd.emit()">Confirm end</button>
       </nb-card-body>
     </nb-card>
   }

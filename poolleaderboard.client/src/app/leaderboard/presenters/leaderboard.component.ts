@@ -1,17 +1,27 @@
 import { Component, computed, input, OnDestroy, output, Signal, signal } from '@angular/core';
-import { NbActionsModule, NbBadgeModule, NbCardModule, NbDialogService, NbIconModule, NbSortDirection, NbSortRequest, NbTreeGridDataSource, NbTreeGridDataSourceBuilder, NbTreeGridModule } from '@nebular/theme';
+import { NbActionsModule, NbBadgeModule, NbCardModule, NbDialogService, NbIconModule, NbSortDirection, NbSortRequest, NbSpinnerModule, NbTreeGridDataSource, NbTreeGridDataSourceBuilder, NbTreeGridModule } from '@nebular/theme';
 import { LeaderboardEntryRow } from '../models/leaderboard-entry-row.model';
 import { TreeNode } from '../models/tree-node.model';
 import { NewParticipantComponent } from './new-participant/new-participant.component';
 import { RecordResultDialogComponent, RecordResultDialogResult } from './record-result-dialog/record-result-dialog.component';
 import { Subscription } from 'rxjs';
 import { TitleCasePipe } from '@angular/common';
+import { LeaderboardAction } from '../models/leaderboard-action.model';
+import { computeEloDelta } from '../services/elo';
+
+export interface HeadToHeadSwing {
+  name: string;
+  /** Shown instead of the full name in compact mode, where space is tight. */
+  firstName: string;
+  /** Points this player would win (and the other lose) if they won. */
+  swing: number;
+}
 
 @Component({
   selector: 'app-leaderboard',
   templateUrl: './leaderboard.component.html',
   styleUrl: './leaderboard.component.scss',
-  imports: [NbTreeGridModule, NbCardModule, NbActionsModule, NbIconModule, NbBadgeModule, TitleCasePipe]
+  imports: [NbTreeGridModule, NbCardModule, NbActionsModule, NbIconModule, NbBadgeModule, NbSpinnerModule, TitleCasePipe]
 })
 export class LeaderboardComponent implements OnDestroy {
   readonly defaultRequest = {column: 'rank', direction: NbSortDirection.ASCENDING};
@@ -22,12 +32,31 @@ export class LeaderboardComponent implements OnDestroy {
   entries = input<TreeNode<LeaderboardEntryRow | {}>[]>([]);
   loading = input(false);
   size = input<'full'|'compact'>('full');
+  pendingAction = input<LeaderboardAction | null>(null);
   // Outputs.
   newParticipant = output<string>();
   startKiller = output<{ id: number; name: string }[]>();
   recordResult = output<RecordResultDialogResult>();
   // Template data.
   selectedIds = signal<number[]>([]);
+  /**
+   * While a request is in flight every action is blocked so nothing else can change the leaderboard.
+   * nb-action's `disabled` is styling only and still lets clicks through, so handlers check this too.
+   */
+  busy = computed(() => !!this.pendingAction());
+  canRecordResult = computed(() => !this.busy() && this.selectedIds().length === 2);
+  canStartKiller = computed(() => !this.busy() && this.selectedIds().length >= 2);
+  /** Each selected player's swing if they beat the other, so the points are visible without opening the dialog. */
+  headToHeadSwing = computed<[HeadToHeadSwing, HeadToHeadSwing] | null>(() => {
+    const selected = this.selectedEntries();
+    if (selected.length !== 2)
+      return null;
+    const [a, b] = selected;
+    return [
+      { name: a.name, firstName: a.name.split(' ')[0], swing: computeEloDelta(a.points, b.points) },
+      { name: b.name, firstName: b.name.split(' ')[0], swing: computeEloDelta(b.points, a.points) }
+    ];
+  });
 
   dataSource: Signal<NbTreeGridDataSource<LeaderboardEntryRow | {}>>;
   sortRequest = signal<NbSortRequest>(this.defaultRequest);
@@ -81,6 +110,8 @@ export class LeaderboardComponent implements OnDestroy {
   }
 
   openNewParticipantDialog() {
+    if (this.busy())
+      return;
     const dialogRef = this.dialogService.open(NewParticipantComponent);
     const dialogCloseSub = dialogRef.onClose.subscribe(result => {
       if (result)
@@ -90,19 +121,16 @@ export class LeaderboardComponent implements OnDestroy {
   }
 
   onStartKiller() {
-    const selected = this.entries()
-      .map(e => e.data as LeaderboardEntryRow)
-      .filter(e => !!e.id && this.selectedIds().includes(e.id!))
-      .map(e => ({ id: e.id!, name: e.name }));
+    if (!this.canStartKiller())
+      return;
+    const selected = this.selectedEntries().map(e => ({ id: e.id!, name: e.name }));
     this.startKiller.emit(selected);
   }
 
   onRecordResult() {
-    const selected = this.entries()
-      .map(e => e.data as LeaderboardEntryRow)
-      .filter(e => !!e.id && this.selectedIds().includes(e.id!));
-    if (selected.length !== 2) return;
-    const [playerA, playerB] = selected.map(e => ({ id: e.id!, name: e.name, rating: e.points }));
+    if (!this.canRecordResult())
+      return;
+    const [playerA, playerB] = this.selectedEntries().map(e => ({ id: e.id!, name: e.name, rating: e.points }));
 
     const dialogRef = this.dialogService.open(RecordResultDialogComponent, {
       context: { playerA, playerB }
@@ -111,5 +139,12 @@ export class LeaderboardComponent implements OnDestroy {
       if (result) this.recordResult.emit(result);
     });
     this.subscriptions.add(sub);
+  }
+
+  private selectedEntries(): LeaderboardEntryRow[] {
+    const selectedIds = this.selectedIds();
+    return this.entries()
+      .map(e => e.data as LeaderboardEntryRow)
+      .filter(e => !!e.id && selectedIds.includes(e.id!));
   }
 }

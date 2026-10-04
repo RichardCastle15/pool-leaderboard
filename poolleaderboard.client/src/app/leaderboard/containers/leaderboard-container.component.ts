@@ -3,13 +3,14 @@ import { Router } from '@angular/router';
 import { LeaderboardComponent } from '../presenters/leaderboard.component';
 import { TreeNode } from '../models/tree-node.model';
 import { LeaderboardEntryRow } from '../models/leaderboard-entry-row.model';
-import { Subscription } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 import { LeaderboardService } from '../services/leaderboard.service';
 import { KillerService } from '../../killer/killer.service';
 import { HubConnection } from '@microsoft/signalr';
 import { NbToastrService } from '@nebular/theme';
 import { ViewportSizeService } from '../../core/services/viewport-size.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { LeaderboardAction } from '../models/leaderboard-action.model';
 
 @Component({
   selector: 'app-leaderboard-container',
@@ -20,6 +21,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 export class LeaderboardContainerComponent implements OnInit, OnDestroy {
   loading = signal(true);
   data = signal<TreeNode<LeaderboardEntryRow | {}>[]>([]);
+  /** The request currently in flight, if any. Further actions are ignored until it settles. */
+  pendingAction = signal<LeaderboardAction | null>(null);
   private subscription = new Subscription();
   private hubConnection: HubConnection | undefined;
 
@@ -51,7 +54,9 @@ export class LeaderboardContainerComponent implements OnInit, OnDestroy {
   }
 
   addParticipant(name: string): void {
-    const addSub = this.leaderboardService.addParticipant(name).subscribe({
+    if (!this.beginAction('addParticipant'))
+      return;
+    const addSub = this.leaderboardService.addParticipant(name).pipe(this.endAction()).subscribe({
       error: (err: HttpErrorResponse) => {
         const message = err.status === 409 && typeof err.error === 'string'
           ? err.error
@@ -63,17 +68,37 @@ export class LeaderboardContainerComponent implements OnInit, OnDestroy {
   }
 
   startKiller(players: { id: number; name: string }[]): void {
+    if (!this.beginAction('startKiller'))
+      return;
+    // Stay pending until the killer page has loaded, not just until the game is created: the lazy-loaded
+    // route can take seconds on a slow connection and the button shouldn't look idle in the meantime.
     const sub = this.killerService.startGame(players).subscribe({
-      next: () => this.router.navigate(['/killer']),
-      error: () => this.toastrService.danger('Failed to start killer game', 'Error')
+      next: () => this.router.navigate(['/killer']).finally(() => this.pendingAction.set(null)),
+      error: () => {
+        this.pendingAction.set(null);
+        this.toastrService.danger('Failed to start killer game', 'Error');
+      }
     });
     this.subscription.add(sub);
   }
 
   recordResult({ winnerId, loserId }: { winnerId: number; loserId: number }): void {
-    const sub = this.leaderboardService.recordResult(winnerId, loserId).subscribe({
+    if (!this.beginAction('recordResult'))
+      return;
+    const sub = this.leaderboardService.recordResult(winnerId, loserId).pipe(this.endAction()).subscribe({
       error: () => this.toastrService.danger('Failed to record result', 'Error')
     });
     this.subscription.add(sub);
+  }
+
+  private beginAction(action: LeaderboardAction): boolean {
+    if (this.pendingAction())
+      return false;
+    this.pendingAction.set(action);
+    return true;
+  }
+
+  private endAction<T>() {
+    return finalize<T>(() => this.pendingAction.set(null));
   }
 }
