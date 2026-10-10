@@ -1,18 +1,8 @@
 import { Page } from '@playwright/test';
 import { test, expect } from '../fixtures';
+import { KILLER_PLAYERS, startKillerGame } from '../killer-helpers';
 
-const players = ['Alice A', 'Bob B', 'Carol C', 'Dave D'];
-
-/** Starts a fresh four-player game from the leaderboard. This replaces any game left over from another test. */
-async function startGame(page: Page): Promise<void> {
-  await page.goto('/');
-  for (const name of players) {
-    await page.getByRole('cell', { name }).click();
-  }
-  await page.getByText('Start killer').click();
-  await expect(page).toHaveURL(/\/killer$/);
-  await expect(page.getByRole('row')).toHaveCount(players.length);
-}
+const players = KILLER_PLAYERS;
 
 /** Rows whose lives are all skulls. Turn order is shuffled, so tests count eliminations rather than naming players. */
 const eliminatedRows = (page: Page) =>
@@ -29,7 +19,7 @@ async function winByEarlyBlacks(page: Page): Promise<void> {
 
 test.describe('Killer', () => {
   test('shows a loading state rather than "No active game" until the game state arrives', async ({ page }) => {
-    await startGame(page);
+    await startKillerGame(page);
 
     let release!: () => void;
     const released = new Promise<void>(resolve => release = resolve);
@@ -48,7 +38,7 @@ test.describe('Killer', () => {
   });
 
   test('disables the shot actions once someone has won, but not undo', async ({ page }) => {
-    await startGame(page);
+    await startKillerGame(page);
     await winByEarlyBlacks(page);
 
     await expect(page.getByLabel('Pot')).toHaveAttribute('aria-disabled', 'true');
@@ -59,7 +49,7 @@ test.describe('Killer', () => {
 
   // Issue #72: an extra early black after the win eliminated the winner too, which hung the server so undo did nothing.
   test('undo reverses the winning move even after a stray tap on early black', async ({ page }) => {
-    await startGame(page);
+    await startKillerGame(page);
     await winByEarlyBlacks(page);
 
     await page.getByLabel('Early black').click();

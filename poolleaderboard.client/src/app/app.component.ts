@@ -121,6 +121,7 @@ export class AppComponent implements OnInit, OnDestroy {
                 { title: 'Player detail', link: '/showcase/player-info/detail' },
               ]
             },
+            { title: 'Replace killer dialog', link: '/showcase/replace-killer-dialog' },
             { title: 'Theme switcher', link: '/showcase/theme-switcher' },
           ]
         });

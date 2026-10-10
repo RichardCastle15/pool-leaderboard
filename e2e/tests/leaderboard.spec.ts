@@ -1,5 +1,6 @@
 import { Page } from '@playwright/test';
 import { test, expect } from '../fixtures';
+import { clearKillerGame } from '../killer-helpers';
 
 /** Holds requests to `url` until the returned function is called, so the in-flight state can be asserted. */
 async function holdRequests(page: Page, url: string | RegExp): Promise<() => void> {
@@ -152,6 +153,9 @@ test.describe('Leaderboard', () => {
 
   // The killer page is lazy-loaded, which can take seconds on a slow connection after the game is created.
   test('keeps the start killer spinner until the killer page has loaded', async ({ page }) => {
+    // A game left over from another test would turn this start into a "replace it?" prompt.
+    await clearKillerGame(page);
+    await page.goto('/');
     const startKiller = page.locator('nb-action', { hasText: 'Start killer' });
     await page.getByRole('cell', { name: 'Alice A' }).click();
     await page.getByRole('cell', { name: 'Bob B' }).click();

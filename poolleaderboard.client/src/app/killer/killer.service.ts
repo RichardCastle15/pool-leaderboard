@@ -11,6 +11,14 @@ export interface KillerGameServerState {
   winner?: string;
 }
 
+/** Body of the 409 returned when starting a game while another is in progress. */
+export interface KillerGameInProgressResponse {
+  message: string;
+  players: string[];
+  /** Set when the game is over but its result hasn't been confirmed yet. */
+  winner?: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class KillerService {
   private hubConnection?: HubConnection;
@@ -64,8 +72,9 @@ export class KillerService {
     return this.hubConnection;
   }
 
-  startGame(players: { id: number; name: string }[]): Observable<void> {
-    return this.http.post<void>('/api/killer', { players });
+  /** Without `replaceExisting`, the server answers 409 (see KillerGameInProgressResponse) if a game is already in progress. */
+  startGame(players: { id: number; name: string }[], replaceExisting = false): Observable<void> {
+    return this.http.post<void>('/api/killer', { players, replaceExisting });
   }
 
   confirmEnd(): Observable<void> {
