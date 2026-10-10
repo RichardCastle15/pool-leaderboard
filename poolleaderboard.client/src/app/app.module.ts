@@ -1,5 +1,7 @@
+import { registerLocaleData } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { NgModule } from '@angular/core';
+import localeEnGb from '@angular/common/locales/en-GB';
+import { LOCALE_ID, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -9,6 +11,9 @@ import { NbButtonModule, NbDialogModule, NbIconModule, NbLayoutModule, NbMenuMod
 import { ThemeSwitcherComponent } from './theme-switcher/theme-switcher.component';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+// Dates, times and numbers are shown in UK format (day before month, 24-hour clock).
+registerLocaleData(localeEnGb);
 
 @NgModule({
   declarations: [
@@ -32,7 +37,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     NbSelectModule,
     ThemeSwitcherComponent,
   ],
-  providers: [],
+  providers: [
+    { provide: LOCALE_ID, useValue: 'en-GB' },
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

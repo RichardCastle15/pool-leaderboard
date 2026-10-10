@@ -1,3 +1,6 @@
+import { registerLocaleData } from '@angular/common';
+import localeEnGb from '@angular/common/locales/en-GB';
+import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { NbThemeModule, NbIconModule } from '@nebular/theme';
@@ -5,6 +8,9 @@ import { NbEvaIconsModule } from '@nebular/eva-icons';
 
 import { MatchHistoryComponent } from './match-history.component';
 import { MatchHistoryRow } from '../models/match-history.model';
+import { expectedLocalUkDate } from '../testing/local-uk-date';
+
+registerLocaleData(localeEnGb);
 
 describe('MatchHistoryComponent', () => {
   let fixture: ComponentFixture<MatchHistoryComponent>;
@@ -30,7 +36,8 @@ describe('MatchHistoryComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MatchHistoryComponent, NbThemeModule.forRoot(), NbIconModule, NbEvaIconsModule]
+      imports: [MatchHistoryComponent, NbThemeModule.forRoot(), NbIconModule, NbEvaIconsModule],
+      providers: [{ provide: LOCALE_ID, useValue: 'en-GB' }]
     }).compileComponents();
 
     fixture = TestBed.createComponent(MatchHistoryComponent);
@@ -44,6 +51,18 @@ describe('MatchHistoryComponent', () => {
 
     const rows = fixture.debugElement.queryAll(By.css('.match-row'));
     expect(rows.length).toBe(2);
+  });
+
+  it('shows the played date in UK format (day first, 24-hour clock)', () => {
+    // The API sends UTC ("Z") timestamps; the pipe converts them to the browser's own time zone.
+    const playedAtUtc = '2026-02-03T14:05:00Z';
+    const playedOn3Feb: MatchHistoryRow = { ...oneVsOne, playedAt: playedAtUtc };
+    fixture.componentRef.setInput('entries', [playedOn3Feb]);
+    fixture.componentRef.setInput('total', 1);
+    fixture.detectChanges();
+
+    const playedAt = fixture.debugElement.query(By.css('.played-at')).nativeElement.textContent;
+    expect(playedAt.trim()).toBe(expectedLocalUkDate(playedAtUtc));
   });
 
   it('renders a one-vs-one row in the expected format', () => {
