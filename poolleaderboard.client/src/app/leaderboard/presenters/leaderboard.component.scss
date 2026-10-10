@@ -51,6 +51,23 @@
     background: nb-theme(color-primary-300);
   }
 
+  .stats-cell {
+    // Keep the column as narrow as the icon button so the table still fits on a phone.
+    width: 1%;
+    white-space: nowrap;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+    text-align: center;
+  }
+
+  .stats-button {
+    padding: 0.25rem;
+
+    nb-icon {
+      font-size: 1.25rem;
+    }
+  }
+
   .extra-info {
     font-style: italic;
   }
