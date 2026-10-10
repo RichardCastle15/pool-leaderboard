@@ -16,9 +16,15 @@ public class KillerController(
     ILeaderboardRepository leaderboardRepository,
     IKillerGameRepository killerGameRepository) : ControllerBase
 {
+    /// <summary>Fewer players than this is a head-to-head, not a killer game. Mirrors MIN_KILLER_PLAYERS in the client.</summary>
+    public const int MinimumPlayers = 3;
+
     [HttpPost]
     public async Task<IActionResult> StartGame([FromBody] StartKillerGameRequest request)
     {
+        if (request.Players.Select(p => p.Id).Distinct().Count() < MinimumPlayers)
+            return BadRequest($"A killer game needs at least {MinimumPlayers} different players. Two players should play a head-to-head instead.");
+
         killerGameService.StartGame(request.Players.Select(p => (p.Id, p.Name)));
         await killerHubContext.Clients.All.SendAsync("ReceiveKillerGame", killerGameService.GetStateDto());
         return Ok();

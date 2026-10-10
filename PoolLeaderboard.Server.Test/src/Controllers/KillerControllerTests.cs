@@ -52,7 +52,7 @@ public class KillerControllerTests
     {
         var request = new StartKillerGameRequest
         {
-            Players = [new KillerPlayerDto { Id = 1, Name = "Alice" }, new KillerPlayerDto { Id = 2, Name = "Bob" }]
+            Players = [new KillerPlayerDto { Id = 1, Name = "Alice" }, new KillerPlayerDto { Id = 2, Name = "Bob" }, new KillerPlayerDto { Id = 3, Name = "Charlie" }]
         };
 
         await controller.StartGame(request);
@@ -62,6 +62,7 @@ public class KillerControllerTests
         Assert.NotNull(players);
         Assert.Contains((1, "Alice"), players);
         Assert.Contains((2, "Bob"), players);
+        Assert.Contains((3, "Charlie"), players);
     }
 
     [Fact]
@@ -69,7 +70,7 @@ public class KillerControllerTests
     {
         var request = new StartKillerGameRequest
         {
-            Players = [new KillerPlayerDto { Id = 1, Name = "Alice" }]
+            Players = [new KillerPlayerDto { Id = 1, Name = "Alice" }, new KillerPlayerDto { Id = 2, Name = "Bob" }, new KillerPlayerDto { Id = 3, Name = "Charlie" }]
         };
 
         await controller.StartGame(request);
@@ -86,12 +87,49 @@ public class KillerControllerTests
     {
         var request = new StartKillerGameRequest
         {
-            Players = [new KillerPlayerDto { Id = 1, Name = "Alice" }]
+            Players = [new KillerPlayerDto { Id = 1, Name = "Alice" }, new KillerPlayerDto { Id = 2, Name = "Bob" }, new KillerPlayerDto { Id = 3, Name = "Charlie" }]
         };
 
         var result = await controller.StartGame(request);
 
         Assert.IsType<OkResult>(result);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task Post_ReturnsBadRequest_WhenFewerThanThreePlayers(int playerCount)
+    {
+        var request = new StartKillerGameRequest
+        {
+            Players = Enumerable.Range(1, playerCount).Select(i => new KillerPlayerDto { Id = i, Name = $"Player {i}" }).ToList()
+        };
+
+        var result = await controller.StartGame(request);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.False(killerGameService.IsActive);
+        await allKillerClients.DidNotReceive().SendCoreAsync(
+            "ReceiveKillerGame",
+            Arg.Any<object?[]>(),
+            Arg.Any<CancellationToken>()
+        );
+    }
+
+    [Fact]
+    public async Task Post_ReturnsBadRequest_WhenPlayersAreDuplicated()
+    {
+        // Three entries, but only two distinct players, so this is still a head-to-head.
+        var request = new StartKillerGameRequest
+        {
+            Players = [new KillerPlayerDto { Id = 1, Name = "Alice" }, new KillerPlayerDto { Id = 2, Name = "Bob" }, new KillerPlayerDto { Id = 2, Name = "Bob" }]
+        };
+
+        var result = await controller.StartGame(request);
+
+        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.False(killerGameService.IsActive);
     }
 
     #endregion
