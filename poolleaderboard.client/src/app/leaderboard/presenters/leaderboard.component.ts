@@ -1,5 +1,5 @@
 import { Component, computed, input, OnDestroy, output, Signal, signal } from '@angular/core';
-import { NbActionsModule, NbBadgeModule, NbCardModule, NbDialogService, NbIconModule, NbSortDirection, NbSortRequest, NbSpinnerModule, NbTreeGridDataSource, NbTreeGridDataSourceBuilder, NbTreeGridModule } from '@nebular/theme';
+import { NbActionsModule, NbBadgeModule, NbCardModule, NbDialogService, NbIconModule, NbSortDirection, NbSortRequest, NbSpinnerModule, NbTooltipModule, NbTreeGridDataSource, NbTreeGridDataSourceBuilder, NbTreeGridModule } from '@nebular/theme';
 import { LeaderboardEntryRow } from '../models/leaderboard-entry-row.model';
 import { TreeNode } from '../models/tree-node.model';
 import { NewParticipantComponent } from './new-participant/new-participant.component';
@@ -24,7 +24,7 @@ export interface HeadToHeadSwing {
   selector: 'app-leaderboard',
   templateUrl: './leaderboard.component.html',
   styleUrl: './leaderboard.component.scss',
-  imports: [NbTreeGridModule, NbCardModule, NbActionsModule, NbIconModule, NbBadgeModule, NbSpinnerModule, TitleCasePipe]
+  imports: [NbTreeGridModule, NbCardModule, NbActionsModule, NbIconModule, NbBadgeModule, NbSpinnerModule, NbTooltipModule, TitleCasePipe]
 })
 export class LeaderboardComponent implements OnDestroy {
   readonly defaultRequest = {column: 'rank', direction: NbSortDirection.ASCENDING};
@@ -49,6 +49,9 @@ export class LeaderboardComponent implements OnDestroy {
   busy = computed(() => !!this.pendingAction());
   canRecordResult = computed(() => !this.busy() && this.selectedIds().length === 2);
   canStartKiller = computed(() => !this.busy() && this.selectedIds().length >= MIN_KILLER_PLAYERS);
+  /** Explains a disabled Start killer, but only when too few players are selected, not while a request is in flight. */
+  showKillerMinimumHint = computed(() => !this.busy() && this.selectedIds().length < MIN_KILLER_PLAYERS);
+  readonly killerMinimumHint = `Select at least ${MIN_KILLER_PLAYERS} players for killer (${MIN_KILLER_PLAYERS - 1} players: record a head-to-head)`;
   /** Each selected player's swing if they beat the other, so the points are visible without opening the dialog. */
   headToHeadSwing = computed<[HeadToHeadSwing, HeadToHeadSwing] | null>(() => {
     const selected = this.selectedEntries();

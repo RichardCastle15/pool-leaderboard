@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LeaderboardComponent } from './leaderboard.component';
 import { DOCUMENT } from '@angular/common';
-import { NbDialogRef, NbDialogService, NbIconModule, NbThemeModule } from '@nebular/theme';
+import { NbDialogRef, NbDialogService, NbIconModule, NbThemeModule, NbTooltipDirective } from '@nebular/theme';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { By } from '@angular/platform-browser';
 import { NewParticipantComponent } from './new-participant/new-participant.component';
@@ -178,6 +178,45 @@ describe('LeaderboardComponent', () => {
 
       const isDisabled = fixture.debugElement.query(By.css('#killer-action')).componentInstance.disabled;
       expect(isDisabled).toBeFalse();
+    });
+
+    describe('minimum player hint', () => {
+      function killerTooltip(): NbTooltipDirective {
+        return fixture.debugElement.query(By.css('#killer-action')).injector.get(NbTooltipDirective);
+      }
+
+      function selectRows(...indexes: number[]) {
+        const dataRows = fixture.debugElement.queryAll(By.css('table tr')).slice(1);
+        indexes.forEach(i => dataRows[i].nativeElement.click());
+        fixture.detectChanges();
+      }
+
+      beforeEach(() => {
+        fixture.componentRef.setInput('entries', entries);
+        fixture.detectChanges();
+      });
+
+      it('should show the hint when fewer than 3 players are selected', () => {
+        selectRows(0, 1);
+        expect(killerTooltip().disabled).toBeFalse();
+        expect(killerTooltip().content).toBe('Select at least 3 players for killer (2 players: record a head-to-head)');
+      });
+
+      it('should show the hint when no players are selected', () => {
+        expect(killerTooltip().disabled).toBeFalse();
+      });
+
+      it('should hide the hint once three players are selected', () => {
+        selectRows(0, 1, 2);
+        expect(killerTooltip().disabled).toBeTrue();
+      });
+
+      it('should hide the hint while a request is in flight, since the action is busy rather than under-selected', () => {
+        selectRows(0, 1);
+        fixture.componentRef.setInput('pendingAction', 'recordResult');
+        fixture.detectChanges();
+        expect(killerTooltip().disabled).toBeTrue();
+      });
     });
 
     it('should show correct count in killer badge', () => {

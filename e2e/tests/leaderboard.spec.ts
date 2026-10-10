@@ -56,15 +56,31 @@ test.describe('Leaderboard', () => {
   });
 
   // Issue #94: a killer game needs at least three players; two should be a head-to-head.
-  test('Start killer stays disabled with two players selected and enables with a third', async ({ page }) => {
-    const startKiller = page.locator('nb-action', { hasText: 'Start killer' });
+  test('keeps start killer disabled until a third player is selected', async ({ page }) => {
+    const startKiller = page.getByLabel('Start killer');
+    const hint = page.getByText('Select at least 3 players for killer (2 players: record a head-to-head)');
 
     await page.getByRole('cell', { name: 'Alice A' }).click();
     await page.getByRole('cell', { name: 'Bob B' }).click();
     await expect(startKiller).toHaveAttribute('aria-disabled', 'true');
 
+    // The disabled action still shows why it is unavailable on hover.
+    await startKiller.hover();
+    await expect(hint).toBeVisible();
+
     await page.getByRole('cell', { name: 'Carol C' }).click();
     await expect(startKiller).toHaveAttribute('aria-disabled', 'false');
+    await expect(hint).toBeHidden();
+  });
+
+  test('shows the minimum player hint on the icon-only killer action in compact mode', async ({ page }) => {
+    await page.setViewportSize({ width: 400, height: 800 });
+    await page.reload();
+    const startKiller = page.getByLabel('Start killer');
+
+    await page.getByRole('cell', { name: 'Alice A' }).click();
+    await startKiller.hover();
+    await expect(page.getByText('Select at least 3 players for killer (2 players: record a head-to-head)')).toBeVisible();
   });
 
   // Issue #83: show that a result is being recorded and block other changes until it's done.
