@@ -16,6 +16,8 @@ function fullNameValidator(control: AbstractControl): ValidationErrors | null {
 })
 export class NewParticipantComponent {
   nameControl = new FormControl('', [Validators.required, fullNameValidator]);
+  // Errors are only shown once Add has been pressed, so focusing and blurring the input (e.g. on the way to Cancel) stays quiet.
+  submitAttempted = false;
 
   constructor(private readonly dialogRef: NbDialogRef<NewParticipantComponent>) {}
 
@@ -24,10 +26,9 @@ export class NewParticipantComponent {
   }
 
   submitDialog() {
-    if (this.nameControl.invalid) {
-      this.nameControl.markAsTouched();
+    this.submitAttempted = true;
+    if (this.nameControl.invalid)
       return;
-    }
     this.dialogRef.close(this.nameControl.value);
   }
 }

@@ -9,6 +9,9 @@ import { TitleCasePipe } from '@angular/common';
 import { LeaderboardAction } from '../models/leaderboard-action.model';
 import { computeEloDelta } from '../services/elo';
 
+/** Fewer players than this is a head-to-head, not a killer game. The server enforces the same minimum. */
+export const MIN_KILLER_PLAYERS = 3;
+
 export interface HeadToHeadSwing {
   name: string;
   /** Shown instead of the full name in compact mode, where space is tight. */
@@ -46,7 +49,10 @@ export class LeaderboardComponent implements OnDestroy {
    */
   busy = computed(() => !!this.pendingAction());
   canRecordResult = computed(() => !this.busy() && this.selectedIds().length === 2);
-  canStartKiller = computed(() => !this.busy() && this.selectedIds().length >= 2);
+  canStartKiller = computed(() => !this.busy() && this.selectedIds().length >= MIN_KILLER_PLAYERS);
+  /** Explains a disabled Start killer, but only when too few players are selected, not while a request is in flight. */
+  showKillerMinimumHint = computed(() => !this.busy() && this.selectedIds().length < MIN_KILLER_PLAYERS);
+  readonly killerMinimumHint = `Select at least ${MIN_KILLER_PLAYERS} players for killer (${MIN_KILLER_PLAYERS - 1} players: record a head-to-head)`;
   /** Each selected player's swing if they beat the other, so the points are visible without opening the dialog. */
   headToHeadSwing = computed<[HeadToHeadSwing, HeadToHeadSwing] | null>(() => {
     const selected = this.selectedEntries();

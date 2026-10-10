@@ -5,14 +5,25 @@
     height: 100%;
 
     tr {
-        &.current {
-            background-color: nb-theme(color-primary-200);
-        }
+        // Every row state pairs a background with a foreground (and a lost-life colour) chosen to stay readable in
+        // all themes. Muted tones are mixed from theme text tokens instead of faded with opacity.
+        --killer-row-lost-life: color-mix(in srgb, #{nb-theme(text-hint-color)} 70%, #{nb-theme(text-basic-color)});
+        --killer-row-sudden-death-miss: #{nb-theme(color-danger-500)};
+
         &.eliminated {
-            background-color: nb-theme(color-basic-transparent-100);
+            --killer-row-muted: color-mix(in srgb, #{nb-theme(text-hint-color)} 45%, #{nb-theme(text-basic-color)});
+            --killer-row-lost-life: var(--killer-row-muted);
+            background-color: nb-theme(color-basic-transparent-200);
             text-decoration: line-through;
-            color: nb-theme(color-basic-500);
+            color: var(--killer-row-muted);
             font-style: italic;
+        }
+        // Declared after .eliminated so the highlight wins if the current player is also marked out.
+        &.current {
+            --killer-row-lost-life: #{nb-theme(color-primary-300)};
+            --killer-row-sudden-death-miss: #{nb-theme(color-danger-300)};
+            background-color: nb-theme(color-primary-700);
+            color: nb-theme(text-control-color);
         }
     }
 
@@ -29,10 +40,10 @@
                 color: inherit;
             }
             &.killer-death {
-                color: nb-theme(color-basic-400);
+                color: var(--killer-row-lost-life);
             }
             &.killer-sudden-death-miss {
-                color: nb-theme(color-danger-500);
+                color: var(--killer-row-sudden-death-miss);
             }
         }
     }
