@@ -40,6 +40,32 @@ test.describe('Leaderboard', () => {
     expect(await sql('SELECT rating FROM rating WHERE name = $1', ['Erin E'])).toEqual([{ rating: 1000 }]);
   });
 
+  // Issue #89: cancelling must work even though the name input is focused and blurs on the way to Cancel.
+  test('cancelling the add dialog closes it without showing a validation error', async ({ page }) => {
+    const validationError = page.getByText('Please enter a first name');
+    await page.getByText('Add someone').click();
+    await expect(page.getByText('Add to leaderboard')).toBeVisible();
+
+    const cancel = page.getByRole('button', { name: 'Cancel' });
+    const box = (await cancel.boundingBox())!;
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await expect(validationError).toBeHidden();
+    await page.mouse.up();
+
+    await expect(page.getByText('Add to leaderboard')).toBeHidden();
+    await expect(validationError).toBeHidden();
+  });
+
+  // Issue #89
+  test('clicking Add with an empty name shows the validation error and keeps the dialog open', async ({ page }) => {
+    await page.getByText('Add someone').click();
+    await page.getByRole('button', { name: 'Add' }).click();
+
+    await expect(page.getByText('Please enter a first name')).toBeVisible();
+    await expect(page.getByText('Add to leaderboard')).toBeVisible();
+  });
+
   // Issue #90: whitespace is ignored for duplicate checks, so "Alice A " must not create a second Alice A.
   test('adding an existing name with a trailing space is rejected as a duplicate', async ({ page, sql }) => {
     await page.getByText('Add someone').click();
