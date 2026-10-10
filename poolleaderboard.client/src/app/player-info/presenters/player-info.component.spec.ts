@@ -8,6 +8,7 @@ import { NbEvaIconsModule } from '@nebular/eva-icons';
 
 import { PlayerInfoComponent } from './player-info.component';
 import { MatchHistoryRow } from '../../match-history/models/match-history.model';
+import { expectedLocalUkDate } from '../../match-history/testing/local-uk-date';
 
 registerLocaleData(localeEnGb);
 
@@ -24,10 +25,11 @@ describe('PlayerInfoComponent', () => {
   });
 
   it('shows match dates in UK format (day first, 24-hour clock)', () => {
+    // The API sends UTC ("Z") timestamps; the pipe converts them to the browser's own time zone.
+    const playedAtUtc = '2026-02-03T14:05:00Z';
     const match: MatchHistoryRow = {
       type: 'OneVsOne',
-      // No offset in the string, so it is read as local time and shown as stored, whatever the browser zone.
-      playedAt: '2026-02-03T14:05:00',
+      playedAt: playedAtUtc,
       winner: { id: 1, name: 'Richard' },
       loser: { id: 2, name: 'James' },
       delta: 50
@@ -38,6 +40,6 @@ describe('PlayerInfoComponent', () => {
     fixture.detectChanges();
 
     const playedAt = fixture.debugElement.query(By.css('.played-at')).nativeElement.textContent;
-    expect(playedAt.trim()).toBe('03/02/2026, 14:05');
+    expect(playedAt.trim()).toBe(expectedLocalUkDate(playedAtUtc));
   });
 });
