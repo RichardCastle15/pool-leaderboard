@@ -1,0 +1,15 @@
+<nb-card>
+  <nb-card-header>Killer game in progress</nb-card-header>
+  <nb-card-body>
+    <p id="replace-killer-message">
+      A killer game is already in progress@if (playerNames.length) { with {{ playerNames.join(', ') }}}.
+      Starting a new game will abandon it without recording a winner. No leaderboard changes will be made for it.
+    </p>
+  </nb-card-body>
+  <nb-card-footer>
+    <div class="buttons">
+      <button id="replace-killer-cancel" nbButton status="basic" (click)="cancel()">Cancel</button>
+      <button id="replace-killer-confirm" nbButton status="danger" (click)="confirm()">Abandon &amp; start new</button>
+    </div>
+  </nb-card-footer>
+</nb-card>

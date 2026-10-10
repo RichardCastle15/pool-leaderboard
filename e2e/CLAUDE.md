@@ -13,6 +13,9 @@ End-to-end tests that drive the real, published app against a throwaway PostgreS
   starts from the same database state. Tests run serially (`workers: 1`).
 - The in-memory Killer game (`KillerGameService` singleton) and Killer's player shuffle are **not**
   reset or seeded - tests must cope with a game possibly being in progress and with random turn order.
+  Starting a game while one is in progress asks for confirmation (issue #95), so use the helpers in
+  `killer-helpers.ts`: `startKillerGame` (ends on /killer with a fresh game, confirming the replace prompt if it
+  appears) and `clearKillerGame` (abandons any leftover game, for tests that need none in progress).
 
 ## Writing tests with the Playwright MCP
 

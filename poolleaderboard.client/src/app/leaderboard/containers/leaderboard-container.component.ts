@@ -5,12 +5,13 @@ import { TreeNode } from '../models/tree-node.model';
 import { LeaderboardEntryRow } from '../models/leaderboard-entry-row.model';
 import { finalize, Subscription } from 'rxjs';
 import { LeaderboardService } from '../services/leaderboard.service';
-import { KillerService } from '../../killer/killer.service';
+import { KillerGameInProgressResponse, KillerService } from '../../killer/killer.service';
 import { HubConnection } from '@microsoft/signalr';
-import { NbToastrService } from '@nebular/theme';
+import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { ViewportSizeService } from '../../core/services/viewport-size.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LeaderboardAction } from '../models/leaderboard-action.model';
+import { ReplaceKillerDialogComponent } from '../presenters/replace-killer-dialog/replace-killer-dialog.component';
 
 @Component({
   selector: 'app-leaderboard-container',
@@ -31,6 +32,7 @@ export class LeaderboardContainerComponent implements OnInit, OnDestroy {
     private killerService: KillerService,
     private router: Router,
     private toastrService: NbToastrService,
+    private dialogService: NbDialogService,
     protected viewport: ViewportSizeService
   ) {}
 
@@ -70,14 +72,36 @@ export class LeaderboardContainerComponent implements OnInit, OnDestroy {
   startKiller(players: { id: number; name: string }[]): void {
     if (!this.beginAction('startKiller'))
       return;
+    this.postStartKiller(players, false);
+  }
+
+  private postStartKiller(players: { id: number; name: string }[], replaceExisting: boolean): void {
     // Stay pending until the killer page has loaded, not just until the game is created: the lazy-loaded
     // route can take seconds on a slow connection and the button shouldn't look idle in the meantime.
-    const sub = this.killerService.startGame(players).subscribe({
+    const sub = this.killerService.startGame(players, replaceExisting).subscribe({
       next: () => this.router.navigate(['/killer']).finally(() => this.pendingAction.set(null)),
-      error: () => {
+      error: (err: HttpErrorResponse) => {
         this.pendingAction.set(null);
+        if (err.status === 409 && !replaceExisting) {
+          // The server owns whether a game is in progress (another device may have started it), so we only
+          // find out by asking. Nothing has changed server-side; let the user decide.
+          const body = err.error as Partial<KillerGameInProgressResponse> | null;
+          this.confirmReplaceKiller(players, Array.isArray(body?.players) ? body.players : []);
+          return;
+        }
         this.toastrService.danger('Failed to start killer game', 'Error');
       }
+    });
+    this.subscription.add(sub);
+  }
+
+  private confirmReplaceKiller(players: { id: number; name: string }[], existingPlayerNames: string[]): void {
+    const dialogRef = this.dialogService.open(ReplaceKillerDialogComponent, {
+      context: { playerNames: existingPlayerNames }
+    });
+    const sub = dialogRef.onClose.subscribe((confirmed: boolean | undefined) => {
+      if (confirmed && this.beginAction('startKiller'))
+        this.postStartKiller(players, true);
     });
     this.subscription.add(sub);
   }

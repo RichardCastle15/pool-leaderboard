@@ -22,6 +22,16 @@ public class KillerGameRowDto
     public bool Eliminated { get; set; }
 }
 
+/// <summary>
+/// Thrown by <see cref="KillerGameService.StartGame"/> when a game is already in progress and the caller
+/// did not ask to replace it. Carries who is in the existing game so the caller can say so.
+/// </summary>
+public class KillerGameInProgressException(IReadOnlyList<string> playerNames)
+    : InvalidOperationException("A killer game is already in progress.")
+{
+    public IReadOnlyList<string> PlayerNames { get; } = playerNames;
+}
+
 public class KillerGameService
 {
     private KillerGame? _currentGame;
@@ -43,13 +53,29 @@ public class KillerGameService
         get { lock (_lock) { return _currentGame != null; } }
     }
 
-    public void StartGame(IEnumerable<(int Id, string Name)> players)
+    /// <summary>
+    /// Starts a new game. A game already in progress - including one that has a winner but hasn't been
+    /// settled by ConfirmEnd yet, since its result isn't on the leaderboard - is only replaced when
+    /// <paramref name="replaceExisting"/> is true (which abandons it, exactly like <see cref="EndGame"/>);
+    /// otherwise this throws <see cref="KillerGameInProgressException"/> and leaves it untouched.
+    /// The check and the replacement happen under one lock so two devices can't race past each other.
+    /// </summary>
+    public void StartGame(IEnumerable<(int Id, string Name)> players, bool replaceExisting = false)
     {
         lock (_lock)
         {
-            _players = players.ToList();
-            _random.Shuffle(CollectionsMarshal.AsSpan(_players));
-            _currentGame = new KillerGame(_players.Select(p => p.Name));
+            if (_currentGame != null && !replaceExisting)
+                throw new KillerGameInProgressException(_players!.Select(p => p.Name).ToList());
+
+            var newPlayers = players.ToList();
+            _random.Shuffle(CollectionsMarshal.AsSpan(newPlayers));
+            var newGame = new KillerGame(newPlayers.Select(p => p.Name));
+
+            if (_currentGame != null)
+                EndGame();
+
+            _players = newPlayers;
+            _currentGame = newGame;
             PersistCurrentState();
         }
     }

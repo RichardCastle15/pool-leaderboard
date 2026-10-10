@@ -19,7 +19,15 @@ public class KillerController(
     [HttpPost]
     public async Task<IActionResult> StartGame([FromBody] StartKillerGameRequest request)
     {
-        killerGameService.StartGame(request.Players.Select(p => (p.Id, p.Name)));
+        try
+        {
+            killerGameService.StartGame(request.Players.Select(p => (p.Id, p.Name)), request.ReplaceExisting);
+        }
+        catch (KillerGameInProgressException ex)
+        {
+            return Conflict(new KillerGameInProgressResponse(ex.Message, ex.PlayerNames));
+        }
+
         await killerHubContext.Clients.All.SendAsync("ReceiveKillerGame", killerGameService.GetStateDto());
         return Ok();
     }
@@ -59,7 +67,15 @@ public class KillerController(
 public class StartKillerGameRequest
 {
     public required List<KillerPlayerDto> Players { get; set; }
+
+    /// <summary>
+    /// Opt in to abandoning a game that is already in progress. When false (the default) an in-progress
+    /// game is left alone and the request fails with 409.
+    /// </summary>
+    public bool ReplaceExisting { get; set; }
 }
+
+public record KillerGameInProgressResponse(string Message, IReadOnlyList<string> Players);
 
 public class KillerPlayerDto
 {

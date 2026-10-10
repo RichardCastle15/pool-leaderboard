@@ -9,10 +9,11 @@ import { LeaderboardService } from '../services/leaderboard.service';
 import { KillerService } from '../../killer/killer.service';
 import { TreeNode } from '../models/tree-node.model';
 import { LeaderboardEntryRow } from '../models/leaderboard-entry-row.model';
-import { NbToastrService } from '@nebular/theme';
+import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { Router } from '@angular/router';
 import { ViewportSizeService } from '../../core/services/viewport-size.service';
 import { LeaderboardAction } from '../models/leaderboard-action.model';
+import { ReplaceKillerDialogComponent } from '../presenters/replace-killer-dialog/replace-killer-dialog.component';
 
 @Component({ selector: 'app-leaderboard', template: '', standalone: true })
 class MockLeaderboardComponent {
@@ -34,6 +35,8 @@ describe('LeaderboardContainerComponent', () => {
   let mockKillerService: jasmine.SpyObj<KillerService>;
   let mockToastrService: jasmine.SpyObj<NbToastrService>;
   let mockRouter: jasmine.SpyObj<Router>;
+  let mockDialogService: jasmine.SpyObj<NbDialogService>;
+  let dialogClose$: Subject<boolean | undefined>;
 
   beforeEach(async () => {
     leaderboard$ = new Subject();
@@ -48,6 +51,9 @@ describe('LeaderboardContainerComponent', () => {
     mockKillerService = jasmine.createSpyObj('KillerService', ['startGame']);
     mockKillerService.startGame.and.returnValue(of(undefined));
     mockToastrService = jasmine.createSpyObj('NbToastrService', ['danger']);
+    dialogClose$ = new Subject();
+    mockDialogService = jasmine.createSpyObj('NbDialogService', ['open']);
+    mockDialogService.open.and.returnValue({ onClose: dialogClose$.asObservable() } as any);
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
     mockRouter.navigate.and.resolveTo(true);
     const mockViewport = { size: signal<'full' | 'compact'>('full') };
@@ -62,6 +68,7 @@ describe('LeaderboardContainerComponent', () => {
     .overrideProvider(LeaderboardService, { useValue: mockLeaderboardService })
     .overrideProvider(KillerService, { useValue: mockKillerService })
     .overrideProvider(NbToastrService, { useValue: mockToastrService })
+    .overrideProvider(NbDialogService, { useValue: mockDialogService })
     .overrideProvider(Router, { useValue: mockRouter })
     .overrideProvider(ViewportSizeService, { useValue: mockViewport })
     .compileComponents();
@@ -138,7 +145,7 @@ describe('LeaderboardContainerComponent', () => {
 
     it('should call killerService.startGame with the selected players', () => {
       component.startKiller(players);
-      expect(mockKillerService.startGame).toHaveBeenCalledOnceWith(players);
+      expect(mockKillerService.startGame).toHaveBeenCalledOnceWith(players, false);
     });
 
     it('should navigate to /killer after game starts', () => {
@@ -150,6 +157,80 @@ describe('LeaderboardContainerComponent', () => {
       mockKillerService.startGame.and.returnValue(throwError(() => new Error('server error')));
       component.startKiller(players);
       expect(mockToastrService.danger).toHaveBeenCalledOnceWith('Failed to start killer game', 'Error');
+    });
+  });
+
+  describe('startKiller when a game is already in progress', () => {
+    const players = [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }, { id: 3, name: 'Carol' }];
+    const conflict = () => new HttpErrorResponse({
+      status: 409,
+      error: { message: 'A killer game is already in progress.', players: ['Dave', 'Erin', 'Frank'] }
+    });
+
+    beforeEach(() => {
+      mockKillerService.startGame.and.returnValues(throwError(conflict), of(undefined));
+    });
+
+    it('should open the replace dialog listing the players in the game in progress', () => {
+      component.startKiller(players);
+      expect(mockDialogService.open).toHaveBeenCalledOnceWith(
+        ReplaceKillerDialogComponent, { context: { playerNames: ['Dave', 'Erin', 'Frank'] } });
+    });
+
+    it('should still open the dialog when the 409 body does not list players', () => {
+      mockKillerService.startGame.and.returnValues(
+        throwError(() => new HttpErrorResponse({ status: 409, error: 'conflict' })), of(undefined));
+      component.startKiller(players);
+      expect(mockDialogService.open).toHaveBeenCalledOnceWith(
+        ReplaceKillerDialogComponent, { context: { playerNames: [] } });
+    });
+
+    it('should not show an error toast, navigate or re-post while the dialog is open', () => {
+      component.startKiller(players);
+      expect(mockToastrService.danger).not.toHaveBeenCalled();
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
+      expect(mockKillerService.startGame).toHaveBeenCalledTimes(1);
+    });
+
+    it('should do nothing further and clear the pending state when cancelled', () => {
+      component.startKiller(players);
+      dialogClose$.next(false);
+      expect(mockKillerService.startGame).toHaveBeenCalledTimes(1);
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
+      expect(component.pendingAction()).toBeNull();
+    });
+
+    it('should treat dismissing the dialog without a choice as cancel', () => {
+      component.startKiller(players);
+      dialogClose$.next(undefined);
+      expect(mockKillerService.startGame).toHaveBeenCalledTimes(1);
+      expect(component.pendingAction()).toBeNull();
+    });
+
+    it('should re-post with replaceExisting and navigate to /killer when confirmed', () => {
+      component.startKiller(players);
+      dialogClose$.next(true);
+      expect(mockKillerService.startGame).toHaveBeenCalledTimes(2);
+      expect(mockKillerService.startGame.calls.mostRecent().args).toEqual([players, true]);
+      expect(mockRouter.navigate).toHaveBeenCalledOnceWith(['/killer']);
+    });
+
+    it('should show a danger toast rather than another dialog if the confirmed start fails with 409', () => {
+      mockKillerService.startGame.and.returnValues(throwError(conflict), throwError(conflict));
+      component.startKiller(players);
+      dialogClose$.next(true);
+      expect(mockDialogService.open).toHaveBeenCalledTimes(1);
+      expect(mockToastrService.danger).toHaveBeenCalledOnceWith('Failed to start killer game', 'Error');
+      expect(component.pendingAction()).toBeNull();
+    });
+
+    it('should stay pending while the confirmed start is in flight', () => {
+      const request$ = new Subject<void>();
+      mockKillerService.startGame.and.returnValues(throwError(conflict), request$);
+      component.startKiller(players);
+      expect(component.pendingAction()).toBeNull();
+      dialogClose$.next(true);
+      expect(component.pendingAction()).toBe('startKiller');
     });
   });
 

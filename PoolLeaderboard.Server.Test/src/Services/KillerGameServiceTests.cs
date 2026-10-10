@@ -193,15 +193,99 @@ public class KillerGameServiceTests
     }
 
     [Fact]
-    public void StartGame_ReplacesExistingGame()
+    public void StartGame_Throws_WhenGameInProgressAndNotReplacing()
     {
-        service.StartGame([(1, "Alice"), (2, "Bob")]);
-        service.StartGame([(3, "Charlie")]);
+        service.StartGame([(1, "Alice"), (2, "Bob"), (3, "Charlie")]);
+
+        var ex = Assert.Throws<KillerGameInProgressException>(() =>
+            service.StartGame([(4, "Dave"), (5, "Erin"), (6, "Frank")]));
+
+        Assert.Equal(["Alice", "Bob", "Charlie"], ex.PlayerNames.Order());
+    }
+
+    [Fact]
+    public void StartGame_LeavesExistingGameUntouched_WhenNotReplacing()
+    {
+        var (svc, repo) = MakeServiceWithRepo();
+        svc.StartGame([(1, "Alice"), (2, "Bob"), (3, "Charlie")]);
+        svc.Pot();
+        var before = svc.GetStateDto();
+        repo.ClearReceivedCalls();
+
+        Assert.Throws<KillerGameInProgressException>(() =>
+            svc.StartGame([(4, "Dave"), (5, "Erin"), (6, "Frank")]));
+
+        var after = svc.GetStateDto();
+        Assert.Equal(before.CurrentPlayerIndex, after.CurrentPlayerIndex);
+        Assert.Equal(before.PlayerRows.Select(r => (r.Name, r.LivesRemaining)), after.PlayerRows.Select(r => (r.Name, r.LivesRemaining)));
+        Assert.Equal([(1, "Alice"), (2, "Bob"), (3, "Charlie")], svc.GetPlayers()!.Order());
+        repo.DidNotReceive().Save(Arg.Any<KillerGameInProgressState>());
+        repo.DidNotReceive().Delete();
+    }
+
+    [Fact]
+    public void StartGame_Throws_WhenFinishedGameHasNotBeenSettled()
+    {
+        service.StartGame([(1, "Alice"), (2, "Bob"), (3, "Charlie")]);
+        service.EarlyBlackPot();
+        service.EarlyBlackPot();
+        Assert.NotNull(service.GetWinnerName());
+
+        Assert.Throws<KillerGameInProgressException>(() =>
+            service.StartGame([(4, "Dave"), (5, "Erin"), (6, "Frank")]));
+
+        Assert.NotNull(service.GetWinnerName());
+    }
+
+    [Fact]
+    public void StartGame_ReplacesExistingGame_WhenReplacing()
+    {
+        service.StartGame([(1, "Alice"), (2, "Bob"), (3, "Charlie")]);
+        service.Pot();
+
+        service.StartGame([(4, "Dave"), (5, "Erin"), (6, "Frank")], replaceExisting: true);
 
         var state = service.GetStateDto();
+        Assert.Equal(["Dave", "Erin", "Frank"], state.PlayerRows.Select(r => r.Name).Order());
+        Assert.All(state.PlayerRows, r => Assert.Equal(3, r.LivesRemaining));
+        Assert.Equal([(4, "Dave"), (5, "Erin"), (6, "Frank")], service.GetPlayers()!.Order());
+    }
 
-        Assert.Single(state.PlayerRows);
-        Assert.Equal("Charlie", state.PlayerRows[0].Name);
+    [Fact]
+    public void StartGame_Replacing_AbandonsOldGameBeforePersistingNewOne()
+    {
+        var (svc, repo) = MakeServiceWithRepo();
+        svc.StartGame([(1, "Alice"), (2, "Bob"), (3, "Charlie")]);
+        repo.ClearReceivedCalls();
+
+        svc.StartGame([(4, "Dave"), (5, "Erin"), (6, "Frank")], replaceExisting: true);
+
+        Received.InOrder(() =>
+        {
+            repo.Delete();
+            repo.Save(Arg.Any<KillerGameInProgressState>());
+        });
+    }
+
+    [Fact]
+    public void StartGame_Replacing_KeepsExistingGame_WhenAbandoningItFails()
+    {
+        var (svc, repo) = MakeServiceWithRepo();
+        svc.StartGame([(1, "Alice"), (2, "Bob"), (3, "Charlie")]);
+        repo.When(r => r.Delete()).Do(_ => throw new InvalidOperationException("db error"));
+
+        Assert.Throws<InvalidOperationException>(() =>
+            svc.StartGame([(4, "Dave"), (5, "Erin"), (6, "Frank")], replaceExisting: true));
+
+        Assert.Equal(["Alice", "Bob", "Charlie"], svc.GetStateDto().PlayerRows.Select(r => r.Name).Order());
+    }
+
+    [Fact]
+    public void StartGame_WithReplaceExisting_StartsGame_WhenNoneInProgress()
+    {
+        service.StartGame([(1, "Alice"), (2, "Bob"), (3, "Charlie")], replaceExisting: true);
+
+        Assert.True(service.IsActive);
     }
 
     [Fact]

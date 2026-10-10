@@ -82,6 +82,7 @@ const developmentRoutes: Routes = [
           { path: 'detail', loadComponent: () => import('./component-showcase/player-info/player-info-showcase.component').then(m => m.PlayerInfoShowcaseComponent) },
         ]
       },
+      { path: 'replace-killer-dialog', loadComponent: () => import('./component-showcase/dialogs/replace-killer-dialog-showcase.component').then(m => m.ReplaceKillerDialogShowcaseComponent) },
       { path: 'theme-switcher', loadComponent: () => import('./component-showcase/theme-switcher/theme-switcher-showcase.component').then(m => m.ThemeSwitcherShowcaseComponent) },
     ]
   }

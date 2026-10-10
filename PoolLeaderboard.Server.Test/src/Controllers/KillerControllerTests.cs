@@ -94,6 +94,71 @@ public class KillerControllerTests
         Assert.IsType<OkResult>(result);
     }
 
+    [Fact]
+    public async Task Post_ReturnsConflictListingPlayers_WhenGameInProgress()
+    {
+        killerGameService.StartGame([(1, "Alice"), (2, "Bob"), (3, "Charlie")]);
+
+        var result = await controller.StartGame(StartRequest(replaceExisting: false));
+
+        var conflict = Assert.IsType<ConflictObjectResult>(result);
+        var body = Assert.IsType<KillerGameInProgressResponse>(conflict.Value);
+        Assert.Equal(["Alice", "Bob", "Charlie"], body.Players.Order());
+    }
+
+    [Fact]
+    public async Task Post_LeavesExistingGameAndSkipsBroadcast_WhenConflict()
+    {
+        killerGameService.StartGame([(1, "Alice"), (2, "Bob"), (3, "Charlie")]);
+
+        await controller.StartGame(StartRequest(replaceExisting: false));
+
+        Assert.Equal([(1, "Alice"), (2, "Bob"), (3, "Charlie")], killerGameService.GetPlayers()!.Order());
+        await allKillerClients.DidNotReceive().SendCoreAsync(
+            "ReceiveKillerGame", Arg.Any<object?[]>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Post_ReturnsConflict_WhenFinishedGameAwaitsConfirmEnd()
+    {
+        killerGameService.StartGame([(1, "Alice"), (2, "Bob"), (3, "Charlie")]);
+        killerGameService.EarlyBlackPot();
+        killerGameService.EarlyBlackPot();
+
+        var result = await controller.StartGame(StartRequest(replaceExisting: false));
+
+        Assert.IsType<ConflictObjectResult>(result);
+        Assert.NotNull(killerGameService.GetWinnerName());
+    }
+
+    [Fact]
+    public async Task Post_ReplacesGameAndBroadcasts_WhenReplaceExistingIsTrue()
+    {
+        killerGameService.StartGame([(1, "Alice"), (2, "Bob"), (3, "Charlie")]);
+
+        var result = await controller.StartGame(StartRequest(replaceExisting: true));
+
+        Assert.IsType<OkResult>(result);
+        Assert.Equal([(4, "Dave"), (5, "Erin"), (6, "Frank")], killerGameService.GetPlayers()!.Order());
+        await allKillerClients.Received(1).SendCoreAsync(
+            "ReceiveKillerGame", Arg.Any<object?[]>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Post_ReturnsOk_WhenNoGameInProgressAndNotReplacing()
+    {
+        var result = await controller.StartGame(StartRequest(replaceExisting: false));
+
+        Assert.IsType<OkResult>(result);
+        Assert.True(killerGameService.IsActive);
+    }
+
+    private static StartKillerGameRequest StartRequest(bool replaceExisting) => new()
+    {
+        Players = [new KillerPlayerDto { Id = 4, Name = "Dave" }, new KillerPlayerDto { Id = 5, Name = "Erin" }, new KillerPlayerDto { Id = 6, Name = "Frank" }],
+        ReplaceExisting = replaceExisting
+    };
+
     #endregion
 
     #region DELETE /api/killer
