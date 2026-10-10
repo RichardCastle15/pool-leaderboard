@@ -126,7 +126,9 @@ public class LeaderboardControllerTests
     [InlineData("Alice B ")]
     [InlineData("  Alice B")]
     [InlineData("\tAlice B\n")]
-    public async Task Post_ReturnsConflict_WhenTrimmedNameAlreadyExists(string name)
+    [InlineData("Alice  B")]
+    [InlineData("Alice\tB")]
+    public async Task Post_ReturnsConflict_WhenNormalisedNameAlreadyExists(string name)
     {
         repository.ExistsByName("Alice B").Returns(true);
 
@@ -136,11 +138,17 @@ public class LeaderboardControllerTests
         repository.DidNotReceive().Add(Arg.Any<string>());
     }
 
-    [Fact]
-    public async Task Post_AddsTrimmedName()
+    [Theory]
+    [InlineData("  Alice B ")]
+    [InlineData("Alice   B")]
+    [InlineData("Alice\tB")]
+    public async Task Post_AddsNormalisedName(string name)
     {
-        await controller.Post(new AddParticipantBody { Name = "  Alice B " });
+        repository.ExistsByName("Alice B").Returns(false);
 
+        await controller.Post(new AddParticipantBody { Name = name });
+
+        repository.Received(1).ExistsByName("Alice B");
         repository.Received(1).Add("Alice B");
     }
 

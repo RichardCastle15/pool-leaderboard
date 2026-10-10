@@ -11,6 +11,7 @@ namespace PoolLeaderboard.Server.Controllers
     public class LeaderboardController : ControllerBase
     {
         private static readonly Regex FullNameRegex = new(@"^[^\s]+\s+\S.*$", RegexOptions.Compiled);
+        private static readonly Regex WhitespaceRunRegex = new(@"\s+", RegexOptions.Compiled);
 
         private readonly ILeaderboardRepository leaderboardRepository;
         private readonly IHubContext<LeaderboardHub> hubContext;
@@ -24,7 +25,7 @@ namespace PoolLeaderboard.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] AddParticipantBody request)
         {
-            var name = request.Name.Trim();
+            var name = NormaliseName(request.Name);
 
             if (!FullNameRegex.IsMatch(name))
                 return BadRequest("Name must include at least a first name and an initial (e.g. \"Richard C\").");
@@ -39,6 +40,13 @@ namespace PoolLeaderboard.Server.Controllers
 
             return Ok();
         }
+
+        /// <summary>
+        /// Trims the name and collapses any run of internal whitespace to a single space, so that
+        /// "Alice  B" and "Alice\tB" are treated as the same participant as "Alice B".
+        /// </summary>
+        private static string NormaliseName(string name) =>
+            WhitespaceRunRegex.Replace(name.Trim(), " ");
     }
 
     public class AddParticipantBody
