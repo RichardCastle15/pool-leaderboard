@@ -91,6 +91,10 @@ export class LeaderboardContainerComponent implements OnInit, OnDestroy {
     this.subscription.add(sub);
   }
 
+  viewPlayer(playerId: number): void {
+    this.router.navigate(['/player', playerId]);
+  }
+
   private beginAction(action: LeaderboardAction): boolean {
     if (this.pendingAction())
       return false;

@@ -23,6 +23,19 @@
     <td nbTreeGridCell *nbTreeGridCellDef="let row" [class.extra-info]="!row.data.id">{{row.data[column]}}</td>
   </ng-container>
   }
+
+  <ng-container [nbTreeGridColumnDef]="statsColumn">
+    <!-- Purely a holder for the button, not data: role=presentation keeps it out of the table's cell/column semantics. -->
+    <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="stats-cell" [attr.role]="'presentation'"></th>
+    <td nbTreeGridCell *nbTreeGridCellDef="let row" class="stats-cell" [attr.role]="'presentation'">
+      @if(row.data.id) {
+        <button nbButton ghost size="small" status="primary" type="button" class="stats-button" nbTooltip="View stats"
+            [attr.aria-label]="'View stats for ' + row.data.name" (click)="onViewPlayer($event, row.data.id)">
+          <nb-icon icon="bar-chart-outline"></nb-icon>
+        </button>
+      }
+    </td>
+  </ng-container>
 </table>
 
 <nb-card class="action-card">

@@ -230,6 +230,71 @@ describe('LeaderboardComponent', () => {
     });
   });
 
+  describe('view stats button', () => {
+    function statsButtons() {
+      return fixture.debugElement.queryAll(By.css('table button.stats-button'));
+    }
+
+    beforeEach(() => {
+      fixture.componentRef.setInput('entries', entries);
+      fixture.detectChanges();
+    });
+
+    it('should show one button per player row, named after the player', () => {
+      expect(statsButtons().map(de => de.nativeElement.getAttribute('aria-label')))
+        .toEqual(['View stats for Richard', 'View stats for Russel', 'View stats for Stephen B']);
+    });
+
+    it('should not show a button on the header row', () => {
+      expect(fixture.debugElement.queryAll(By.css('table th.stats-cell button')).length).toBe(0);
+    });
+
+    it('should emit the player id when clicked', () => {
+      const viewSpy = jasmine.createSpy('viewPlayer');
+      component.viewPlayer.subscribe(viewSpy);
+      statsButtons()[1].nativeElement.click();
+      expect(viewSpy).toHaveBeenCalledOnceWith(2);
+    });
+
+    it('should not select the row when clicked', () => {
+      statsButtons()[0].nativeElement.click();
+      fixture.detectChanges();
+      expect(component.selectedIds()).toEqual([]);
+      expect(fixture.debugElement.queryAll(By.css('.selected-row')).length).toBe(0);
+    });
+
+    it('should not change an existing selection when clicked', () => {
+      const dataRows = fixture.debugElement.queryAll(By.css('table tr')).slice(1);
+      dataRows[0].nativeElement.click();
+      statsButtons()[0].nativeElement.click();
+      statsButtons()[1].nativeElement.click();
+      fixture.detectChanges();
+      expect(component.selectedIds()).toEqual([1]);
+    });
+
+    it('should still emit while an action is pending', () => {
+      const viewSpy = jasmine.createSpy('viewPlayer');
+      component.viewPlayer.subscribe(viewSpy);
+      fixture.componentRef.setInput('pendingAction', 'recordResult');
+      fixture.detectChanges();
+      statsButtons()[0].nativeElement.click();
+      expect(viewSpy).toHaveBeenCalledOnceWith(1);
+    });
+
+    it('should not make the stats column sortable', () => {
+      const header = fixture.debugElement.queryAll(By.css('table th')).find(de => de.nativeElement.classList.contains('stats-cell'))!;
+      expect(header.query(By.css('button'))).toBeNull();
+      expect(header.nativeElement.textContent.trim()).toBe('');
+    });
+
+    it('should keep sorting working with the extra column', () => {
+      const rankHeader = fixture.debugElement.queryAll(By.css('table th')).find(de => de.nativeElement.innerText === 'Rank')!;
+      rankHeader.nativeElement.click();
+      fixture.detectChanges();
+      expect(statsButtons()[0].nativeElement.getAttribute('aria-label')).toBe('View stats for Stephen B');
+    });
+  });
+
   describe('pending action', () => {
     function selectRows(...indexes: number[]) {
       const dataRows = fixture.debugElement.queryAll(By.css('table tr')).slice(1);

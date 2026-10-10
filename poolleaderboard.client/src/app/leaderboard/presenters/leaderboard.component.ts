@@ -1,5 +1,5 @@
 import { Component, computed, input, OnDestroy, output, Signal, signal } from '@angular/core';
-import { NbActionsModule, NbBadgeModule, NbCardModule, NbDialogService, NbIconModule, NbSortDirection, NbSortRequest, NbSpinnerModule, NbTreeGridDataSource, NbTreeGridDataSourceBuilder, NbTreeGridModule } from '@nebular/theme';
+import { NbActionsModule, NbBadgeModule, NbButtonModule, NbCardModule, NbDialogService, NbIconModule, NbSortDirection, NbSortRequest, NbSpinnerModule, NbTooltipModule, NbTreeGridDataSource, NbTreeGridDataSourceBuilder, NbTreeGridModule } from '@nebular/theme';
 import { LeaderboardEntryRow } from '../models/leaderboard-entry-row.model';
 import { TreeNode } from '../models/tree-node.model';
 import { NewParticipantComponent } from './new-participant/new-participant.component';
@@ -21,7 +21,7 @@ export interface HeadToHeadSwing {
   selector: 'app-leaderboard',
   templateUrl: './leaderboard.component.html',
   styleUrl: './leaderboard.component.scss',
-  imports: [NbTreeGridModule, NbCardModule, NbActionsModule, NbIconModule, NbBadgeModule, NbSpinnerModule, TitleCasePipe]
+  imports: [NbTreeGridModule, NbCardModule, NbActionsModule, NbIconModule, NbBadgeModule, NbButtonModule, NbSpinnerModule, NbTooltipModule, TitleCasePipe]
 })
 export class LeaderboardComponent implements OnDestroy {
   readonly defaultRequest = {column: 'rank', direction: NbSortDirection.ASCENDING};
@@ -37,6 +37,7 @@ export class LeaderboardComponent implements OnDestroy {
   newParticipant = output<string>();
   startKiller = output<{ id: number; name: string }[]>();
   recordResult = output<RecordResultDialogResult>();
+  viewPlayer = output<number>();
   // Template data.
   selectedIds = signal<number[]>([]);
   /**
@@ -63,7 +64,9 @@ export class LeaderboardComponent implements OnDestroy {
 
   expandableColumn = 'name';
   dataColumns = ['points', 'rank'];
-  allColumns = [this.expandableColumn, ...this.dataColumns];
+  /** Holds the per-row "view stats" button. Not sortable and has no visible header. */
+  statsColumn = 'stats';
+  allColumns = [this.expandableColumn, ...this.dataColumns, this.statsColumn];
 
   private subscriptions = new Subscription();
 
@@ -107,6 +110,12 @@ export class LeaderboardComponent implements OnDestroy {
       else
         return oldArray.filter(id => rowId !== id)
     })
+  }
+
+  /** Called from the row's stats button; the click must not also toggle the row's selection. */
+  onViewPlayer(event: Event, playerId: number) {
+    event.stopPropagation();
+    this.viewPlayer.emit(playerId);
   }
 
   openNewParticipantDialog() {

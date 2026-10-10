@@ -43,11 +43,6 @@ export class AppComponent implements OnInit, OnDestroy {
       link: '/match-history'
     },
     {
-      title: 'Players',
-      icon: 'person-outline',
-      link: '/players'
-    },
-    {
       title: 'Rules',
       icon: 'book-open-outline',
       link: '/rules'

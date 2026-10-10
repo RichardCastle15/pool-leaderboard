@@ -102,4 +102,47 @@ test.describe('Leaderboard', () => {
     release();
     await expect(page).toHaveURL(/\/killer$/);
   });
+
+  test('the stats button on a row opens that player\'s stats without selecting the row', async ({ page }) => {
+    const bobRow = page.getByRole('row').filter({ has: page.getByRole('cell', { name: 'Bob B' }) });
+    await bobRow.getByRole('button', { name: 'View stats for Bob B' }).click();
+
+    await expect(page).toHaveURL(/\/player\/2$/);
+    await expect(page.getByText('Bob B — Match History')).toBeVisible();
+
+    // Nothing was selected on the way out: the start killer badge is still at 0 when we come back.
+    await page.goBack();
+    await expect(page).toHaveURL(/\/leaderboard$/);
+    await expect(page.locator('nb-action', { hasText: 'Start killer' }).locator('nb-badge')).toHaveText('0');
+  });
+
+  test('the stats button still works while other players are selected', async ({ page }) => {
+    await page.getByRole('cell', { name: 'Alice A' }).click();
+    const killer = page.locator('nb-action', { hasText: 'Start killer' });
+    await expect(killer.locator('nb-badge')).toHaveText('1');
+
+    const carolRow = page.getByRole('row').filter({ has: page.getByRole('cell', { name: 'Carol C' }) });
+    await carolRow.getByRole('button', { name: 'View stats for Carol C' }).click();
+    await expect(page).toHaveURL(/\/player\/3$/);
+  });
+
+  test('every player row has a stats button', async ({ page }) => {
+    for (const name of ['Alice A', 'Bob B', 'Carol C', 'Dave D'])
+      await expect(page.getByRole('button', { name: `View stats for ${name}` })).toBeVisible();
+  });
+
+  test('the stats button fits on a phone-sized screen', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 640 });
+    await expect(page.getByRole('button', { name: 'View stats for Dave D' })).toBeVisible();
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+
+    await page.getByRole('button', { name: 'View stats for Dave D' }).click();
+    await expect(page).toHaveURL(/\/player\/4$/);
+  });
+
+  test('the side menu no longer has a Players link', async ({ page }) => {
+    await expect(page.getByRole('link', { name: 'Match History' })).toBeAttached();
+    await expect(page.getByRole('link', { name: 'Players' })).toHaveCount(0);
+  });
 });

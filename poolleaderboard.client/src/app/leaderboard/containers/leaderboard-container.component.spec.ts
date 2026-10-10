@@ -23,6 +23,7 @@ class MockLeaderboardComponent {
   newParticipant = output<string>();
   startKiller = output<{ id: number; name: string }[]>();
   recordResult = output<{ winnerId: number; loserId: number }>();
+  viewPlayer = output<number>();
 }
 
 describe('LeaderboardContainerComponent', () => {
@@ -163,6 +164,26 @@ describe('LeaderboardContainerComponent', () => {
       mockLeaderboardService.recordResult.and.returnValue(throwError(() => new Error('server error')));
       component.recordResult({ winnerId: 1, loserId: 2 });
       expect(mockToastrService.danger).toHaveBeenCalledOnceWith('Failed to record result', 'Error');
+    });
+  });
+
+  describe('viewPlayer', () => {
+    it('should navigate to the player stats page', () => {
+      component.viewPlayer(2);
+      expect(mockRouter.navigate).toHaveBeenCalledOnceWith(['/player', 2]);
+    });
+
+    it('should navigate when the presenter emits viewPlayer', () => {
+      const presenter = fixture.debugElement.children[0].componentInstance as MockLeaderboardComponent;
+      presenter.viewPlayer.emit(3);
+      expect(mockRouter.navigate).toHaveBeenCalledOnceWith(['/player', 3]);
+    });
+
+    it('should navigate even while another action is in flight', () => {
+      mockLeaderboardService.recordResult.and.returnValue(new Subject());
+      component.recordResult({ winnerId: 1, loserId: 2 });
+      component.viewPlayer(1);
+      expect(mockRouter.navigate).toHaveBeenCalledOnceWith(['/player', 1]);
     });
   });
 
