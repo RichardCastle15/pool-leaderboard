@@ -11,16 +11,17 @@
         --killer-row-sudden-death-miss: #{nb-theme(color-danger-500)};
 
         &.eliminated {
-            --killer-row-lost-life: color-mix(in srgb, #{nb-theme(text-hint-color)} 45%, #{nb-theme(text-basic-color)});
+            --killer-row-muted: color-mix(in srgb, #{nb-theme(text-hint-color)} 45%, #{nb-theme(text-basic-color)});
+            --killer-row-lost-life: var(--killer-row-muted);
             background-color: nb-theme(color-basic-transparent-200);
             text-decoration: line-through;
-            color: var(--killer-row-lost-life);
+            color: var(--killer-row-muted);
             font-style: italic;
         }
         // Declared after .eliminated so the highlight wins if the current player is also marked out.
         &.current {
             --killer-row-lost-life: #{nb-theme(color-primary-300)};
-            --killer-row-sudden-death-miss: #{nb-theme(color-danger-200)};
+            --killer-row-sudden-death-miss: #{nb-theme(color-danger-300)};
             background-color: nb-theme(color-primary-700);
             color: nb-theme(text-control-color);
         }
