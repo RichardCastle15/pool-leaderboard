@@ -122,6 +122,28 @@ public class LeaderboardControllerTests
         Assert.IsType<OkResult>(result);
     }
 
+    [Theory]
+    [InlineData("Alice B ")]
+    [InlineData("  Alice B")]
+    [InlineData("\tAlice B\n")]
+    public async Task Post_ReturnsConflict_WhenTrimmedNameAlreadyExists(string name)
+    {
+        repository.ExistsByName("Alice B").Returns(true);
+
+        var result = await controller.Post(new AddParticipantBody { Name = name });
+
+        Assert.IsType<ConflictObjectResult>(result);
+        repository.DidNotReceive().Add(Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task Post_AddsTrimmedName()
+    {
+        await controller.Post(new AddParticipantBody { Name = "  Alice B " });
+
+        repository.Received(1).Add("Alice B");
+    }
+
     [Fact]
     public async Task Post_DoesNotAddParticipant_WhenNameIsInvalid()
     {

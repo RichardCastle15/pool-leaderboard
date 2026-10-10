@@ -24,13 +24,15 @@ namespace PoolLeaderboard.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] AddParticipantBody request)
         {
-            if (!FullNameRegex.IsMatch(request.Name.Trim()))
+            var name = request.Name.Trim();
+
+            if (!FullNameRegex.IsMatch(name))
                 return BadRequest("Name must include at least a first name and an initial (e.g. \"Richard C\").");
 
-            if (leaderboardRepository.ExistsByName(request.Name))
-                return Conflict($"A participant named '{request.Name}' already exists.");
+            if (leaderboardRepository.ExistsByName(name))
+                return Conflict($"A participant named '{name}' already exists.");
 
-            leaderboardRepository.Add(request.Name);
+            leaderboardRepository.Add(name);
 
             var entries = leaderboardRepository.GetAll();
             await hubContext.Clients.All.SendAsync("ReceiveLeaderboard", entries);
