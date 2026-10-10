@@ -10,11 +10,11 @@ test.describe('Match history', () => {
 
     await page.goto('/match-history');
 
-    const newestRow = page.locator('.match-row').first();
-    await expect(newestRow.locator('.played-at')).toHaveText('03/02/2026, 14:05');
-    await expect(newestRow).toContainText('Alice A vs. Dave D');
+    const newestRow = page.getByRole('listitem').filter({ hasText: 'Alice A vs. Dave D' });
+    await expect(newestRow).toContainText('03/02/2026, 14:05');
+    await expect(page.getByText('03/02/2026, 14:05', { exact: true })).toBeVisible();
 
     // Seeded match from 5 January 2026 at 12:00.
-    await expect(page.locator('.played-at', { hasText: '05/01/2026, 12:00' })).toBeVisible();
+    await expect(page.getByText('05/01/2026, 12:00', { exact: true })).toBeVisible();
   });
 });
