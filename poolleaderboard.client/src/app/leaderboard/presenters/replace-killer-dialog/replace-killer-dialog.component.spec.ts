@@ -40,18 +40,51 @@ describe('ReplaceKillerDialogComponent', () => {
     expect(text()).not.toContain(' with ');
   });
 
-  it('should close with true from a danger-styled confirm button', () => {
+  it('should offer to go to the game in progress', () => {
+    fixture.detectChanges();
+    const view = button('#replace-killer-view');
+    expect(view.textContent).toContain('Go to killer');
+    view.click();
+    expect(dialogRef.close).toHaveBeenCalledOnceWith('viewGame');
+  });
+
+  describe('when the game in progress has already been won', () => {
+    beforeEach(() => {
+      component.winner = 'Alice A';
+      component.playerNames = ['Alice A', 'Bob B', 'Carol C'];
+      fixture.detectChanges();
+    });
+
+    it('should say who won and that the result has not been recorded', () => {
+      expect(text()).toContain("Alice A won the last killer game, but the result hasn't been recorded yet.");
+      expect(text()).toContain('discard it');
+    });
+
+    it('should not describe the game as in progress or say no winner is recorded', () => {
+      expect(text()).not.toContain('in progress');
+      expect(text()).not.toContain('without recording a winner');
+    });
+
+    it('should still offer all three choices', () => {
+      button('#replace-killer-view').click();
+      button('#replace-killer-confirm').click();
+      button('#replace-killer-cancel').click();
+      expect(dialogRef.close.calls.allArgs()).toEqual([['viewGame'], ['replace'], ['cancel']]);
+    });
+  });
+
+  it('should close with replace from a danger-styled confirm button', () => {
     fixture.detectChanges();
     const confirm = button('#replace-killer-confirm');
     expect(confirm.textContent).toContain('Abandon & start new');
     expect(confirm.className).toContain('status-danger');
     confirm.click();
-    expect(dialogRef.close).toHaveBeenCalledOnceWith(true);
+    expect(dialogRef.close).toHaveBeenCalledOnceWith('replace');
   });
 
-  it('should close with false when cancelled', () => {
+  it('should close with cancel when cancelled', () => {
     fixture.detectChanges();
     button('#replace-killer-cancel').click();
-    expect(dialogRef.close).toHaveBeenCalledOnceWith(false);
+    expect(dialogRef.close).toHaveBeenCalledOnceWith('cancel');
   });
 });

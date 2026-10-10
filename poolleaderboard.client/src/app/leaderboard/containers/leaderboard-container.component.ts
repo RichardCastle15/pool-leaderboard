@@ -11,7 +11,7 @@ import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { ViewportSizeService } from '../../core/services/viewport-size.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LeaderboardAction } from '../models/leaderboard-action.model';
-import { ReplaceKillerDialogComponent } from '../presenters/replace-killer-dialog/replace-killer-dialog.component';
+import { ReplaceKillerDialogComponent, ReplaceKillerDialogResult } from '../presenters/replace-killer-dialog/replace-killer-dialog.component';
 
 @Component({
   selector: 'app-leaderboard-container',
@@ -86,7 +86,7 @@ export class LeaderboardContainerComponent implements OnInit, OnDestroy {
           // The server owns whether a game is in progress (another device may have started it), so we only
           // find out by asking. Nothing has changed server-side; let the user decide.
           const body = err.error as Partial<KillerGameInProgressResponse> | null;
-          this.confirmReplaceKiller(players, Array.isArray(body?.players) ? body.players : []);
+          this.confirmReplaceKiller(players, Array.isArray(body?.players) ? body.players : [], body?.winner ?? undefined);
           return;
         }
         this.toastrService.danger('Failed to start killer game', 'Error');
@@ -95,13 +95,15 @@ export class LeaderboardContainerComponent implements OnInit, OnDestroy {
     this.subscription.add(sub);
   }
 
-  private confirmReplaceKiller(players: { id: number; name: string }[], existingPlayerNames: string[]): void {
+  private confirmReplaceKiller(players: { id: number; name: string }[], existingPlayerNames: string[], winner?: string): void {
     const dialogRef = this.dialogService.open(ReplaceKillerDialogComponent, {
-      context: { playerNames: existingPlayerNames }
+      context: { playerNames: existingPlayerNames, winner }
     });
-    const sub = dialogRef.onClose.subscribe((confirmed: boolean | undefined) => {
-      if (confirmed && this.beginAction('startKiller'))
+    const sub = dialogRef.onClose.subscribe((result: ReplaceKillerDialogResult | undefined) => {
+      if (result === 'replace' && this.beginAction('startKiller'))
         this.postStartKiller(players, true);
+      else if (result === 'viewGame')
+        this.router.navigate(['/killer']);
     });
     this.subscription.add(sub);
   }

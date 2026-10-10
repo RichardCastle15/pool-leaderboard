@@ -24,12 +24,14 @@ public class KillerGameRowDto
 
 /// <summary>
 /// Thrown by <see cref="KillerGameService.StartGame"/> when a game is already in progress and the caller
-/// did not ask to replace it. Carries who is in the existing game so the caller can say so.
+/// did not ask to replace it. Carries who is in the existing game, and who has won it if it is finished
+/// but not yet settled, so the caller can say so.
 /// </summary>
-public class KillerGameInProgressException(IReadOnlyList<string> playerNames)
+public class KillerGameInProgressException(IReadOnlyList<string> playerNames, string? winner)
     : InvalidOperationException("A killer game is already in progress.")
 {
     public IReadOnlyList<string> PlayerNames { get; } = playerNames;
+    public string? Winner { get; } = winner;
 }
 
 public class KillerGameService
@@ -65,7 +67,8 @@ public class KillerGameService
         lock (_lock)
         {
             if (_currentGame != null && !replaceExisting)
-                throw new KillerGameInProgressException(_players!.Select(p => p.Name).ToList());
+                throw new KillerGameInProgressException(
+                    _players!.Select(p => p.Name).ToList(), GetWinnerFromState(_currentGame.GetState()));
 
             var newPlayers = players.ToList();
             _random.Shuffle(CollectionsMarshal.AsSpan(newPlayers));

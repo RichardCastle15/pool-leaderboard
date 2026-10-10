@@ -25,7 +25,7 @@ public class KillerController(
         }
         catch (KillerGameInProgressException ex)
         {
-            return Conflict(new KillerGameInProgressResponse(ex.Message, ex.PlayerNames));
+            return Conflict(new KillerGameInProgressResponse(ex.Message, ex.PlayerNames, ex.Winner));
         }
 
         await killerHubContext.Clients.All.SendAsync("ReceiveKillerGame", killerGameService.GetStateDto());
@@ -75,7 +75,8 @@ public class StartKillerGameRequest
     public bool ReplaceExisting { get; set; }
 }
 
-public record KillerGameInProgressResponse(string Message, IReadOnlyList<string> Players);
+/// <summary>Winner is set when the game is over but its result has not been confirmed yet.</summary>
+public record KillerGameInProgressResponse(string Message, IReadOnlyList<string> Players, string? Winner);
 
 public class KillerPlayerDto
 {

@@ -104,6 +104,7 @@ public class KillerControllerTests
         var conflict = Assert.IsType<ConflictObjectResult>(result);
         var body = Assert.IsType<KillerGameInProgressResponse>(conflict.Value);
         Assert.Equal(["Alice", "Bob", "Charlie"], body.Players.Order());
+        Assert.Null(body.Winner);
     }
 
     [Fact]
@@ -127,8 +128,11 @@ public class KillerControllerTests
 
         var result = await controller.StartGame(StartRequest(replaceExisting: false));
 
-        Assert.IsType<ConflictObjectResult>(result);
-        Assert.NotNull(killerGameService.GetWinnerName());
+        var conflict = Assert.IsType<ConflictObjectResult>(result);
+        var body = Assert.IsType<KillerGameInProgressResponse>(conflict.Value);
+        Assert.Equal(killerGameService.GetWinnerName(), body.Winner);
+        Assert.NotNull(body.Winner);
+        Assert.Equal(3, body.Players.Count);
     }
 
     [Fact]

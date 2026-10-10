@@ -201,6 +201,7 @@ public class KillerGameServiceTests
             service.StartGame([(4, "Dave"), (5, "Erin"), (6, "Frank")]));
 
         Assert.Equal(["Alice", "Bob", "Charlie"], ex.PlayerNames.Order());
+        Assert.Null(ex.Winner);
     }
 
     [Fact]
@@ -231,9 +232,10 @@ public class KillerGameServiceTests
         service.EarlyBlackPot();
         Assert.NotNull(service.GetWinnerName());
 
-        Assert.Throws<KillerGameInProgressException>(() =>
+        var ex = Assert.Throws<KillerGameInProgressException>(() =>
             service.StartGame([(4, "Dave"), (5, "Erin"), (6, "Frank")]));
 
+        Assert.Equal(service.GetWinnerName(), ex.Winner);
         Assert.NotNull(service.GetWinnerName());
     }
 

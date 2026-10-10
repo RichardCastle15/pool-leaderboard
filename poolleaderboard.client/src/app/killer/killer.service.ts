@@ -15,6 +15,8 @@ export interface KillerGameServerState {
 export interface KillerGameInProgressResponse {
   message: string;
   players: string[];
+  /** Set when the game is over but its result hasn't been confirmed yet. */
+  winner?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })

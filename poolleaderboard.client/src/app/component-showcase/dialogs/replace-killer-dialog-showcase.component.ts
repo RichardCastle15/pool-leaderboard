@@ -10,6 +10,8 @@ import { ReplaceKillerDialogComponent } from '../../leaderboard/presenters/repla
   template: `
     <h5>With players</h5>
     <app-replace-killer-dialog [playerNames]="players"></app-replace-killer-dialog>
+    <h5>Finished game, result not recorded</h5>
+    <app-replace-killer-dialog [playerNames]="players" [winner]="players[1]"></app-replace-killer-dialog>
     <h5>Players unknown</h5>
     <app-replace-killer-dialog></app-replace-killer-dialog>
   `,

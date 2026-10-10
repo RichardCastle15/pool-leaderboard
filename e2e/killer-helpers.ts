@@ -20,7 +20,8 @@ export async function selectAndStartKiller(page: Page, names: string[]): Promise
 export async function startKillerGame(page: Page, names: string[] = KILLER_PLAYERS): Promise<void> {
   await selectAndStartKiller(page, names);
   const replaceButton = page.getByRole('button', { name: 'Abandon & start new' });
-  await Promise.race([replaceButton.waitFor(), page.waitForURL(/\/killer$/)]);
+  // Either the game starts and the killer page shows its rows, or the replace prompt appears.
+  await expect(replaceButton.or(page.getByLabel('Early black'))).toBeVisible();
   if (await replaceButton.isVisible()) {
     await replaceButton.click();
   }
@@ -33,7 +34,7 @@ export async function clearKillerGame(page: Page): Promise<void> {
   await page.goto('/killer');
   const abandon = page.getByLabel('Abandon');
   const noGame = page.getByText('No active game.');
-  await Promise.race([abandon.waitFor(), noGame.waitFor()]);
+  await expect(abandon.or(noGame)).toBeVisible();
   if (await abandon.isVisible()) {
     await abandon.click();
     await page.getByRole('button', { name: 'Abandon', exact: true }).click();

@@ -13,7 +13,7 @@ import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { Router } from '@angular/router';
 import { ViewportSizeService } from '../../core/services/viewport-size.service';
 import { LeaderboardAction } from '../models/leaderboard-action.model';
-import { ReplaceKillerDialogComponent } from '../presenters/replace-killer-dialog/replace-killer-dialog.component';
+import { ReplaceKillerDialogComponent, ReplaceKillerDialogResult } from '../presenters/replace-killer-dialog/replace-killer-dialog.component';
 
 @Component({ selector: 'app-leaderboard', template: '', standalone: true })
 class MockLeaderboardComponent {
@@ -36,7 +36,7 @@ describe('LeaderboardContainerComponent', () => {
   let mockToastrService: jasmine.SpyObj<NbToastrService>;
   let mockRouter: jasmine.SpyObj<Router>;
   let mockDialogService: jasmine.SpyObj<NbDialogService>;
-  let dialogClose$: Subject<boolean | undefined>;
+  let dialogClose$: Subject<ReplaceKillerDialogResult | undefined>;
 
   beforeEach(async () => {
     leaderboard$ = new Subject();
@@ -174,7 +174,7 @@ describe('LeaderboardContainerComponent', () => {
     it('should open the replace dialog listing the players in the game in progress', () => {
       component.startKiller(players);
       expect(mockDialogService.open).toHaveBeenCalledOnceWith(
-        ReplaceKillerDialogComponent, { context: { playerNames: ['Dave', 'Erin', 'Frank'] } });
+        ReplaceKillerDialogComponent, { context: { playerNames: ['Dave', 'Erin', 'Frank'], winner: undefined } });
     });
 
     it('should still open the dialog when the 409 body does not list players', () => {
@@ -182,7 +182,24 @@ describe('LeaderboardContainerComponent', () => {
         throwError(() => new HttpErrorResponse({ status: 409, error: 'conflict' })), of(undefined));
       component.startKiller(players);
       expect(mockDialogService.open).toHaveBeenCalledOnceWith(
-        ReplaceKillerDialogComponent, { context: { playerNames: [] } });
+        ReplaceKillerDialogComponent, { context: { playerNames: [], winner: undefined } });
+    });
+
+    it('should pass the winner to the dialog when the game in progress has been won', () => {
+      mockKillerService.startGame.and.returnValues(
+        throwError(() => new HttpErrorResponse({ status: 409, error: { message: 'x', players: ['Dave', 'Erin', 'Frank'], winner: 'Erin' } })),
+        of(undefined));
+      component.startKiller(players);
+      expect(mockDialogService.open).toHaveBeenCalledOnceWith(
+        ReplaceKillerDialogComponent, { context: { playerNames: ['Dave', 'Erin', 'Frank'], winner: 'Erin' } });
+    });
+
+    it('should navigate to /killer without posting again when the user chooses to go to the game', () => {
+      component.startKiller(players);
+      dialogClose$.next('viewGame');
+      expect(mockRouter.navigate).toHaveBeenCalledOnceWith(['/killer']);
+      expect(mockKillerService.startGame).toHaveBeenCalledTimes(1);
+      expect(component.pendingAction()).toBeNull();
     });
 
     it('should not show an error toast, navigate or re-post while the dialog is open', () => {
@@ -194,7 +211,7 @@ describe('LeaderboardContainerComponent', () => {
 
     it('should do nothing further and clear the pending state when cancelled', () => {
       component.startKiller(players);
-      dialogClose$.next(false);
+      dialogClose$.next('cancel');
       expect(mockKillerService.startGame).toHaveBeenCalledTimes(1);
       expect(mockRouter.navigate).not.toHaveBeenCalled();
       expect(component.pendingAction()).toBeNull();
@@ -209,7 +226,7 @@ describe('LeaderboardContainerComponent', () => {
 
     it('should re-post with replaceExisting and navigate to /killer when confirmed', () => {
       component.startKiller(players);
-      dialogClose$.next(true);
+      dialogClose$.next('replace');
       expect(mockKillerService.startGame).toHaveBeenCalledTimes(2);
       expect(mockKillerService.startGame.calls.mostRecent().args).toEqual([players, true]);
       expect(mockRouter.navigate).toHaveBeenCalledOnceWith(['/killer']);
@@ -218,7 +235,7 @@ describe('LeaderboardContainerComponent', () => {
     it('should show a danger toast rather than another dialog if the confirmed start fails with 409', () => {
       mockKillerService.startGame.and.returnValues(throwError(conflict), throwError(conflict));
       component.startKiller(players);
-      dialogClose$.next(true);
+      dialogClose$.next('replace');
       expect(mockDialogService.open).toHaveBeenCalledTimes(1);
       expect(mockToastrService.danger).toHaveBeenCalledOnceWith('Failed to start killer game', 'Error');
       expect(component.pendingAction()).toBeNull();
@@ -229,7 +246,7 @@ describe('LeaderboardContainerComponent', () => {
       mockKillerService.startGame.and.returnValues(throwError(conflict), request$);
       component.startKiller(players);
       expect(component.pendingAction()).toBeNull();
-      dialogClose$.next(true);
+      dialogClose$.next('replace');
       expect(component.pendingAction()).toBe('startKiller');
     });
   });

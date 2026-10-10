@@ -65,14 +65,44 @@ test.describe('Starting a killer game while one is in progress', () => {
       { rating: 1100 }, { rating: 1050 }, { rating: 1000 }, { rating: 950 }]);
   });
 
-  test('also warns when the finished game has not been settled yet', async ({ page }) => {
-    await page.goto('/killer');
-    await page.getByLabel('Early black').click();
-    await page.getByLabel('Early black').click();
-    await expect(page.getByText(/ wins!$/)).toBeVisible();
+  test.describe('when the game in progress has already been won', () => {
+    /** Wins the current three-player game, returns the winner, and goes back to start another. */
+    async function winThenStartAnother(page: Page): Promise<string> {
+      await page.goto('/killer');
+      await page.getByLabel('Early black').click();
+      await page.getByLabel('Early black').click();
+      const banner = await page.getByText(/ wins!$/).textContent();
+      const winner = banner!.replace(/ wins!$/, '').trim();
+      await selectAndStartKiller(page, secondPlayers);
+      return winner;
+    }
 
-    await selectAndStartKiller(page, secondPlayers);
-    await expect(dialog(page)).toBeVisible();
+    test('says who won and that the result will be discarded, not that a game is in progress', async ({ page }) => {
+      const winner = await winThenStartAnother(page);
+
+      await expect(page.locator('#replace-killer-message')).toContainText(
+        `${winner} won the last killer game, but the result hasn't been recorded yet.`);
+      await expect(page.locator('#replace-killer-message')).toContainText('discard it');
+      await expect(page.getByText('A killer game is already in progress')).toBeHidden();
+    });
+
+    test('"Go to killer" takes you to the finished game so the result can be confirmed', async ({ page }) => {
+      const winner = await winThenStartAnother(page);
+      await page.getByRole('button', { name: 'Go to killer' }).click();
+
+      await expect(page).toHaveURL(/\/killer$/);
+      await expect(page.getByText(`${winner} wins!`)).toBeVisible();
+      expect(await playersOnKillerPage(page)).toEqual(firstPlayers);
+    });
+
+    test('abandoning discards the unrecorded result', async ({ page, sql }) => {
+      await winThenStartAnother(page);
+      await page.getByRole('button', { name: 'Abandon & start new' }).click();
+
+      await expect(page).toHaveURL(/\/killer$/);
+      expect(await playersOnKillerPage(page)).toEqual(secondPlayers);
+      expect(await sql('SELECT COUNT(*)::int AS count FROM killer_game')).toEqual([{ count: 0 }]);
+    });
   });
 
   test('starts straight away, without a warning, when no game is in progress', async ({ page }) => {
