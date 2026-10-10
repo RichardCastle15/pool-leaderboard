@@ -40,6 +40,18 @@ test.describe('Leaderboard', () => {
     expect(await sql('SELECT rating FROM rating WHERE name = $1', ['Erin E'])).toEqual([{ rating: 1000 }]);
   });
 
+  // Issue #90: whitespace is ignored for duplicate checks, so "Alice A " must not create a second Alice A.
+  test('adding an existing name with a trailing space is rejected as a duplicate', async ({ page, sql }) => {
+    await page.getByText('Add someone').click();
+    await page.getByRole('textbox', { name: 'Name (e.g. Richard C)' }).fill('Alice A ');
+    await page.getByRole('button', { name: 'Add' }).click();
+
+    await expect(page.getByText('already exists')).toBeVisible();
+    await expect(page.getByRole('row').filter({ has: page.getByRole('cell') })).toHaveCount(4);
+
+    expect(await sql('SELECT name FROM rating WHERE name LIKE $1', ['%Alice A%'])).toEqual([{ name: 'Alice A' }]);
+  });
+
   // Issue #84: the swing should be visible without opening the record result dialog.
   test('shows each player\'s points swing on the record result button once two are selected', async ({ page }) => {
     const recordResult = page.locator('nb-action', { hasText: 'Record result' });
