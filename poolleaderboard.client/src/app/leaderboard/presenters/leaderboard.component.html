@@ -42,8 +42,9 @@
           }
         </span>
       </nb-action>
-      <nb-action id="killer-action" [disabled]="!canStartKiller()" [attr.aria-disabled]="!canStartKiller()" [attr.aria-busy]="pendingAction() === 'startKiller'"
-          [nbSpinner]="pendingAction() === 'startKiller'" nbSpinnerSize="small" nbSpinnerStatus="primary" (click)="onStartKiller()">
+      <nb-action id="killer-action" aria-label="Start killer" [disabled]="!canStartKiller()" [attr.aria-disabled]="!canStartKiller()" [attr.aria-busy]="pendingAction() === 'startKiller'"
+          [nbSpinner]="pendingAction() === 'startKiller'" nbSpinnerSize="small" nbSpinnerStatus="primary" (click)="onStartKiller()"
+          [nbTooltip]="killerMinimumHint" [nbTooltipDisabled]="!showKillerMinimumHint()">
         <span class="badge-container">
           <nb-icon icon="close-circle-outline"></nb-icon>
           @if(size() === 'full') { Start killer }

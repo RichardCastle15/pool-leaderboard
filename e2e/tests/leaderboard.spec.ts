@@ -41,6 +41,18 @@ test.describe('Leaderboard', () => {
     expect(await sql('SELECT rating FROM rating WHERE name = $1', ['Erin E'])).toEqual([{ rating: 1000 }]);
   });
 
+  // Issue #90: whitespace is ignored for duplicate checks, so "Alice A " must not create a second Alice A.
+  test('adding an existing name with a trailing space is rejected as a duplicate', async ({ page, sql }) => {
+    await page.getByText('Add someone').click();
+    await page.getByRole('textbox', { name: 'Name (e.g. Richard C)' }).fill('Alice A ');
+    await page.getByRole('button', { name: 'Add' }).click();
+
+    await expect(page.getByText('already exists')).toBeVisible();
+    await expect(page.getByRole('row').filter({ has: page.getByRole('cell') })).toHaveCount(4);
+
+    expect(await sql('SELECT name FROM rating WHERE name LIKE $1', ['%Alice A%'])).toEqual([{ name: 'Alice A' }]);
+  });
+
   // Issue #84: the swing should be visible without opening the record result dialog.
   test('shows each player\'s points swing on the record result button once two are selected', async ({ page }) => {
     const recordResult = page.locator('nb-action', { hasText: 'Record result' });
@@ -54,6 +66,34 @@ test.describe('Leaderboard', () => {
 
     await page.getByRole('cell', { name: 'Carol C' }).click();
     await expect(recordResult).toHaveText('Record result');
+  });
+
+  // Issue #94: a killer game needs at least three players; two should be a head-to-head.
+  test('keeps start killer disabled until a third player is selected', async ({ page }) => {
+    const startKiller = page.getByLabel('Start killer');
+    const hint = page.getByText('Select at least 3 players for killer (2 players: record a head-to-head)');
+
+    await page.getByRole('cell', { name: 'Alice A' }).click();
+    await page.getByRole('cell', { name: 'Bob B' }).click();
+    await expect(startKiller).toHaveAttribute('aria-disabled', 'true');
+
+    // The disabled action still shows why it is unavailable on hover.
+    await startKiller.hover();
+    await expect(hint).toBeVisible();
+
+    await page.getByRole('cell', { name: 'Carol C' }).click();
+    await expect(startKiller).toHaveAttribute('aria-disabled', 'false');
+    await expect(hint).toBeHidden();
+  });
+
+  test('shows the minimum player hint on the icon-only killer action in compact mode', async ({ page }) => {
+    await page.setViewportSize({ width: 400, height: 800 });
+    await page.reload();
+    const startKiller = page.getByLabel('Start killer');
+
+    await page.getByRole('cell', { name: 'Alice A' }).click();
+    await startKiller.hover();
+    await expect(page.getByText('Select at least 3 players for killer (2 players: record a head-to-head)')).toBeVisible();
   });
 
   // Issue #83: show that a result is being recorded and block other changes until it's done.
@@ -93,6 +133,7 @@ test.describe('Leaderboard', () => {
     const startKiller = page.locator('nb-action', { hasText: 'Start killer' });
     await page.getByRole('cell', { name: 'Alice A' }).click();
     await page.getByRole('cell', { name: 'Bob B' }).click();
+    await page.getByRole('cell', { name: 'Carol C' }).click();
 
     // The leaderboard is fully loaded by now, so this only holds the killer route's lazy chunks.
     const release = await holdRequests(page, /\/chunk-[^/]+\.js$/);

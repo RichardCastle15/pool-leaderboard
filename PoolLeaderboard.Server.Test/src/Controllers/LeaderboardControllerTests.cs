@@ -122,6 +122,36 @@ public class LeaderboardControllerTests
         Assert.IsType<OkResult>(result);
     }
 
+    [Theory]
+    [InlineData("Alice B ")]
+    [InlineData("  Alice B")]
+    [InlineData("\tAlice B\n")]
+    [InlineData("Alice  B")]
+    [InlineData("Alice\tB")]
+    public async Task Post_ReturnsConflict_WhenNormalisedNameAlreadyExists(string name)
+    {
+        repository.ExistsByName("Alice B").Returns(true);
+
+        var result = await controller.Post(new AddParticipantBody { Name = name });
+
+        Assert.IsType<ConflictObjectResult>(result);
+        repository.DidNotReceive().Add(Arg.Any<string>());
+    }
+
+    [Theory]
+    [InlineData("  Alice B ")]
+    [InlineData("Alice   B")]
+    [InlineData("Alice\tB")]
+    public async Task Post_AddsNormalisedName(string name)
+    {
+        repository.ExistsByName("Alice B").Returns(false);
+
+        await controller.Post(new AddParticipantBody { Name = name });
+
+        repository.Received(1).ExistsByName("Alice B");
+        repository.Received(1).Add("Alice B");
+    }
+
     [Fact]
     public async Task Post_DoesNotAddParticipant_WhenNameIsInvalid()
     {

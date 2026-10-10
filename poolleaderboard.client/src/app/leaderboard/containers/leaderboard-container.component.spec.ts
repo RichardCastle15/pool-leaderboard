@@ -141,7 +141,7 @@ describe('LeaderboardContainerComponent', () => {
   });
 
   describe('startKiller', () => {
-    const players = [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }];
+    const players = [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }, { id: 3, name: 'Carol' }];
 
     it('should call killerService.startGame with the selected players', () => {
       component.startKiller(players);
@@ -265,7 +265,7 @@ describe('LeaderboardContainerComponent', () => {
   });
 
   describe('pending action', () => {
-    const players = [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }];
+    const players = [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }, { id: 3, name: 'Carol' }];
     let request$: Subject<Object>;
 
     beforeEach(() => {
