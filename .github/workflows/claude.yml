@@ -1,5 +1,15 @@
 name: Claude Code
 
+# Runs Claude when someone mentions @claude on an issue, PR, PR review or review comment. Before Claude
+# starts, this job brings up the same throwaway copy of the app as the E2E tests (published build on :5180,
+# fresh `leaderboard_e2e` database with seed.sql applied), so Claude can drive it with the Playwright MCP
+# (.mcp.json) and run the E2E suite. Ask it to "triage this bug" to run the triage-bug skill
+# (.claude/skills/triage-bug/SKILL.md).
+#
+# Bugs are no longer triaged automatically: tag @claude on the issue to triage one.
+#
+# claude-code-action only acts on mentions from users with write access to the repo.
+
 on:
   issue_comment:
     types: [created]
@@ -18,33 +28,126 @@ jobs:
       (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
       (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
     runs-on: ubuntu-latest
+    timeout-minutes: 75
+
     permissions:
-      contents: read
-      pull-requests: read
-      issues: read
-      id-token: write
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write # the Claude GitHub app authenticates via OIDC
       actions: read # Required for Claude to read CI results on PRs
+
+    # Same throwaway Postgres as the E2E job in docker-publish.yml.
+    services:
+      db:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      PGPASSWORD: postgres
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Same version as the devcontainer; the linux-x64 bundle ships its own JRE
+      - name: Install Flyway
+        run: |
+          curl -fsSL "https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/9.22.3/flyway-commandline-9.22.3-linux-x64.tar.gz" \
+            | sudo tar -xz -C /opt
+          # The archive's launcher is rwxr--r-- and sudo tar keeps its original (non-runner) owner,
+          # so without this the runner user gets "Permission denied" running flyway.
+          sudo chmod a+rx /opt/flyway-9.22.3/flyway
+          echo "/opt/flyway-9.22.3" >> "$GITHUB_PATH"
+
+      - name: Install frontend dependencies
+        working-directory: ./poolleaderboard.client
+        run: npm ci
+
+      - name: Install E2E dependencies
+        working-directory: ./e2e
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      # Same version as the devcontainer, so .mcp.json (`playwright-mcp --headless --no-sandbox`) works unchanged.
+      - name: Install Playwright MCP
+        run: |
+          npm install -g @playwright/mcp@0.0.83
+          cd "$(npm root -g)/@playwright/mcp" && npx --no-install playwright-core install --with-deps chromium
+
+      - name: Start the E2E app on :5180
+        working-directory: ./e2e
+        run: |
+          nohup ./scripts/start-server.sh > "$RUNNER_TEMP/e2e-server.log" 2>&1 &
+          for i in $(seq 1 150); do
+            if curl -s -o /dev/null -w '%{http_code}' http://localhost:5180/ | grep -q 200; then
+              echo "E2E app is up"; break
+            fi
+            sleep 2
+          done
+          curl -sf -o /dev/null http://localhost:5180/ || { tail -50 "$RUNNER_TEMP/e2e-server.log"; exit 1; }
+          psql -h localhost -U postgres -d leaderboard_e2e -q -f seed.sql
+
+      # Labels the triage-bug skill manages, in case Claude is asked to triage.
+      - name: Ensure triage labels exist
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create needs-info   --color D93F0B --description "Bug triage needs more detail from the author" --force
+          gh label create investigated --color 0E8A16 --description "Bug triage has reproduced and investigated this" --force
+          gh label create fix-proposed --color 1D76DB --description "Bug triage has opened a PR to fix this" --force
 
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@v1
         with:
+          # Whichever secret /install-github-app created; the other is empty.
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
-          # This is an optional setting that allows Claude to read CI results on PRs
+          # Allows Claude to read CI results on PRs
           additional_permissions: |
             actions: read
 
-          # Optional: Give a custom prompt to Claude. If this is not specified, Claude will perform the instructions specified in the comment that tagged it.
-          # prompt: 'Update the pull request description to include a summary of changes.'
+          claude_args: |
+            --mcp-config .mcp.json
+            --max-turns 200
+            --append-system-prompt "The E2E copy of the app is already running on http://localhost:5180 (published build of the commit checked out before Claude started, throwaway leaderboard_e2e database with e2e/seed.sql applied, server log at ${{ runner.temp }}/e2e-server.log). Use the Playwright MCP against it to check behaviour in the real app, and restart it with e2e/scripts/start-server.sh after changing code (see e2e/CLAUDE.md). Never stop to ask a question mid-run: nobody is watching, so put questions in your comment. When asked to triage or investigate a bug, follow the triage-bug skill (/triage-bug <issue number> --rerun)."
+            --allowedTools "Read,Edit,Write,Glob,Grep,mcp__playwright,Bash(gh:*),Bash(git:*),Bash(dotnet:*),Bash(npm:*),Bash(npx:*),Bash(curl:*),Bash(psql:*),Bash(./e2e/scripts/start-server.sh:*),Bash(./scripts/start-server.sh:*),Bash(nohup:*),Bash(cd:*),Bash(ls:*),Bash(cat:*),Bash(head:*),Bash(tail:*),Bash(grep:*),Bash(sed:*),Bash(sleep:*),Bash(top:*),Bash(ps:*),Bash(pgrep:*),Bash(pkill:*),Bash(kill:*)"
 
-          # Optional: Add claude_args to customize behavior and configuration
-          # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
-          # or https://code.claude.com/docs/en/cli-reference for available options
-          # claude_args: '--allowed-tools Bash(gh pr *)'
-
+      - name: Upload server log and browser artefacts
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: claude-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/e2e-server.log
+            .playwright-mcp/
+          if-no-files-found: ignore
+          retention-days: 14
