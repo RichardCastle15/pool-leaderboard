@@ -151,7 +151,7 @@ describe('LeaderboardComponent', () => {
       expect(isDisabled).toBeTrue();
     });
 
-    it('should enable killer when at least two players are selected', () => {
+    it('should keep killer disabled when only two players are selected', () => {
       fixture.componentRef.setInput('entries', entries);
       fixture.detectChanges();
 
@@ -159,6 +159,21 @@ describe('LeaderboardComponent', () => {
       const dataRows = fixture.debugElement.queryAll(By.css('table tr')).slice(1);
       dataRows[0].nativeElement.click(); // Select first row
       dataRows[1].nativeElement.click(); // Select second row
+      fixture.detectChanges();
+
+      const isDisabled = fixture.debugElement.query(By.css('#killer-action')).componentInstance.disabled;
+      expect(isDisabled).toBeTrue();
+    });
+
+    it('should enable killer when three players are selected', () => {
+      fixture.componentRef.setInput('entries', entries);
+      fixture.detectChanges();
+
+      // Skip header row at index 0
+      const dataRows = fixture.debugElement.queryAll(By.css('table tr')).slice(1);
+      dataRows[0].nativeElement.click(); // Select first row
+      dataRows[1].nativeElement.click(); // Select second row
+      dataRows[2].nativeElement.click(); // Select third row
       fixture.detectChanges();
 
       const isDisabled = fixture.debugElement.query(By.css('#killer-action')).componentInstance.disabled;
@@ -244,7 +259,7 @@ describe('LeaderboardComponent', () => {
     beforeEach(() => {
       fixture.componentRef.setInput('entries', entries);
       fixture.detectChanges();
-      selectRows(0, 1);
+      selectRows(0, 1, 2); // three players, so killer is enabled
     });
 
     it('should show a spinner only on the pending action', () => {
@@ -289,12 +304,34 @@ describe('LeaderboardComponent', () => {
     });
   });
 
-  it('should not start killer when fewer than 2 players are selected', () => {
+  it('should not start killer when fewer than 3 players are selected', () => {
     const killerSpy = jasmine.createSpy('startKiller');
     component.startKiller.subscribe(killerSpy);
     fixture.componentRef.setInput('entries', entries);
     fixture.detectChanges();
+    const dataRows = fixture.debugElement.queryAll(By.css('table tr')).slice(1);
+    dataRows[0].nativeElement.click();
+    dataRows[1].nativeElement.click(); // two players: a head-to-head, not a killer game
+    fixture.detectChanges();
     fixture.debugElement.query(By.css('#killer-action')).nativeElement.click();
     expect(killerSpy).not.toHaveBeenCalled();
+  });
+
+  it('should start killer with the selected players when three are selected', () => {
+    const killerSpy = jasmine.createSpy('startKiller');
+    component.startKiller.subscribe(killerSpy);
+    fixture.componentRef.setInput('entries', entries);
+    fixture.detectChanges();
+    const dataRows = fixture.debugElement.queryAll(By.css('table tr')).slice(1);
+    dataRows[0].nativeElement.click();
+    dataRows[1].nativeElement.click();
+    dataRows[2].nativeElement.click();
+    fixture.detectChanges();
+    fixture.debugElement.query(By.css('#killer-action')).nativeElement.click();
+    expect(killerSpy).toHaveBeenCalledOnceWith([
+      { id: 1, name: 'Richard' },
+      { id: 2, name: 'Russel' },
+      { id: 3, name: 'Stephen B' }
+    ]);
   });
 });
