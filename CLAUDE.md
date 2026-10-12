@@ -81,6 +81,8 @@ Devcontainer (`.devcontainer/docker-compose.yml`) runs two containers: the dev c
 
 To query the dev DB: `psql -h db -U postgres -d leaderboard` (password: `YourStrong!Passw0rd`).
 
+**Claude Code cloud sessions** don't use the devcontainer; [.claude/hooks/session-start.sh](.claude/hooks/session-start.sh) (a SessionStart hook) recreates it instead: .NET 10 SDK from apt, Flyway 9.22.3, a local PostgreSQL aliased as `db:5432` with the `leaderboard` DB migrated, npm deps, the Playwright MCP, and Playwright browser links to the pre-installed Chromium (the browser CDN and Microsoft's .NET download host are blocked). The commands above work unchanged with the devcontainer defaults. Parallel E2E runs (e.g. one per worktree) need distinct `E2E_PORT` and `E2E_DB_NAME`.
+
 ## CI / deploy
 
 [`.github/workflows/docker-publish.yml`](.github/workflows/docker-publish.yml) on push to `main`: runs the `e2e` job (Postgres service + `npx playwright test`, HTML report uploaded as an artifact), then `npm run test:ci`, then builds the `test` stage of [PoolLeaderboard.Server/Dockerfile](PoolLeaderboard.Server/Dockerfile) (which runs `dotnet test` inside Docker), then builds and pushes `ghcr.io/richardcastle15/poolleaderboard:latest`. Failing tests (including E2E) block the image push.
