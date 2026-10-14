@@ -30,6 +30,10 @@ const prodRoutes: Routes = [
     loadComponent: () => import('./rules/rules.component').then(m => m.RulesComponent)
   },
   {
+    path: 'theme',
+    loadComponent: () => import('./theme-switcher/theme-container.component').then(m => m.ThemeContainerComponent)
+  },
+  {
     path: 'player/:id',
     loadComponent: () => import('./player-info/containers/player-info-container.component').then(m => m.PlayerInfoContainerComponent)
   },
