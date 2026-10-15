@@ -45,7 +45,9 @@ using (var scope = app.Services.CreateScope())
 }
 
 // /tv is a static ES5 page for old TV browsers; without this the SPA fallback would answer /tv.
-app.MapGet("/tv", () => Results.Redirect("/tv/"));
+// Routing ignores the trailing slash, so redirecting to "/tv/" would loop; serve the file directly.
+app.MapGet("/tv", (IWebHostEnvironment env) =>
+    Results.File(env.WebRootFileProvider.GetFileInfo("tv/index.html").CreateReadStream(), "text/html"));
 app.UseDefaultFiles();
 app.MapStaticAssets();
 
