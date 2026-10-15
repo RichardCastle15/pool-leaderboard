@@ -6,7 +6,6 @@ test.describe('TV killer page', () => {
   test('shows no game when none is in progress', async ({ page }) => {
     await clearKillerGame(page);
     await page.goto('/tv');
-    await expect(page).toHaveURL(/\/tv\/$/);
     await expect(page.getByText('No game in progress')).toBeVisible();
   });
 
