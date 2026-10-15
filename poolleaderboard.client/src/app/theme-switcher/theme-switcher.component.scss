@@ -1,5 +1,62 @@
-:host {
+@use '../../themes.scss' as *;
+
+.theme-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.theme-option {
+  flex: 1 1 10rem;
+  max-width: 16rem;
+  padding: 0.5rem;
+  border: 3px solid nb-theme(border-basic-color-3);
+  border-radius: nb-theme(border-radius);
+  background: nb-theme(background-basic-color-1);
+  color: nb-theme(text-basic-color);
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.theme-option--selected {
+  border-color: nb-theme(color-primary-500);
+}
+
+.theme-preview {
+  display: block;
+  padding: 1rem;
+  border-radius: nb-theme(border-radius);
+}
+
+.theme-preview-card {
+  display: block;
+  padding: 0.75rem;
+  border-radius: 0.25rem;
+}
+
+.theme-preview-line {
+  display: block;
+  height: 0.5rem;
+  width: 100%;
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.theme-preview-line--short {
+  width: 50%;
+  margin-bottom: 0;
+}
+
+.theme-label {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+.theme-check {
+  color: nb-theme(color-primary-500);
+  font-size: 1.5rem;
 }

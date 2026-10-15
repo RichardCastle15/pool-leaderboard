@@ -1,6 +1,22 @@
-<nb-select [selected]="selectedTheme" (selectedChange)="themeChange.emit($event)" size="small">
-  <nb-option value="default">Default</nb-option>
-  <nb-option value="dark">Dark</nb-option>
-  <nb-option value="cosmic">Cosmic</nb-option>
-
-</nb-select>
+<div class="theme-options" role="radiogroup" aria-label="Theme">
+  @for (option of options; track option.value) {
+  <button type="button" class="theme-option" role="radio"
+          [class.theme-option--selected]="option.value === selectedTheme"
+          [attr.aria-checked]="option.value === selectedTheme"
+          [attr.data-theme]="option.value"
+          (click)="themeChange.emit(option.value)">
+    <span class="theme-preview" [style.background]="option.background">
+      <span class="theme-preview-card" [style.background]="option.surface">
+        <span class="theme-preview-line" [style.background]="option.text"></span>
+        <span class="theme-preview-line theme-preview-line--short" [style.background]="option.accent"></span>
+      </span>
+    </span>
+    <span class="theme-label">
+      {{ option.label }}
+      @if (option.value === selectedTheme) {
+      <nb-icon icon="checkmark-circle-2" class="theme-check" aria-label="Selected"></nb-icon>
+      }
+    </span>
+  </button>
+  }
+</div>

@@ -4,7 +4,6 @@ import { NbMenuItem, NbSidebarResponsiveState, NbSidebarState } from '@nebular/t
 import { environment } from '../environments/environment';
 import { NavigationEnd, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { ThemeService } from './core/services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -47,12 +46,17 @@ export class AppComponent implements OnInit, OnDestroy {
       icon: 'book-open-outline',
       link: '/rules'
     },
+    {
+      title: 'Theme',
+      icon: 'color-palette-outline',
+      link: '/theme'
+    },
   ]);
 
   private subscriptions = new Subscription();
   private connection!: HubConnection;
 
-  constructor(private router: Router, protected themeService: ThemeService) {}
+  constructor(private router: Router) {}
 
   ngOnInit() {
     this.connection = new HubConnectionBuilder().withUrl("/exampleHub").configureLogging(LogLevel.Debug).build();
