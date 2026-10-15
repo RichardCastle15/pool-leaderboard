@@ -45,6 +45,33 @@ public class KillerControllerTests
         controller = new KillerController(killerGameService, killerHubContext, leaderboardHubContext, leaderboardRepository, killerGameRepository);
     }
 
+    #region GET /api/killer
+
+    [Fact]
+    public void Get_WithNoGame_ReturnsInactiveState()
+    {
+        var state = controller.GetState().Value!;
+
+        Assert.False(state.IsActive);
+        Assert.Empty(state.PlayerRows);
+    }
+
+    [Fact]
+    public async Task Get_WithGame_ReturnsPlayers()
+    {
+        await controller.StartGame(new StartKillerGameRequest
+        {
+            Players = [new KillerPlayerDto { Id = 1, Name = "Alice" }, new KillerPlayerDto { Id = 2, Name = "Bob" }, new KillerPlayerDto { Id = 3, Name = "Charlie" }]
+        });
+
+        var state = controller.GetState().Value!;
+
+        Assert.True(state.IsActive);
+        Assert.Equal(["Alice", "Bob", "Charlie"], state.PlayerRows.Select(r => r.Name).Order());
+    }
+
+    #endregion
+
     #region POST /api/killer
 
     [Fact]
