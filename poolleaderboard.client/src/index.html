@@ -11,5 +11,22 @@
 </head>
 <body>
   <app-root></app-root>
+  <noscript>This app needs JavaScript enabled.</noscript>
+  <script>
+    // Plain ES5 so even very old browsers can run it: if the app has not rendered, say why.
+    (function () {
+      function show(detail) {
+        var root = document.querySelector('app-root');
+        if (!root || root.children.length || document.getElementById('unsupported')) { return; }
+        var d = document.createElement('div');
+        d.id = 'unsupported';
+        d.style.cssText = 'font:18px sans-serif;padding:24px;color:#222;background:#fff';
+        d.textContent = 'The app could not start in this browser. Please try a newer browser. ' + (detail || '');
+        document.body.appendChild(d);
+      }
+      window.addEventListener('error', function (e) { setTimeout(function () { show(e && e.message); }, 1000); });
+      setTimeout(function () { show(); }, 8000);
+    })();
+  </script>
 </body>
 </html>
