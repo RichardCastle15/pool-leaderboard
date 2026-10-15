@@ -351,6 +351,36 @@ public class KillerGameTests
         Assert.Equal(0, state.PlayerRows[2].LivesRemaining);
     }
 
+    [Fact]
+    public void ShouldRestoreSuddenDeathPotFlagWhenUndoingBackThroughRounds()
+    {
+        KillerGame game = new(["PersonA", "PersonB", "PersonC"]);
+
+        // Everyone to 1 life, sudden death starts with no pots.
+        for (int i = 0; i < 6; i++)
+            game.Miss();
+        Assert.Equal(SuddenDeathState.ActiveWithNoPots, game.GetState().SuddenDeathState);
+
+        game.Pot();
+        game.Pot();
+        Assert.Equal(SuddenDeathState.ActiveWithPots, game.GetState().SuddenDeathState);
+
+        // Third pot completes the round, so the next round has no pots.
+        game.Pot();
+        Assert.Equal(SuddenDeathState.ActiveWithNoPots, game.GetState().SuddenDeathState);
+
+        // Undo back into the previous round: pots count again.
+        game.Undo();
+        Assert.Equal(SuddenDeathState.ActiveWithPots, game.GetState().SuddenDeathState);
+
+        // Undo B's pot too; A's pot still stands, so B missing is fatal.
+        game.Undo();
+        game.Miss();
+
+        KillerGameState state = game.GetState();
+        Assert.Equal(0, state.PlayerRows[1].LivesRemaining);
+    }
+
     #endregion
 
     #region Game over
