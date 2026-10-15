@@ -37,12 +37,16 @@ internal class PotBlackBallEarlyGameAction : BaseGameAction
         CausedSuddenDeath: causedSuddenDeath,
         PreviousPlayerIndex: previousPlayerIndex,
         PlayerIndex: playerIndex,
-        LivesTaken: livesTaken);
+        LivesTaken: livesTaken)
+    {
+        StartedNewSuddenDeathRound = startedNewSuddenDeathRound
+    };
 
     internal static PotBlackBallEarlyGameAction FromRecord(EarlyBlackPotActionRecord r) => new()
     {
         causedSuddenDeath = r.CausedSuddenDeath,
         previousPlayerIndex = r.PreviousPlayerIndex,
+        startedNewSuddenDeathRound = r.StartedNewSuddenDeathRound,
         playerIndex = r.PlayerIndex,
         livesTaken = r.LivesTaken
     };

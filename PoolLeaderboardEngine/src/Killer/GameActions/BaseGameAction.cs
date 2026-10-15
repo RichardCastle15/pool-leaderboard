@@ -12,6 +12,12 @@ internal abstract class BaseGameAction : IGameAction
     protected bool causedSuddenDeath;
 
     /// <summary>
+    /// Pots in sudden death only count for the round they happen in. True = applying this action started a new
+    /// round while sudden death had pots, so the round went back to having no pots.
+    /// </summary>
+    protected bool startedNewSuddenDeathRound;
+
+    /// <summary>
     /// The index of the player whose turn it was when this action was applied, so undo can hand the turn
     /// straight back to them. Stepping back to the previous alive player isn't enough: if this action
     /// eliminated other players, they are alive again after undo and would wrongly be stopped on.
@@ -39,6 +45,8 @@ internal abstract class BaseGameAction : IGameAction
     {
         if (causedSuddenDeath)
             gameState.SuddenDeathState = SuddenDeathState.NotActive;
+        if (startedNewSuddenDeathRound)
+            gameState.SuddenDeathState = SuddenDeathState.ActiveWithPots;
         if (previousPlayerIndex.HasValue)
             gameState.CurrentPlayerIndex = previousPlayerIndex.Value;
         else
@@ -67,6 +75,12 @@ internal abstract class BaseGameAction : IGameAction
             {
                 game.SuddenDeathState = SuddenDeathState.ActiveWithNoPots;
                 causedSuddenDeath = true;
+            }
+            else if (game.SuddenDeathState == SuddenDeathState.ActiveWithPots && game.CurrentPlayerIndex == 0)
+            {
+                // A new round: a pot in the previous round doesn't make the first miss of this one fatal.
+                game.SuddenDeathState = SuddenDeathState.ActiveWithNoPots;
+                startedNewSuddenDeathRound = true;
             }
         } while (game.PlayerRows[game.CurrentPlayerIndex].LivesRemaining == 0);
     }
