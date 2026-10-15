@@ -121,12 +121,16 @@ internal class MissGameAction : BaseGameAction
         CausedSuddenDeath: causedSuddenDeath,
         PreviousPlayerIndex: previousPlayerIndex,
         PlayerIndexOfLifeTaken: playerIndexOfLifeTaken,
-        PlayersRestoredByMiss: suddenDeath?.GetRestoredPlayers());
+        PlayersRestoredByMiss: suddenDeath?.GetRestoredPlayers())
+    {
+        StartedNewSuddenDeathRound = startedNewSuddenDeathRound
+    };
 
     internal static MissGameAction FromRecord(MissActionRecord r) => new()
     {
         causedSuddenDeath = r.CausedSuddenDeath,
         previousPlayerIndex = r.PreviousPlayerIndex,
+        startedNewSuddenDeathRound = r.StartedNewSuddenDeathRound,
         playerIndexOfLifeTaken = r.PlayerIndexOfLifeTaken,
         suddenDeath = r.PlayersRestoredByMiss != null
             ? SuddenDeath.FromRestoredPlayers(r.PlayersRestoredByMiss)

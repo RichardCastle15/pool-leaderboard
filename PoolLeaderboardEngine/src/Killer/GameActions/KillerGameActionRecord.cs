@@ -17,7 +17,11 @@ namespace PoolLeaderboardEngine.Killer.GameActions;
 /// <c>PreviousPlayerIndex</c> is null in records persisted before it was added; undo then falls back to
 /// stepping back to the previous alive player.
 /// </remarks>
-public abstract record KillerGameActionRecord(bool CausedSuddenDeath, int? PreviousPlayerIndex);
+public abstract record KillerGameActionRecord(bool CausedSuddenDeath, int? PreviousPlayerIndex)
+{
+    /// <summary>False in records persisted before it was added.</summary>
+    public bool StartedNewSuddenDeathRound { get; init; }
+}
 
 /// <summary>Undo-state of <c>PotGameAction</c>.</summary>
 public record PotActionRecord(

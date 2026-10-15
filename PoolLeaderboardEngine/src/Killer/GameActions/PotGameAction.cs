@@ -59,12 +59,16 @@ internal class PotGameAction : BaseGameAction
         CausedSuddenDeath: causedSuddenDeath,
         PreviousPlayerIndex: previousPlayerIndex,
         WasFirstPotInSuddenDeath: wasFirstPotInSuddenDeath,
-        PlayersEliminatedInSuddenDeath: [.. playersEliminatedInSuddenDeath]);
+        PlayersEliminatedInSuddenDeath: [.. playersEliminatedInSuddenDeath])
+    {
+        StartedNewSuddenDeathRound = startedNewSuddenDeathRound
+    };
 
     internal static PotGameAction FromRecord(PotActionRecord r) => new()
     {
         causedSuddenDeath = r.CausedSuddenDeath,
         previousPlayerIndex = r.PreviousPlayerIndex,
+        startedNewSuddenDeathRound = r.StartedNewSuddenDeathRound,
         wasFirstPotInSuddenDeath = r.WasFirstPotInSuddenDeath,
         playersEliminatedInSuddenDeath = [.. r.PlayersEliminatedInSuddenDeath]
     };

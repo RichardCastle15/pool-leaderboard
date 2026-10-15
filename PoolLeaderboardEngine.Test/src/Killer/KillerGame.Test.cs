@@ -299,6 +299,58 @@ public class KillerGameTests
         Assert.Equal(0, state.PlayerRows[1].LivesRemaining);
     }
 
+    /// <summary>
+    /// Three players on one life; A misses, B pots (A out), C pots, so the next round starts on B.
+    /// </summary>
+    private static KillerGame NewRoundAfterPotInSuddenDeathRound()
+    {
+        KillerGame game = new(["PersonA", "PersonB", "PersonC"]);
+        for (int i = 0; i < 6; i++)
+            game.Miss();
+        game.Miss();
+        game.Pot();
+        game.Pot();
+        return game;
+    }
+
+    [Fact]
+    public void ShouldNotEliminateFirstMissOfNewRoundAfterPotInPreviousRound()
+    {
+        KillerGame game = NewRoundAfterPotInSuddenDeathRound();
+
+        game.Miss();
+
+        KillerGameState state = game.GetState();
+        Assert.Equal(1, state.PlayerRows[1].LivesRemaining);
+        Assert.True(state.PlayerRows[1].MissedInSuddenDeath);
+        Assert.Equal(2, state.CurrentPlayerIndex);
+    }
+
+    [Fact]
+    public void ShouldEliminateMissedPlayerOnPotInNewRound()
+    {
+        KillerGame game = NewRoundAfterPotInSuddenDeathRound();
+
+        game.Miss();
+        game.Pot();
+
+        Assert.Equal(0, game.GetState().PlayerRows[1].LivesRemaining);
+    }
+
+    [Fact]
+    public void ShouldRestoreSuddenDeathWithPotsOnUndoIntoNewRound()
+    {
+        KillerGame game = NewRoundAfterPotInSuddenDeathRound();
+
+        // Undo C's pot, which started the new round, then C misses: A is out and B hasn't been hit, so C is
+        // eliminated because B potted in this round.
+        game.Undo();
+        game.Miss();
+
+        KillerGameState state = game.GetState();
+        Assert.Equal(0, state.PlayerRows[2].LivesRemaining);
+    }
+
     #endregion
 
     #region Game over
