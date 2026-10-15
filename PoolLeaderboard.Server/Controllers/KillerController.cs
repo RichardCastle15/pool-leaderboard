@@ -19,6 +19,14 @@ public class KillerController(
     /// <summary>Fewer players than this is a head-to-head, not a killer game. Mirrors MIN_KILLER_PLAYERS in the client.</summary>
     public const int MinimumPlayers = 3;
 
+    /// <summary>
+    /// Current game state as plain JSON. Lets clients that can't run the Angular app or SignalR
+    /// (the /tv page on an old TV browser) poll for updates.
+    /// </summary>
+    [HttpGet]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    public ActionResult<KillerGameStateDto> GetState() => killerGameService.GetStateDto();
+
     [HttpPost]
     public async Task<IActionResult> StartGame([FromBody] StartKillerGameRequest request)
     {

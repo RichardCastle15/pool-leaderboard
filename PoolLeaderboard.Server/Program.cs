@@ -44,6 +44,8 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+// /tv is a static ES5 page for old TV browsers; without this the SPA fallback would answer /tv.
+app.MapGet("/tv", () => Results.Redirect("/tv/"));
 app.UseDefaultFiles();
 app.MapStaticAssets();
 

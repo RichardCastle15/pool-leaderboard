@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Killer - Pool Leaderboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  Read-only live Killer scoreboard for old TV browsers (Samsung Tizen 3 = Chromium 47).
+  Deliberately plain ES5 + XMLHttpRequest + table layout: no framework, no modules, no
+  arrow functions, no let/const, no CSS variables/grid/flex-gap. Keep it that way.
+  Polls GET /api/killer.
+-->
+<style>
+  html, body { margin: 0; padding: 0; background: #1a1d29; color: #fff; font-family: Arial, Helvetica, sans-serif; }
+  #wrap { padding: 2% 4%; }
+  h1 { font-size: 48px; margin: 0 0 20px; color: #9fb0ff; }
+  #msg { font-size: 56px; text-align: center; margin-top: 15%; color: #c5c9d8; }
+  #banner { font-size: 64px; text-align: center; background: #2e7d32; padding: 20px; margin-bottom: 20px; display: none; }
+  table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+  td { font-size: 56px; padding: 18px 24px; background: #2a2f45; }
+  td.name { width: 55%; }
+  td.lives { text-align: right; letter-spacing: 6px; }
+  tr.current td { background: #3d5afe; }
+  tr.out td { opacity: 0.35; text-decoration: line-through; }
+  tr.winner td { background: #2e7d32; }
+  .tag { font-size: 28px; letter-spacing: 0; margin-left: 12px; }
+  #status { position: fixed; right: 20px; bottom: 12px; font-size: 24px; color: #ff8a80; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <h1>Killer</h1>
+  <div id="banner"></div>
+  <table id="rows"></table>
+  <div id="msg">Loading...</div>
+</div>
+<div id="status"></div>
+<script>
+(function () {
+  var POLL_MS = 1500;
+  var rowsEl = document.getElementById('rows');
+  var msgEl = document.getElementById('msg');
+  var bannerEl = document.getElementById('banner');
+  var statusEl = document.getElementById('status');
+  var lastJson = null;
+
+  function setText(el, value) {
+    while (el.firstChild) el.removeChild(el.firstChild);
+    el.appendChild(document.createTextNode(value));
+  }
+
+  function lives(n) {
+    var s = '';
+    for (var i = 0; i < n; i++) s += '♥';
+    return s || '0';
+  }
+
+  function tag(parent, label) {
+    var span = document.createElement('span');
+    span.className = 'tag';
+    span.appendChild(document.createTextNode(label));
+    parent.appendChild(span);
+  }
+
+  function render(state) {
+    while (rowsEl.firstChild) rowsEl.removeChild(rowsEl.firstChild);
+    if (!state.isActive) {
+      bannerEl.style.display = 'none';
+      msgEl.style.display = 'block';
+      setText(msgEl, 'No game in progress');
+      return;
+    }
+    msgEl.style.display = 'none';
+    if (state.winner) {
+      bannerEl.style.display = 'block';
+      setText(bannerEl, state.winner + ' wins!');
+    } else {
+      bannerEl.style.display = 'none';
+    }
+    var body = document.createElement('tbody');
+    for (var i = 0; i < state.playerRows.length; i++) {
+      var r = state.playerRows[i];
+      var tr = document.createElement('tr');
+      var cls = '';
+      if (state.winner && r.name === state.winner) cls = 'winner';
+      else if (r.eliminated) cls = 'out';
+      else if (!state.winner && i === state.currentPlayerIndex) cls = 'current';
+      tr.className = cls;
+      var name = document.createElement('td');
+      name.className = 'name';
+      name.appendChild(document.createTextNode(r.name));
+      if (cls === 'current') tag(name, '◀ turn');
+      if (r.missedInSuddenDeath && !r.eliminated) tag(name, 'missed');
+      var l = document.createElement('td');
+      l.className = 'lives';
+      l.appendChild(document.createTextNode(lives(r.livesRemaining)));
+      tr.appendChild(name);
+      tr.appendChild(l);
+      body.appendChild(tr);
+    }
+    rowsEl.appendChild(body);
+  }
+
+  function poll() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/killer?_=' + new Date().getTime(), true);
+    xhr.timeout = 5000;
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState !== 4) return;
+      if (xhr.status === 200) {
+        setText(statusEl, '');
+        // Only touch the DOM when something changed.
+        if (xhr.responseText !== lastJson) {
+          try {
+            render(JSON.parse(xhr.responseText));
+            lastJson = xhr.responseText;
+          } catch (e) {
+            setText(statusEl, 'Bad response: ' + e.message);
+          }
+        }
+      } else {
+        setText(statusEl, 'Connection lost, retrying...');
+      }
+      setTimeout(poll, POLL_MS);
+    };
+    xhr.send();
+  }
+
+  poll();
+})();
+</script>
+</body>
+</html>
