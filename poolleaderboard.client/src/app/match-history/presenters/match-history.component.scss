@@ -47,6 +47,14 @@
     font-style: italic;
   }
 
+  .points-gain {
+    color: nb-theme(color-success-default);
+  }
+
+  .points-loss {
+    color: nb-theme(color-danger-default);
+  }
+
   .empty-message {
     padding: 1.25rem;
     margin: 0;
