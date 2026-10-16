@@ -11,7 +11,7 @@
             <span class="played-at">{{ row.playedAt | date: 'short' }}</span>
             @if (isOneVsOne(row)) {
               <span class="row-body">
-                <strong class="points-gain">{{ asOneVsOne(row).winner.name }}</strong> vs. <span class="points-loss">{{ asOneVsOne(row).loser.name }}</span> <span class="delta-points">({{ asOneVsOne(row).delta }})</span>
+                <strong class="points-gain">{{ asOneVsOne(row).winner.name }}</strong> vs. <span class="points-loss">{{ asOneVsOne(row).loser.name }}</span>&ngsp;<span class="delta-points">({{ asOneVsOne(row).delta }})</span>
               </span>
             } @else {
               <span class="row-body">
