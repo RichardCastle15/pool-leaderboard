@@ -11,6 +11,7 @@ describe('AppComponent', () => {
   let component: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
   let routerEvents$: Subject<unknown>;
+  let themeServiceCreated: number;
 
   const mockConnection = {
     on: jasmine.createSpy('on'),
@@ -20,6 +21,7 @@ describe('AppComponent', () => {
 
   beforeEach(async () => {
     routerEvents$ = new Subject();
+    themeServiceCreated = 0;
     mockConnection.on.calls.reset();
     mockConnection.start.calls.reset();
 
@@ -30,13 +32,23 @@ describe('AppComponent', () => {
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
         { provide: Router, useValue: { events: routerEvents$.asObservable() } },
-        { provide: ThemeService, useValue: { currentTheme: signal('default'), setTheme: jasmine.createSpy('setTheme') } }
+        {
+          provide: ThemeService,
+          useFactory: () => {
+            themeServiceCreated++;
+            return { currentTheme: signal('default'), setTheme: jasmine.createSpy('setTheme') };
+          }
+        }
       ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+  });
+
+  it('instantiates ThemeService at startup so the saved theme applies on every page', () => {
+    expect(themeServiceCreated).toBe(1);
   });
 
   describe('items signal', () => {

@@ -4,6 +4,7 @@ import { NbMenuItem, NbSidebarResponsiveState, NbSidebarState } from '@nebular/t
 import { environment } from '../environments/environment';
 import { NavigationEnd, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { ThemeService } from './core/services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -56,7 +57,8 @@ export class AppComponent implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
   private connection!: HubConnection;
 
-  constructor(private router: Router) {}
+  // Injecting ThemeService here instantiates it at startup so the saved theme is applied on every page.
+  constructor(private router: Router, _themeService: ThemeService) {}
 
   ngOnInit() {
     this.connection = new HubConnectionBuilder().withUrl("/exampleHub").configureLogging(LogLevel.Debug).build();
